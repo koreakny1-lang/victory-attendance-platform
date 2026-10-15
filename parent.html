@@ -5,6 +5,27 @@ async function call(name,payload){const res=await fetch(PROJECT+'/functions/v1/'
 function render(data){$('dojoName').textContent=data.dojo_name||'우리 도장';$('children').replaceChildren();for(const child of data.children||[]){const sec=document.createElement('section');sec.className='student';const title=document.createElement('h3');title.textContent=child.name+' 학생';sec.append(title);const records=child.records||[];const recent=document.createElement('p');recent.className='badge';recent.textContent=records.length?'최근 출석 '+records[0].attendance_date+' '+fmt(records[0].checked_at)+' · 귀가 '+fmt(records[0].departed_at):'출석 기록 없음';sec.append(recent);if(child.photo_url){const pic=document.createElement('img');pic.src=child.photo_url;pic.alt=child.name+' 최근 출석사진';sec.append(pic)}const table=document.createElement('table');const thead=document.createElement('thead');thead.innerHTML='<tr><th>날짜</th><th>출석</th><th>귀가</th></tr>';table.append(thead);const tbody=document.createElement('tbody');for(const r of records){const tr=document.createElement('tr');for(const val of [r.attendance_date,fmt(r.checked_at),fmt(r.departed_at)]){const td=document.createElement('td');td.textContent=val;tr.append(td)}tbody.append(tr)}table.append(tbody);sec.append(table);$('children').append(sec)}$('results').classList.remove('hide')}
 $('form').addEventListener('submit',async e=>{e.preventDefault();const phone=$('phone').value.replace(/\D/g,'');if(!/^01[016789][0-9]{7,8}$/.test(phone)){ $('msg').textContent='휴대전화번호를 확인해 주세요.';return}if(!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(dojo||'')){$('msg').textContent='도장 공용 주소를 확인해 주세요.';return} $('lookup').disabled=true;$('msg').textContent='조회 중입니다.';try{const data=await call('platform-parent-phone',{dojo_id:dojo,phone});accessToken=data.access_token;publicKey=data.vapid_public_key;render(data);$('msg').textContent='조회되었습니다.';$('phone').value='';}catch(err){accessToken=null;$('results').classList.add('hide');$('msg').textContent=err.message||'조회 실패'}finally{$('lookup').disabled=false}});
 function b64bytes(str){const pad='='.repeat((4-str.length%4)%4);const raw=atob((str+pad).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(raw,c=>c.charCodeAt(0))}
-$('pushOn').onclick=async()=>{try{if(!accessToken)throw Error('먼저 휴대전화번호로 조회해 주세요.');if(!publicKey)throw Error('VAPID 공개키를 서버에서 확인할 수 없습니다.');if(!('serviceWorker'in navigator)||!('PushManager'in window))throw Error('이 브라우저는 알림을 지원하지 않습니다.');const permission=await Notification.requestPermission();if(permission!=='granted')throw Error('알림 권한을 허용해 주세요.');const reg=await navigator.serviceWorker.register('/sw.js');await navigator.serviceWorker.ready;const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64bytes(publicKey)});await call('platform-send-push',{action:'subscribe',dojo_id:dojo,access_token:accessToken,subscription:sub.toJSON()});$('pushMsg').textContent='이 휴대폰의 알림 등록이 완료됐습니다.'}catch(err){$('pushMsg').textContent=err.message||'알림 등록 오류'}};
+$('pushOn').onclick=async()=>{
+ let stage='① 사전 확인';const btn=$('pushOn');btn.disabled=true;
+ const report=t=>{$('pushMsg').textContent=t};
+ const limit=(promise,ms)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error('응답 시간 초과 ('+Math.round(ms/1000)+'초)')),ms))]);
+ try{
+  report(stage+' 진행 중');
+  if(!accessToken)throw Error('먼저 휴대전화번호로 조회해 주세요.');
+  if(!publicKey)throw Error('VAPID 공개키가 없습니다.');
+  if(!('serviceWorker'in navigator)||!('PushManager'in window)||!('Notification'in window))throw Error('이 브라우저는 웹 푸시를 지원하지 않습니다.');
+  stage='② 알림 권한';report(stage+' 확인 중');
+  const permission=await limit(Notification.requestPermission(),15000);
+  if(permission!=='granted')throw Error('알림 권한이 허용되지 않았습니다: '+permission);
+  stage='③ 서비스 워커 등록';report(stage+' 진행 중');
+  const reg=await limit(navigator.serviceWorker.register('/sw.js'),15000);
+  stage='④ 푸시 구독 생성';report(stage+' 진행 중');
+  let sub=await limit(reg.pushManager.getSubscription(),10000);
+  if(!sub)sub=await limit(reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64bytes(publicKey)}),20000);
+  stage='⑤ 알림 서버 등록';report(stage+' 진행 중');
+  const data=await limit(call('platform-send-push',{action:'subscribe',dojo_id:dojo,access_token:accessToken,subscription:sub.toJSON()}),20000);
+  report('알림 등록이 완료됐습니다.');
+ }catch(err){report(stage+' 실패: '+(err?.message||String(err)))}finally{btn.disabled=false}
+};
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script></body></html>
