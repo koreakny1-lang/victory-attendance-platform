@@ -2,19 +2,19 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>승리 출석관리</title>
+<title>태권도 출석관리</title>
 <style>
 :root{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;color:#182b45;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}header{background:#082e61;color:white;padding:22px 16px;text-align:center}header h1{margin:0;font-size:22px}header p{margin:8px 0 0;color:#d9e5f6;font-size:13px}main{max-width:620px;margin:24px auto;padding:0 16px}.card{background:white;border-radius:17px;padding:22px;margin-bottom:15px;box-shadow:0 5px 22px #142e5012}h2{margin:0 0 16px;font-size:19px}label{display:block;font-size:13px;font-weight:bold;margin:14px 0 6px}input,select{width:100%;border:1px solid #ccd7e4;border-radius:10px;padding:13px;font-size:16px;background:#fff}button{border:0;background:#095bc7;color:white;border-radius:10px;padding:13px 16px;font-weight:700;cursor:pointer;font-size:15px}button:disabled{opacity:.55;cursor:wait}.full{width:100%;margin-top:15px}.alt{background:#e8f0fc;color:#103d75}.tabs{display:flex;gap:8px;margin-bottom:16px}.tabs button{flex:1}.muted{color:#65758a;font-size:13px;line-height:1.65}.message{white-space:pre-line;font-size:14px;line-height:1.6;margin-top:12px}.error{color:#b32222}.success{color:#126039}.hidden{display:none!important}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.list{display:grid;gap:8px}.dojo{width:100%;text-align:left;background:#edf4ff;color:#0d3e7b}.tag{font-size:12px;color:#687b94}.student{border-bottom:1px solid #edf0f5;padding:11px 0}.student:last-child{border-bottom:0}.note{background:#f1f5fc;border-radius:10px;padding:12px;font-size:13px;line-height:1.7}
 </style>
 </head>
 <body>
-<header><h1>🥋 승리 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
+<header><h1>🥋 태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
 <main>
 <section id="authCard" class="card"><h2>관리자 계정</h2><div class="tabs"><button id="loginTab" type="button">로그인</button><button id="signupTab" class="alt" type="button">회원가입</button></div>
 <form id="authForm"><label for="email">이메일</label><input id="email" type="email" autocomplete="email" required><label for="password">비밀번호</label><input id="password" type="password" minlength="6" autocomplete="current-password" required><button id="authButton" class="full" type="submit">로그인</button></form>
 <p class="muted" id="authHelp">기존 계정이 있다면 로그인해 주세요.</p><p id="authMessage" class="message" role="status"></p></section>
 <section id="dashboard" class="hidden"><div class="card"><div class="row"><h2 style="margin:0">내 도장 관리</h2><button id="logout" class="alt" type="button">로그아웃</button></div><p id="signedIn" class="muted"></p><div id="dojoList" class="list"></div><p id="dashboardMessage" class="message" role="status"></p></div>
-<div class="card"><h2>새 도장 개설</h2><p class="muted">현재는 테스트 단계입니다. 개설한 도장은 본인 계정에 연결됩니다.</p><form id="dojoForm"><label for="dojoName">도장 이름</label><input id="dojoName" minlength="2" maxlength="100" required placeholder="예: 용인대 승리태권도"><label for="dojoPhone">도장 연락처 (선택)</label><input id="dojoPhone" maxlength="40" type="tel" placeholder="010-0000-0000"><button id="dojoButton" class="full" type="submit">도장 개설하기</button></form><p id="dojoMessage" class="message" role="status"></p></div>
+<div class="card"><h2>새 도장 개설</h2><p class="muted">현재는 테스트 단계입니다. 개설한 도장은 본인 계정에 연결됩니다.</p><form id="dojoForm"><label for="dojoName">도장 이름</label><input id="dojoName" minlength="2" maxlength="100" required placeholder="예: 우리태권도"><label for="dojoPhone">도장 연락처 (선택)</label><input id="dojoPhone" maxlength="40" type="tel" placeholder="010-0000-0000"><button id="dojoButton" class="full" type="submit">도장 개설하기</button></form><p id="dojoMessage" class="message" role="status"></p></div>
 <div id="selectedCard" class="card hidden"><h2 id="selectedTitle">학생 관리</h2><p class="muted">현재 도장에 등록된 학생만 표시됩니다.</p><div id="studentsList"></div><h2 style="margin-top:22px">학생 등록</h2><form id="studentForm"><label for="studentName">학생 이름</label><input id="studentName" required maxlength="80"><label for="studentPin">출석번호 4자리</label><input id="studentPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="숫자 4자리"><button id="studentButton" class="full" type="submit">학생 등록하기</button></form><p id="studentMessage" class="message" role="status"></p><p class="note">출석체크·학부모 조회·사진·푸시 알림은 아직 통합 플랫폼에 연결되지 않았습니다. 기존 도장 시스템을 계속 사용해 주세요.</p></div>
 </section>
 </main>
