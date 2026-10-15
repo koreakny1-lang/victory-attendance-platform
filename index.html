@@ -134,7 +134,7 @@ async function loadAttendance(){
  const present=students.filter(x=>records.has(x.id)).length;
  $('countAll').textContent=students.length;$('countPresent').textContent=present;$('countMissing').textContent=students.length-present;
  if(!students.length){msg('attendanceMessage','등록된 재원생이 없습니다.');return}
- msg('attendanceMessage','학생별 버튼으로 출석 또는 귀가를 기록할 수 있습니다.');
+ msg('attendanceMessage','버튼을 한 번 누르면 출석, 다시 누르면 출석 취소됩니다. 귀가는 학생이 번호로 처리할 때만 기록됩니다.');
  $('manualGrid').replaceChildren();
  for(const st of students){
   const rec=records.get(st.id),tile=document.createElement('div');
@@ -142,8 +142,8 @@ async function loadAttendance(){
   const title=document.createElement('strong');title.textContent=st.name;
   const info=document.createElement('small');info.textContent=rec?(rec.departed_at?'귀가 완료':'출석 완료')+' · '+timeKST(rec.checked_at)+(rec.departed_at?' / '+timeKST(rec.departed_at):''):'미출석';
   const actions=document.createElement('div');actions.className='tile-actions';
-  const btn=document.createElement('button');btn.type='button';btn.textContent=!rec?'출석 체크':(!rec.departed_at?'귀가 체크':'완료');btn.disabled=!!rec?.departed_at;
-  btn.onclick=()=>markAttendance(st,rec,day,dojoId);
+  const btn=document.createElement('button');btn.type='button';btn.textContent=!rec?'출석':(!rec.departed_at?'출석 취소':'귀가 완료');btn.disabled=!!rec?.departed_at;
+  btn.onclick=()=>toggleManualAttendance(st,rec,day,dojoId);
   actions.append(btn);tile.append(title,info,actions);grid.append(tile);const copy=tile.cloneNode(true);const cb=copy.querySelector('button');
   cb.textContent=rec?(rec.departed_at?'귀가 완료':'출석 취소'):'출석';
   cb.disabled=!!rec?.departed_at;
@@ -151,22 +151,9 @@ async function loadAttendance(){
   $('manualGrid').append(copy);
  }
 }
-async function markAttendance(student,record,day,dojoId){
- if(attendanceBusy||currentDojo?.id!==dojoId)return;
- if(!confirm(student.name+' 학생 '+(record?'귀가':'출석')+' 처리하시겠습니까?'))return;
- attendanceBusy=true;msg('attendanceMessage','기록 중...');
- try{
-  let result;
-  if(!record){result=await db.from('platform_attendance').insert({dojo_id:dojoId,student_id:student.id,attendance_date:day});}
-  else{result=await db.from('platform_attendance').update({departed_at:new Date().toISOString()}).eq('id',record.id).eq('dojo_id',dojoId).is('departed_at',null).select('id');if(!result.error&&(!result.data||!result.data.length))throw Error('이미 귀가 처리되었습니다.');}
-  if(result.error)throw result.error;
-  await loadAttendance();
- }catch(e){await loadAttendance();msg('attendanceMessage','처리 실패: '+(e.message||'잠시 후 다시 시도하세요.'),true)}
- finally{attendanceBusy=false}
-}
 async function toggleManualAttendance(student,record,day,dojoId){
  if(attendanceBusy||currentDojo?.id!==dojoId)return;
- if(record?.departed_at){alert('이미 귀가 완료된 기록입니다. 출결 관리에서 확인해 주세요.');return}
+ if(record?.departed_at){alert('학생이 번호로 귀가 완료한 기록은 버튼으로 취소할 수 없습니다.');return}
  const action=record?'출석 취소':'출석';
  if(record&&!confirm(student.name+' 학생의 오늘 출석을 취소하시겠습니까?\n취소하면 오늘 출석 기록이 삭제됩니다.'))return;
  attendanceBusy=true;msg('attendanceMessage',action+' 처리 중...');
