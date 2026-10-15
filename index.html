@@ -49,6 +49,29 @@ input:focus,select:focus{outline:2px solid #9dc5fa;outline-offset:1px;border-col
  #page-monthly .wide-table th.saturday-col,#page-monthly .wide-table td.saturday-col{background:#e5f1ff!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
  #page-monthly .wide-table th.sunday-col,#page-monthly .wide-table td.sunday-col{background:#ffe9ed!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
+
+/* 월별 출석부만 인쇄 */
+@media print {
+  body { background:white!important; }
+  body > header, #authCard, #dashboard > .card, #page-home,
+  #page-attendance, #page-manual, #page-students, #page-birthday,
+  #page-program, #page-links, #editOverlay,
+  #selectedCard > .card, #page-monthly .tools,
+  #page-monthly #monthlyMessage { display:none!important; }
+  main, #dashboard, #selectedCard, #page-monthly, #page-monthly > .card {
+    display:block!important; position:static!important; width:100%!important;
+    max-width:none!important; margin:0!important; padding:0!important;
+    border:0!important; box-shadow:none!important; overflow:visible!important;
+  }
+  #page-monthly .scroll { overflow:visible!important; }
+  #page-monthly h2 { text-align:center; font-size:15px; margin:0 0 7mm; }
+  #page-monthly .wide-table { width:100%!important; min-width:0!important; table-layout:fixed; font-size:8px; }
+  #page-monthly .wide-table td,#page-monthly .wide-table th { padding:3px 1px!important; }
+  #page-monthly .wide-table th:first-child,#page-monthly .wide-table td:first-child { width:22mm; white-space:nowrap; overflow:hidden; }
+  #page-monthly .wide-table th:last-child,#page-monthly .wide-table td:last-child { width:13mm; }
+  #page-monthly .wide-table tr { break-inside:avoid; }
+  @page { size:A4 landscape; margin:9mm; }
+}
 </style>
 </head>
 <body>
@@ -184,7 +207,7 @@ $('reloadAttendance').onclick=()=>loadAttendance();
 
 
 function kstMonth(){return todayKST().slice(0,7)}
-$('monthInput').value=kstMonth();$('loadMonthly').onclick=loadMonthly;$('printMonthly').onclick=()=>{showPage('monthly');window.print()};
+$('monthInput').value=kstMonth();$('loadMonthly').onclick=loadMonthly;$('printMonthly').onclick=()=>{if(!$('monthlyTable').querySelector('table')){alert('먼저 출석부를 조회하세요.');return;}window.print()};
 async function loadMonthly(){
  if(!currentDojo)return;
  const m=$('monthInput').value||kstMonth();
@@ -239,7 +262,19 @@ async function loadMonthly(){
  $('monthlyTable').replaceChildren(table);
  $('monthlyMessage').textContent=m+' 출석부 · 학생 '+students.length+'명 · 기록 '+(ar.data||[]).length+'건 · 토요일 파랑 / 일요일 분홍';
 }
-$('exportMonthly').onclick=()=>{if(!monthlyRows.length){alert('먼저 출석부를 조회하세요.');return}const headers=['이름',...Array.from({length:monthlyDays},(_,i)=>String(i+1)),'출석일수'];const rows=[headers,...monthlyRows];const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=window.URL.createObjectURL(blob);a.download='월별출석부_'+$('monthInput').value+'.csv';a.click();setTimeout(()=>window.URL.revokeObjectURL(a.href),1000)};
+$('exportMonthly').onclick=()=>{
+ if(!$('monthlyTable').querySelector('table')){alert('먼저 출석부를 조회하세요.');return;}
+ const headers=['이름',...Array.from({length:monthlyDays},(_,i)=>String(i+1)),'출석일수'];
+ const rows=[headers,...monthlyRows];
+ // Excel에서 수식으로 해석될 수 있는 입력은 텍스트로 보관
+ const safe=v=>{let t=String(v??'');if(/^[\s]*[=+@\-]/.test(t))t="'"+t;return '"'+t.replace(/"/g,'""')+'"'};
+ const csv='\ufeff'+rows.map(row=>row.map(safe).join(',')).join('\r\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='월별출석부_'+$('monthInput').value+'.csv';
+ document.body.appendChild(a);a.click();
+ setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},10000);
+};
 
 await refresh();
 
