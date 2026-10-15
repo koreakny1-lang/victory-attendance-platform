@@ -41,6 +41,14 @@ main{max-width:1400px;margin:28px auto;padding:0 24px}
 input:focus,select:focus{outline:2px solid #9dc5fa;outline-offset:1px;border-color:#5796e8}
 @media(max-width:950px){#page-students .students-layout{grid-template-columns:1fr}#page-students .students-layout>.card{min-height:0}main{padding:0 16px}}
 @media(max-width:530px){#page-students .students-layout>.card{padding:19px}#page-students .tools{grid-template-columns:1fr 1fr}#page-students .tools input{grid-column:1/-1}#page-students .tools button{width:100%}#page-students .student-register-panel .field-grid{grid-template-columns:1fr 1fr}#page-students .student-card{align-items:flex-start}main{padding:0 12px}}
+/* 월별 출석부 주말 표시: 화면과 A4 인쇄 공통 */
+#page-monthly .wide-table th.saturday-col,#page-monthly .wide-table td.saturday-col{background:#e5f1ff;color:#194d86}
+#page-monthly .wide-table th.sunday-col,#page-monthly .wide-table td.sunday-col{background:#ffe9ed;color:#a12f48}
+#page-monthly .wide-table td.marked{font-weight:900;color:#087b44}
+@media print{
+ #page-monthly .wide-table th.saturday-col,#page-monthly .wide-table td.saturday-col{background:#e5f1ff!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ #page-monthly .wide-table th.sunday-col,#page-monthly .wide-table td.sunday-col{background:#ffe9ed!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
@@ -157,7 +165,60 @@ $('reloadAttendance').onclick=()=>loadAttendance();
 
 function kstMonth(){return todayKST().slice(0,7)}
 $('monthInput').value=kstMonth();$('loadMonthly').onclick=loadMonthly;$('printMonthly').onclick=()=>{showPage('monthly');window.print()};
-async function loadMonthly(){if(!currentDojo)return;const m=$('monthInput').value||kstMonth();if(!/^\d{4}-\d{2}$/.test(m))return;const [y,mo]=m.split('-').map(Number);const last=new Date(Date.UTC(y,mo,0)).getUTCDate();const start=m+'-01',end=m+'-'+String(last).padStart(2,'0');$('monthlyMessage').textContent='조회 중...';const dojoId=currentDojo.id;const [sr,ar]=await Promise.all([db.from('platform_students').select('id,name,status').eq('dojo_id',dojoId).order('name'),db.from('platform_attendance').select('student_id,attendance_date').eq('dojo_id',dojoId).gte('attendance_date',start).lte('attendance_date',end).range(0,9999)]);if(currentDojo?.id!==dojoId)return;if(sr.error||ar.error){$('monthlyMessage').textContent='조회 실패: '+(sr.error?.message||ar.error?.message);return}const students=sr.data||[],present=new Set((ar.data||[]).map(r=>r.student_id+'|'+r.attendance_date));monthlyRows=[];monthlyDays=last;const table=document.createElement('table');table.className='wide-table';const head=document.createElement('tr');for(const x of ['이름',...Array.from({length:last},(_,i)=>String(i+1)),'출석일수']){const th=document.createElement('th');th.textContent=x;head.append(th)}table.append(head);for(const st of students){const tr=document.createElement('tr'),cells=[st.name];let total=0;for(let d=1;d<=last;d++){const key=st.id+'|'+m+'-'+String(d).padStart(2,'0');const checked=present.has(key);cells.push(checked?'○':'');if(checked)total++}cells.push(String(total));monthlyRows.push(cells);cells.forEach((value,i)=>{const td=document.createElement('td');td.textContent=value;if(i===0)td.className='left';tr.append(td)});table.append(tr)}$('monthlyTable').replaceChildren(table);$('monthlyMessage').textContent=m+' 출석부 · 학생 '+students.length+'명 · 기록 '+(ar.data||[]).length+'건 (현재 등록된 학생 기준)'}
+async function loadMonthly(){
+ if(!currentDojo)return;
+ const m=$('monthInput').value||kstMonth();
+ if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(m))return;
+ const [y,mo]=m.split('-').map(Number);
+ const last=new Date(Date.UTC(y,mo,0)).getUTCDate();
+ const start=m+'-01',end=m+'-'+String(last).padStart(2,'0');
+ $('monthlyMessage').textContent='조회 중...';
+ const dojoId=currentDojo.id;
+ const [sr,ar]=await Promise.all([
+  db.from('platform_students').select('id,name,status').eq('dojo_id',dojoId).order('name'),
+  db.from('platform_attendance').select('student_id,attendance_date').eq('dojo_id',dojoId).gte('attendance_date',start).lte('attendance_date',end).range(0,9999)
+ ]);
+ if(currentDojo?.id!==dojoId)return;
+ if(sr.error||ar.error){$('monthlyMessage').textContent='조회 실패: '+(sr.error?.message||ar.error?.message);return}
+ const students=sr.data||[],present=new Set((ar.data||[]).map(r=>r.student_id+'|'+r.attendance_date));
+ monthlyRows=[];monthlyDays=last;
+ const weekdays=['일','월','화','수','목','금','토'];
+ const dayOfWeek=d=>new Date(Date.UTC(y,mo-1,d)).getUTCDay();
+ const weekendClass=d=>dayOfWeek(d)===0?'sunday-col':dayOfWeek(d)===6?'saturday-col':'';
+ const table=document.createElement('table');table.className='wide-table';
+ const head=document.createElement('tr');
+ for(const x of ['이름',...Array.from({length:last},(_,i)=>String(i+1)),'출석일수']){
+  const th=document.createElement('th');th.textContent=x;
+  const d=head.children.length;
+  if(d>=1&&d<=last){th.className=weekendClass(d);th.title=m+'-'+String(d).padStart(2,'0')+' '+weekdays[dayOfWeek(d)]+'요일';}
+  head.append(th);
+ }
+ table.append(head);
+ const weekHead=document.createElement('tr');
+ for(let i=0;i<last+2;i++){
+  const th=document.createElement('th');
+  if(i>=1&&i<=last){th.textContent=weekdays[dayOfWeek(i)];th.className=weekendClass(i)}
+  weekHead.append(th);
+ }
+ table.append(weekHead);
+ for(const st of students){
+  const tr=document.createElement('tr'),cells=[st.name];let total=0;
+  for(let d=1;d<=last;d++){
+   const key=st.id+'|'+m+'-'+String(d).padStart(2,'0');
+   const checked=present.has(key);cells.push(checked?'○':'');if(checked)total++;
+  }
+  cells.push(String(total));monthlyRows.push(cells);
+  cells.forEach((value,i)=>{
+   const td=document.createElement('td');td.textContent=value;
+   if(i===0)td.className='left';
+   else if(i<=last)td.className=weekendClass(i)+(value==='○'?' marked':'');
+   tr.append(td);
+  });
+  table.append(tr);
+ }
+ $('monthlyTable').replaceChildren(table);
+ $('monthlyMessage').textContent=m+' 출석부 · 학생 '+students.length+'명 · 기록 '+(ar.data||[]).length+'건 · 토요일 파랑 / 일요일 분홍';
+}
 $('exportMonthly').onclick=()=>{if(!monthlyRows.length){alert('먼저 출석부를 조회하세요.');return}const headers=['이름',...Array.from({length:monthlyDays},(_,i)=>String(i+1)),'출석일수'];const rows=[headers,...monthlyRows];const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=window.URL.createObjectURL(blob);a.download='월별출석부_'+$('monthInput').value+'.csv';a.click();setTimeout(()=>window.URL.revokeObjectURL(a.href),1000)};
 
 await refresh();
