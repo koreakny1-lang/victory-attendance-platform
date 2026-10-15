@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>승리 출석관리 · 통합 관리자</title>
+<title>태권도 출석관리 · 관리자</title>
 <style>
 :root{font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;color:#182b45;background:#f3f6fb}*{box-sizing:border-box}body{margin:0}header{background:#082e61;color:white;padding:22px 16px;text-align:center}header h1{margin:0;font-size:22px}header p{margin:8px 0 0;color:#d9e5f6;font-size:13px}main{max-width:1120px;margin:24px auto;padding:0 16px}.card{background:white;border-radius:17px;padding:22px;margin-bottom:15px;box-shadow:0 5px 22px #142e5012}h2{margin:0 0 16px;font-size:19px}label{display:block;font-size:13px;font-weight:bold;margin:14px 0 6px}input,select{width:100%;border:1px solid #ccd7e4;border-radius:10px;padding:13px;font-size:16px;background:#fff}button{border:0;background:#095bc7;color:white;border-radius:10px;padding:13px 16px;font-weight:700;cursor:pointer;font-size:15px}button:disabled{opacity:.55;cursor:wait}.full{width:100%;margin-top:15px}.alt{background:#e8f0fc;color:#103d75}.tabs{display:flex;gap:8px;margin-bottom:16px}.tabs button{flex:1}.muted{color:#65758a;font-size:13px;line-height:1.65}.message{white-space:pre-line;font-size:14px;line-height:1.6;margin-top:12px}.error{color:#b32222}.success{color:#126039}.hidden{display:none!important}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.list{display:grid;gap:8px}.dojo{width:100%;text-align:left;background:#edf4ff;color:#0d3e7b}.tag{font-size:12px;color:#687b94}.student{border-bottom:1px solid #edf0f5;padding:11px 0}.student:last-child{border-bottom:0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.stat{background:#f0f5fc;padding:13px 7px;text-align:center;border-radius:11px;font-size:12px}.stat strong{display:block;font-size:23px;margin-bottom:3px}.attendance-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px;margin:14px 0}.attile{border:1px solid #dbe4ef;border-radius:12px;padding:12px;background:#f7f9fd;min-width:0}.attile.present{background:#e8f7ed;border-color:#a9dabc}.attile.departed{background:#e8f0ff;border-color:#b6c9ed}.attile strong{display:block;font-size:15px;overflow-wrap:anywhere}.attile small{display:block;color:#576b82;line-height:1.5;margin:6px 0}.tile-actions{display:flex;gap:5px;flex-wrap:wrap}.tile-actions button{padding:8px 10px;font-size:12px;flex:1}.tile-actions button:disabled{opacity:.5}.note{background:#f1f5fc;border-radius:10px;padding:12px;font-size:13px;line-height:1.7}
 
@@ -52,7 +52,7 @@ input:focus,select:focus{outline:2px solid #9dc5fa;outline-offset:1px;border-col
 </style>
 </head>
 <body>
-<header><h1>승리 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
+<header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
 <main>
 <section id="authCard" class="card"><h2>관리자 계정</h2><div class="tabs"><button id="loginTab" type="button">로그인</button><button id="signupTab" class="alt" type="button">회원가입</button></div>
 <form id="authForm"><label for="username">아이디</label><input id="username" type="text" minlength="4" maxlength="20" pattern="[a-zA-Z0-9_]{4,20}" autocomplete="username" required placeholder="영문·숫자 4~20자"><label for="password">비밀번호</label><input id="password" type="password" minlength="8" maxlength="72" autocomplete="current-password" required><div id="signupFields" class="hidden"><label for="signupDojo">도장명</label><input id="signupDojo" minlength="2" maxlength="100" placeholder="예: 고려태권도"><label for="signupName">성함</label><input id="signupName" minlength="2" maxlength="50" placeholder="관리자 성함"><label for="signupPhone">전화번호</label><input id="signupPhone" type="tel" inputmode="tel" placeholder="010-1234-5678"></div><button id="authButton" class="full" type="submit">로그인</button></form>
@@ -67,7 +67,7 @@ input:focus,select:focus{outline:2px solid #9dc5fa;outline-offset:1px;border-col
 <div id="attendanceGrid" class="attendance-grid"></div><p id="attendanceMessage" class="message" role="status"></p>
 </div></div>
 <div id="page-monthly" class="page"><div class="card"><h2>월별 출석부</h2><div class="tools no-print"><label>조회 월<input id="monthInput" type="month"></label><button id="loadMonthly" type="button">조회</button><button id="printMonthly" class="alt" type="button">A4 인쇄</button><button id="exportMonthly" class="alt" type="button">엑셀용 CSV</button></div><p id="monthlyMessage" class="muted"></p><div id="monthlyTable" class="scroll"></div></div></div>
-<div id="page-manual" class="page"><div class="card"><h2>터치 출석</h2><p class="muted">학생 이름 아래 버튼을 누르면 출석·귀가가 저장됩니다.</p><div id="manualGrid" class="attendance-grid"></div></div></div>
+<div id="page-manual" class="page"><div class="card"><h2>터치 출석</h2><p class="muted">한 번 누르면 출석, 다시 누르면 출석 취소됩니다. 이 화면에서는 귀가 처리하지 않습니다. 학부모 알림도 발송하지 않습니다.</p><div id="manualGrid" class="attendance-grid"></div></div></div>
 <div id="page-students" class="page"><div class="students-layout"><section class="card student-list-panel"><h2>수련생 관리</h2><p class="muted">학생 정보를 조회하고 등록·수정할 수 있습니다.</p><div class="tools"><input id="studentSearch" type="search" placeholder="이름·번호·학교·수련반 검색"><select id="studentStatusFilter"><option value="재원">재원생</option><option value="">전체</option><option value="휴원">휴원생</option><option value="퇴원">퇴원생</option></select><button id="exportStudents" class="alt" type="button">명단 CSV</button></div><p id="studentCount" class="muted"></p><div id="studentsList"></div></section><section class="card student-register-panel"><h2>학생 등록</h2><p class="muted">새로운 수련생의 기본 정보를 입력해 주세요.</p><form id="studentForm"><label for="studentName">학생 이름</label><input id="studentName" required maxlength="80"><label for="studentPin">출석번호 4자리</label><input id="studentPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="숫자 4자리"><div class="field-grid"><label>학부모 연락처<input id="studentPhone" type="tel"></label><label>수련반<input id="studentClass"></label><label>학교<input id="studentSchool"></label><label>학년<input id="studentGrade"></label><label>띠<input id="studentBelt"></label><label>생년월일<input id="studentBirth" type="date"></label></div><button id="studentButton" class="full" type="submit">학생 등록하기</button></form><p id="studentMessage" class="message" role="status"></p><p class="note">학생 사진·학부모 알림·학생용 번호 출석체크는 별도 연결이 필요합니다. 관리자 터치 출석은 알림을 발송하지 않습니다.</p></section></div></div>
 <div id="page-birthday" class="page"><div class="card"><h2>생일 관리</h2><div id="birthdayList" class="list"></div><p class="muted">생년월일을 등록한 재원생만 표시됩니다.</p></div></div>
 <div id="page-program" class="page"><div class="card"><h2>프로그램 관리</h2><p id="programDojo" class="note"></p><div class="field-grid"><label>도장 이름<input id="settingName" maxlength="100"></label><label>도장 연락처<input id="settingPhone" type="tel"></label><label>대표 색상<input id="settingColor" type="color" value="#082e61"></label></div><button id="saveSettings" class="full" type="button">도장 설정 저장</button><p id="settingMessage" class="message"></p><p class="muted">로고 업로드·입력항목 자유 편집·관리자 권한 초대는 후속 개발 항목입니다.</p></div></div>
@@ -144,7 +144,11 @@ async function loadAttendance(){
   const actions=document.createElement('div');actions.className='tile-actions';
   const btn=document.createElement('button');btn.type='button';btn.textContent=!rec?'출석 체크':(!rec.departed_at?'귀가 체크':'완료');btn.disabled=!!rec?.departed_at;
   btn.onclick=()=>markAttendance(st,rec,day,dojoId);
-  actions.append(btn);tile.append(title,info,actions);grid.append(tile);const copy=tile.cloneNode(true);const cb=copy.querySelector('button');cb.disabled=btn.disabled;cb.onclick=()=>markAttendance(st,rec,day,dojoId);$('manualGrid').append(copy);
+  actions.append(btn);tile.append(title,info,actions);grid.append(tile);const copy=tile.cloneNode(true);const cb=copy.querySelector('button');
+  cb.textContent=rec?(rec.departed_at?'귀가 완료':'출석 취소'):'출석';
+  cb.disabled=!!rec?.departed_at;
+  cb.onclick=()=>toggleManualAttendance(st,rec,day,dojoId);
+  $('manualGrid').append(copy);
  }
 }
 async function markAttendance(student,record,day,dojoId){
@@ -158,6 +162,25 @@ async function markAttendance(student,record,day,dojoId){
   if(result.error)throw result.error;
   await loadAttendance();
  }catch(e){await loadAttendance();msg('attendanceMessage','처리 실패: '+(e.message||'잠시 후 다시 시도하세요.'),true)}
+ finally{attendanceBusy=false}
+}
+async function toggleManualAttendance(student,record,day,dojoId){
+ if(attendanceBusy||currentDojo?.id!==dojoId)return;
+ if(record?.departed_at){alert('이미 귀가 완료된 기록입니다. 출결 관리에서 확인해 주세요.');return}
+ const action=record?'출석 취소':'출석';
+ if(record&&!confirm(student.name+' 학생의 오늘 출석을 취소하시겠습니까?\n취소하면 오늘 출석 기록이 삭제됩니다.'))return;
+ attendanceBusy=true;msg('attendanceMessage',action+' 처리 중...');
+ try{
+  let result;
+  if(record){
+   result=await db.from('platform_attendance').delete().eq('id',record.id).eq('dojo_id',dojoId).is('departed_at',null).select('id');
+   if(!result.error&&(!result.data||!result.data.length))throw Error('출석 취소 권한이 없거나 이미 변경된 기록입니다.');
+  }else{
+   result=await db.from('platform_attendance').insert({dojo_id:dojoId,student_id:student.id,attendance_date:day});
+  }
+  if(result.error)throw result.error;
+  await loadAttendance();
+ }catch(e){await loadAttendance();msg('attendanceMessage',action+' 실패: '+(e.message||'다시 시도하세요.'),true)}
  finally{attendanceBusy=false}
 }
 $('reloadAttendance').onclick=()=>loadAttendance();
