@@ -79,9 +79,9 @@ input:focus,select:focus{outline:2px solid #9dc5fa;outline-offset:1px;border-col
 <main>
 <section id="authCard" class="card"><h2>관리자 계정</h2><div class="tabs"><button id="loginTab" type="button">로그인</button><button id="signupTab" class="alt" type="button">회원가입</button></div>
 <form id="authForm"><label for="username">아이디</label><input id="username" type="text" minlength="4" maxlength="20" pattern="[a-zA-Z0-9_]{4,20}" autocomplete="username" required placeholder="영문·숫자 4~20자"><label for="password">비밀번호</label><input id="password" type="password" minlength="4" maxlength="72" autocomplete="current-password" required><div id="signupFields" class="hidden"><label for="signupDojo">도장명</label><input id="signupDojo" minlength="2" maxlength="100" placeholder="예: 고려태권도"><label for="signupName">성함</label><input id="signupName" minlength="2" maxlength="50" placeholder="관리자 성함"><label for="signupPhone">전화번호</label><input id="signupPhone" type="tel" inputmode="tel" placeholder="010-1234-5678"></div><button id="authButton" class="full" type="submit">로그인</button></form>
-<p class="muted" id="authHelp">기존 계정이 있다면 로그인해 주세요.</p><p id="authMessage" class="message" role="status"></p></section>
+<button id="googleLogin" type="button" class="full" style="background:#fff;color:#21314c;border:1px solid #b8c7da;margin:12px 0">Google 계정으로 시작하기</button><p class="muted" id="authHelp">기존 계정이 있다면 로그인해 주세요.</p><p id="authMessage" class="message" role="status"></p></section>
 <section id="dashboard" class="hidden"><div class="card"><div class="row"><h2 style="margin:0">내 도장 관리</h2><button id="logout" class="alt" type="button">로그아웃</button></div><p id="signedIn" class="muted"></p><div id="dojoList" class="list"></div><p id="dashboardMessage" class="message" role="status"></p></div>
-<div class="card hidden"><h2>새 도장 개설</h2><p class="muted">현재는 테스트 단계입니다. 개설한 도장은 본인 계정에 연결됩니다.</p><form id="dojoForm"><label for="dojoName">도장 이름</label><input id="dojoName" minlength="2" maxlength="100" required placeholder="예: 우리태권도"><label for="dojoPhone">도장 연락처 (선택)</label><input id="dojoPhone" maxlength="40" type="tel" placeholder="010-0000-0000"><button id="dojoButton" class="full" type="submit">도장 개설하기</button></form><p id="dojoMessage" class="message" role="status"></p></div>
+<div id="newDojoCard" class="card hidden"><h2>구글 가입 · 내 도장 등록</h2><p class="muted">현재는 테스트 단계입니다. 개설한 도장은 본인 계정에 연결됩니다.</p><form id="dojoForm"><label for="dojoName">도장 이름</label><input id="dojoName" minlength="2" maxlength="100" required placeholder="예: 우리태권도"><label for="dojoPhone">도장 연락처 (선택)</label><input id="dojoPhone" maxlength="40" type="tel" placeholder="010-0000-0000"><button id="dojoButton" class="full" type="submit">도장 개설하기</button></form><p id="dojoMessage" class="message" role="status"></p></div>
 <div id="selectedCard" class="hidden"><div class="card"><h2 id="selectedTitle">관리자 홈</h2><div class="menu" id="adminMenu"></div><div id="page-home" class="page active"><h2>관리자 홈</h2><p class="muted">원하는 관리 메뉴를 선택하세요.</p><div class="home-grid" id="homeButtons"></div></div></div>
 <div id="page-attendance" class="page"><div class="card"><h2>출결 관리 · 바둑판</h2>
 <div class="row" style="margin:15px 0"><h2 style="margin:0">오늘 출석 현황</h2><button id="reloadAttendance" class="alt" type="button">새로고침</button></div>
@@ -126,8 +126,60 @@ function setMode(next){mode=next;$('loginTab').className=mode==='login'?'':'alt'
 $('loginTab').onclick=()=>setMode('login');$('signupTab').onclick=()=>setMode('signup');
 $('authForm').onsubmit=async e=>{e.preventDefault();const username=$('username').value.trim().toLowerCase(),password=$('password').value;const btn=$('authButton');btn.disabled=true;msg('authMessage','처리 중...');try{const payload=mode==='signup'?{username,password,dojoName:$('signupDojo').value.trim(),fullName:$('signupName').value.trim(),phone:$('signupPhone').value.trim()}:{username,password};const res=await fetch(URL+'/functions/v1/'+(mode==='signup'?'platform-signup':'platform-login'),{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify(payload)});const result=await res.json().catch(()=>({}));if(!res.ok||!result.success)throw Error(result.error||'요청에 실패했습니다.');if(mode==='signup'){setMode('login');$('username').value=username;$('password').value='';msg('authMessage','가입이 완료되었습니다. 설정한 아이디와 비밀번호로 로그인하세요.')}else{const {error}=await db.auth.setSession({access_token:result.access_token,refresh_token:result.refresh_token});if(error)throw error;await refresh()}}catch(err){msg('authMessage',err.message||'요청에 실패했습니다.',true)}finally{btn.disabled=false}};
 $('logout').onclick=async()=>{await db.auth.signOut();currentDojo=null;await refresh()};
-async function refresh(){const {data:{user},error}=await db.auth.getUser();sessionUser=error?null:user;$('authCard').classList.toggle('hidden',!!sessionUser);$('dashboard').classList.toggle('hidden',!sessionUser);if(!sessionUser)return;$('signedIn').textContent='관리자 로그인 완료';await loadDojos()}
-async function loadDojos(){const {data,error}=await db.from('platform_memberships').select('dojo_id,role,platform_dojos(id,name,phone,status)').eq('user_id',sessionUser.id);const list=$('dojoList');list.replaceChildren();if(error){msg('dashboardMessage','도장 조회 오류: '+error.message,true);return}msg('dashboardMessage',data.length?'도장을 선택하면 학생 관리 화면이 열립니다.':'등록된 도장이 없습니다. 관리자에게 문의해 주세요.');for(const item of data){const d=item.platform_dojos;if(!d)continue;const btn=document.createElement('button');btn.className='dojo';btn.type='button';btn.textContent=d.name+' · '+({owner:'대표 관리자',manager:'관리자',staff:'관리자'}[item.role]||item.role);btn.onclick=()=>selectDojo(d);list.append(btn)}if(currentDojo){const matched=data.find(x=>x.dojo_id===currentDojo.id);if(matched)await selectDojo(matched.platform_dojos);else{$('selectedCard').classList.add('hidden');currentDojo=null}}}
+let isSuperAdmin=false;
+$('googleLogin').onclick=async()=>{
+ const btn=$('googleLogin');btn.disabled=true;
+ try{
+   const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});
+   if(error)throw error;
+ }catch(e){msg('authMessage','구글 로그인 설정을 확인해 주세요: '+e.message,true);btn.disabled=false}
+};
+async function refresh(){
+ const {data:{user},error}=await db.auth.getUser();
+ sessionUser=error?null:user;currentDojo=null;isSuperAdmin=false;
+ $('selectedCard').classList.add('hidden');$('newDojoCard').classList.add('hidden');
+ $('authCard').classList.toggle('hidden',!!sessionUser);
+ $('dashboard').classList.toggle('hidden',!sessionUser);
+ if(!sessionUser)return;
+ $('signedIn').textContent='관리자 로그인 완료';
+ await loadDojos();
+}
+async function loadDojos(){
+ if(!sessionUser)return;
+ const list=$('dojoList');list.replaceChildren();
+ const {data:own,error}=await db.from('platform_memberships')
+  .select('dojo_id,role,platform_dojos(id,name,phone,status,primary_color)')
+  .eq('user_id',sessionUser.id);
+ if(error){msg('dashboardMessage','계정별 도장 조회 오류: '+error.message,true);return}
+ let items=(own||[]).filter(x=>x.platform_dojos).map(x=>({...x,dojo:x.platform_dojos}));
+ // 전체 관리자는 서버에서 등록한 사용자만 별도 조회할 수 있습니다.
+ const {data:adminData,error:adminError}=await db.rpc('platform_admin_dojos');
+ if(!adminError && Array.isArray(adminData)){
+   isSuperAdmin=true;
+   items=adminData.map(d=>({dojo_id:d.id,role:'super_admin',dojo:d}));
+ }
+ // 일반 계정이 두 도장에 연결된 경우 정보 유출 방지를 위해 자동 선택하지 않습니다.
+ if(!isSuperAdmin && items.length>1){
+   msg('dashboardMessage','계정에 여러 도장이 연결되어 있습니다. 보안을 위해 접근을 중지했습니다. 전체 관리자에게 연결 상태를 확인받으세요.',true);
+   $('newDojoCard').classList.add('hidden');$('selectedCard').classList.add('hidden');return;
+ }
+ if(items.length===0){
+   $('newDojoCard').classList.remove('hidden');
+   msg('dashboardMessage','등록된 도장이 없습니다. 아래에서 첫 도장을 등록하세요.');
+   return;
+ }
+ $('newDojoCard').classList.add('hidden');
+ msg('dashboardMessage',isSuperAdmin?'전체 관리자 · 도장을 선택하세요.':'내 도장만 표시됩니다.');
+ for(const item of items){
+   const d=item.dojo;
+   const btn=document.createElement('button');btn.className='dojo';btn.type='button';
+   btn.textContent=d.name+' · '+(isSuperAdmin?'전체 관리자':({owner:'대표 관리자',manager:'관리자',staff:'지도관장'}[item.role]||item.role));
+   btn.onclick=()=>selectDojo(d);list.append(btn);
+ }
+ // 일반 관장님은 자기 도장으로 바로 이동합니다.
+ if(!isSuperAdmin && items.length===1)await selectDojo(items[0].dojo);
+ else if(currentDojo){const d=items.find(x=>x.dojo_id===currentDojo.id);if(d)await selectDojo(d.dojo);else{currentDojo=null;$('selectedCard').classList.add('hidden')}}
+}
 $('dojoForm').onsubmit=async e=>{e.preventDefault();const btn=$('dojoButton');btn.disabled=true;msg('dojoMessage','개설 중...');try{const {data,error}=await db.rpc('platform_create_dojo',{p_name:$('dojoName').value.trim(),p_phone:$('dojoPhone').value.trim()||null});if(error)throw error;msg('dojoMessage','도장 개설이 완료됐습니다.');$('dojoForm').reset();currentDojo=null;await loadDojos();}catch(err){msg('dojoMessage','개설 실패: '+err.message,true)}finally{btn.disabled=false}};
 async function selectDojo(dojo){currentDojo=dojo;$('selectedCard').classList.remove('hidden');$('selectedTitle').textContent=dojo.name+' · 관리자 홈';$('programDojo').textContent='선택된 도장: '+dojo.name+' / 연락처: '+(dojo.phone||'미등록');$('settingName').value=dojo.name;$('settingPhone').value=dojo.phone||'';$('settingColor').value=dojo.primary_color||'#082e61';$('kioskAddress').value='';$('parentCommonAddress').value=location.origin+'/parent.html?dojo='+encodeURIComponent(dojo.id);showPage('home');msg('studentMessage','');await loadStudents();await loadAttendance()}
 let allStudents=[],editingStudent=null;
@@ -271,10 +323,10 @@ $('exportMonthly').onclick=()=>{
  const safe=v=>{let t=String(v??'');if(/^[\s]*[=+@\-]/.test(t))t="'"+t;return '"'+t.replace(/"/g,'""')+'"'};
  const csv='\ufeff'+rows.map(row=>row.map(safe).join(',')).join('\r\n');
  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
- const url=URL.createObjectURL(blob),a=document.createElement('a');
+ const url=window.URL.createObjectURL(blob),a=document.createElement('a');
  a.href=url;a.download='월별출석부_'+$('monthInput').value+'.csv';
  document.body.appendChild(a);a.click();
- setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},10000);
+ setTimeout(()=>{a.remove();window.URL.revokeObjectURL(url)},10000);
 };
 
 await refresh();
