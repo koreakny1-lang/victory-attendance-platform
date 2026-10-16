@@ -1076,6 +1076,7 @@ document.getElementById('copyParentCommon').onclick=async()=>{const el=document.
 
 // 수련비 관리 — 도장별 데이터 격리, 월별 청구금액 고정, 변경 이력
 let tuitionPlans=[],tuitionAssignments={},tuitionPayments={},tuitionMonthRows=[],tuitionBusy=false;
+const defaultTuitionPlan=()=>tuitionPlans.find(p=>p.is_default)||null;
 const won=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 function tuitionCurrentMonth(){return todayKST().slice(0,7)}
 function tuitionValue(id){return $(id)?.value||''}
@@ -1083,15 +1084,64 @@ async function loadTuitionPlans(){if(!currentDojo)return;const dojoId=currentDoj
  const [a,b]=await Promise.all([db.from('platform_tuition_plans').select('*').eq('dojo_id',dojoId).order('created_at'),db.from('platform_student_tuition').select('*').eq('dojo_id',dojoId)]);
  if(currentDojo?.id!==dojoId)return;if(a.error||b.error){msg('tuitionPlanMessage','수련비 SQL 설치가 필요합니다: '+(a.error?.message||b.error?.message),true);return}
  tuitionPlans=a.data||[];tuitionAssignments=Object.fromEntries((b.data||[]).map(x=>[x.student_id,x]));renderTuitionPlans();renderTuitionStudentFields();}
-function renderTuitionPlans(){const box=$('tuitionPlanList');box.replaceChildren();for(const p of tuitionPlans){const row=document.createElement('div');row.className='tuition-plan-row';const name=document.createElement('input');name.value=p.name;name.setAttribute('aria-label','수련반 이름');const price=document.createElement('input');price.type='number';price.min='0';price.value=p.amount;price.setAttribute('aria-label','수련비');const save=document.createElement('button');save.textContent='저장';save.onclick=async()=>{const {error}=await db.from('platform_tuition_plans').update({name:name.value.trim(),amount:Number(price.value)}).eq('dojo_id',currentDojo.id).eq('id',p.id);if(error)alert(error.message);else{await loadTuitionPlans();msg('tuitionPlanMessage','수련반을 저장했습니다.')}};const del=document.createElement('button');del.className='alt';del.textContent='삭제';del.onclick=async()=>{if(!confirm('수련반을 삭제하시겠습니까? 이미 등록된 학생의 수련반 연결은 해제됩니다.'))return;const {error}=await db.from('platform_tuition_plans').delete().eq('dojo_id',currentDojo.id).eq('id',p.id);if(error)alert(error.message);else await loadTuitionPlans()};row.append(name,price,save,del);box.append(row)}}
+function renderTuitionPlans(){
+ const box=$('tuitionPlanList');box.replaceChildren();
+ const note=document.createElement('p');note.className='note';note.textContent='기본 지정은 도장당 1개만 선택합니다. 학생 등록 시와 수련비 미지정 학생의 첫 화면에 기본 항목이 표시됩니다. 기존 학생의 개별 설정은 바뀌지 않습니다.';box.append(note);
+ for(const p of tuitionPlans){
+  const row=document.createElement('div');row.className='tuition-plan-row';
+  const name=document.createElement('input');name.value=p.name;name.setAttribute('aria-label','수련반 이름');
+  const price=document.createElement('input');price.type='number';price.min='0';price.value=p.amount;price.setAttribute('aria-label','수련비');
+  const label=document.createElement('label');label.style.cssText='display:flex;align-items:center;gap:6px;white-space:nowrap;margin:0;font-weight:700';
+  const radio=document.createElement('input');radio.type='radio';radio.name='tuition-default-plan';radio.checked=!!p.is_default;radio.style.cssText='width:18px;min-height:18px;accent-color:#173b70';
+  label.append(radio,document.createTextNode('기본 지정'));
+  radio.onchange=async()=>{if(!radio.checked)return;radio.disabled=true;const {error}=await db.rpc('platform_set_default_tuition_plan',{p_dojo_id:currentDojo.id,p_plan_id:p.id});if(error){alert('기본 항목 설정 실패: '+error.message)}else msg('tuitionPlanMessage',p.name+'을(를) 기본 수련비로 지정했습니다.');await loadTuitionPlans()};
+  const save=document.createElement('button');save.textContent='저장';save.onclick=async()=>{const {error}=await db.from('platform_tuition_plans').update({name:name.value.trim(),amount:Number(price.value)}).eq('dojo_id',currentDojo.id).eq('id',p.id);if(error)alert(error.message);else{await loadTuitionPlans();msg('tuitionPlanMessage','수련반을 저장했습니다.')}};
+  const del=document.createElement('button');del.className='alt';del.textContent='삭제';del.onclick=async()=>{if(!confirm('수련반을 삭제하시겠습니까? 이미 등록된 학생의 수련반 연결은 해제됩니다.'))return;const {error}=await db.from('platform_tuition_plans').delete().eq('dojo_id',currentDojo.id).eq('id',p.id);if(error)alert(error.message);else await loadTuitionPlans()};
+  row.append(name,price,label,save,del);box.append(row)
+ }
+}
 $('tuitionAddPlan').onclick=async()=>{if(!currentDojo)return;const name=tuitionValue('tuitionPlanName').trim(),amount=Number(tuitionValue('tuitionPlanPrice'));if(!name||!Number.isFinite(amount)||amount<0){msg('tuitionPlanMessage','수련반 이름과 금액을 확인하세요.',true);return}const {error}=await db.from('platform_tuition_plans').insert({dojo_id:currentDojo.id,name,amount});if(error)msg('tuitionPlanMessage',error.message,true);else{$('tuitionPlanName').value='';$('tuitionPlanPrice').value='';await loadTuitionPlans();msg('tuitionPlanMessage','수련반을 추가했습니다.')}};
-function renderTuitionStudentFields(){for(const [kind,containerId] of [['new','tuitionStudentNew'],['edit','tuitionStudentEdit']]){const box=$(containerId);box.replaceChildren();const l1=document.createElement('label');l1.textContent='수련반';const sel=document.createElement('select');sel.id='tuition-'+kind+'-plan';sel.append(new Option('미지정',''));for(const p of tuitionPlans)sel.append(new Option(p.name+' · '+won(p.amount),p.id));l1.append(sel);const l2=document.createElement('label');l2.textContent='개인 월 수련비 (원)';const amount=document.createElement('input');amount.type='number';amount.min='0';amount.placeholder='수련반 금액 자동 적용';amount.id='tuition-'+kind+'-amount';l2.append(amount);sel.onchange=()=>{const p=tuitionPlans.find(x=>x.id===sel.value);amount.value=p?String(p.amount):''};box.append(l1,l2)}}
+function renderTuitionStudentFields(){for(const [kind,containerId] of [['new','tuitionStudentNew'],['edit','tuitionStudentEdit']]){const box=$(containerId);box.replaceChildren();const l1=document.createElement('label');l1.textContent='수련반';const sel=document.createElement('select');sel.id='tuition-'+kind+'-plan';sel.append(new Option('미지정',''));for(const p of tuitionPlans)sel.append(new Option(p.name+' · '+won(p.amount),p.id));l1.append(sel);const l2=document.createElement('label');l2.textContent='개인 월 수련비 (원)';const amount=document.createElement('input');amount.type='number';amount.min='0';amount.placeholder='수련반 금액 자동 적용';amount.id='tuition-'+kind+'-amount';l2.append(amount);sel.onchange=()=>{const p=tuitionPlans.find(x=>x.id===sel.value);amount.value=p?String(p.amount):''};if(kind==='new'){const d=defaultTuitionPlan();if(d){sel.value=d.id;amount.value=String(d.amount)}}box.append(l1,l2)}}
 async function saveStudentTuition(studentId,kind){if(!currentDojo)return;const planId=tuitionValue('tuition-'+kind+'-plan')||null,raw=tuitionValue('tuition-'+kind+'-amount');const plan=tuitionPlans.find(x=>x.id===planId);const amount=raw===''?(plan?.amount??0):Number(raw);if(!Number.isFinite(amount)||amount<0)throw Error('수련비 금액이 올바르지 않습니다.');const {error}=await db.from('platform_student_tuition').upsert({dojo_id:currentDojo.id,student_id:studentId,plan_id:planId,amount},{onConflict:'dojo_id,student_id'});if(error)throw error}
-function fillStudentTuition(student){const a=tuitionAssignments[student.id],sel=$('tuition-edit-plan'),amount=$('tuition-edit-amount');if(!sel||!amount)return;sel.value=a?.plan_id||'';amount.value=a?.amount??''}
-async function loadTuition(){if(!currentDojo)return;const dojoId=currentDojo.id;const month=tuitionValue('tuitionMonth')||tuitionCurrentMonth();$('tuitionMonth').value=month;msg('tuitionMessage','조회 중...');const [s,a,p]=await Promise.all([db.from('platform_students').select('id,name,status,class_name').eq('dojo_id',dojoId).eq('status','재원').order('name'),db.from('platform_student_tuition').select('*').eq('dojo_id',dojoId),db.from('platform_tuition_payments').select('*').eq('dojo_id',dojoId).eq('billing_month',month)]);if(currentDojo?.id!==dojoId)return;if(s.error||a.error||p.error){msg('tuitionMessage','조회 실패: '+(s.error?.message||a.error?.message||p.error?.message),true);return}tuitionAssignments=Object.fromEntries((a.data||[]).map(x=>[x.student_id,x]));tuitionPayments=Object.fromEntries((p.data||[]).map(x=>[x.student_id,x]));tuitionMonthRows=(s.data||[]).map(x=>({...x,assignment:tuitionAssignments[x.id],payment:tuitionPayments[x.id]}));renderTuitionGrid();msg('tuitionMessage',tuitionMonthRows.length?'전체 재원생 '+tuitionMonthRows.length+'명 표시 · 미납 학생을 누르면 카드 납부로 기록됩니다. 금액이 0원이라면 [프로그램 관리]에서 수련반을 만들고 [수련생 관리]에서 학생별 수련비를 지정하세요.':'재원생이 없습니다. [수련생 관리]에서 학생 상태를 확인하세요.');}
+function fillStudentTuition(student){const a=tuitionAssignments[student.id],sel=$('tuition-edit-plan'),amount=$('tuition-edit-amount');if(!sel||!amount)return;sel.value=a?.plan_id||defaultTuitionPlan()?.id||'';amount.value=a?.amount??defaultTuitionPlan()?.amount??''}
+async function loadTuition(){
+ if(!currentDojo)return;
+ const dojoId=currentDojo.id,month=tuitionValue('tuitionMonth')||tuitionCurrentMonth();
+ $('tuitionMonth').value=month;msg('tuitionMessage','조회 중...');
+ // 납부일(paid_date)은 청구 월(billing_month)과 독립적으로 저장합니다.
+ // 이번 달 재원생은 최초 조회 시 월별 명단에 고정해 휴원/퇴원 후에도 남깁니다.
+ const capture=await db.rpc('platform_capture_tuition_month',{p_dojo_id:dojoId,p_billing_month:month});
+ if(capture.error){msg('tuitionMessage','월별 명단 준비 실패: '+capture.error.message,true);return}
+ const [snap,students,a,p]=await Promise.all([
+  db.from('platform_tuition_month_students').select('*').eq('dojo_id',dojoId).eq('billing_month',month),
+  db.from('platform_students').select('id,name,status,class_name').eq('dojo_id',dojoId),
+  db.from('platform_student_tuition').select('*').eq('dojo_id',dojoId),
+  db.from('platform_tuition_payments').select('*').eq('dojo_id',dojoId).eq('billing_month',month)
+ ]);
+ if(currentDojo?.id!==dojoId)return;
+ const error=snap.error||students.error||a.error||p.error;
+ if(error){msg('tuitionMessage','조회 실패: '+error.message,true);return}
+ tuitionAssignments=Object.fromEntries((a.data||[]).map(x=>[String(x.student_id),x]));
+ tuitionPayments=Object.fromEntries((p.data||[]).map(x=>[String(x.student_id),x]));
+ const studentMap=new Map((students.data||[]).map(x=>[String(x.id),x]));
+ const rowMap=new Map();
+ for(const x of snap.data||[]){
+  const id=String(x.student_id),live=studentMap.get(id);
+  rowMap.set(id,{id,name:x.student_name||live?.name||'이름 미확인',class_name:x.class_name||live?.class_name||'',status:live?.status||'퇴원',snapshot:x,assignment:tuitionAssignments[id],payment:tuitionPayments[id]});
+ }
+ // 이전 데이터의 납부자는 월별 명단에 반드시 포함합니다.
+ for(const payment of p.data||[]){
+  const id=String(payment.student_id);if(rowMap.has(id))continue;
+  const live=studentMap.get(id);
+  rowMap.set(id,{id,name:live?.name||'이름 미확인',class_name:live?.class_name||'',status:live?.status||'퇴원',snapshot:{amount:payment.amount},assignment:tuitionAssignments[id],payment});
+ }
+ tuitionMonthRows=[...rowMap.values()].sort((x,y)=>x.name.localeCompare(y.name,'ko'));
+ renderTuitionGrid();
+ msg('tuitionMessage',month+' 수련비 대상 '+tuitionMonthRows.length+'명 · 납부일이 9월이어도 조회 월이 10월이면 10월 수련비로 집계합니다. 휴원·퇴원한 학생도 해당 월 명단과 납부 기록을 유지합니다.');
+}
 function renderTuitionGrid(){
  const box=$('tuitionGrid'),k=$('tuitionKpis');box.replaceChildren();k.replaceChildren();
- const rows=tuitionMonthRows,amountOf=s=>Number(s.payment?.amount??s.assignment?.amount??0);
+ const rows=tuitionMonthRows,amountOf=s=>Number(s.payment?.amount??s.snapshot?.amount??s.assignment?.amount??defaultTuitionPlan()?.amount??0);
  const group=method=>rows.filter(s=>s.payment?.method===method);
  const unpaid=rows.filter(s=>!s.payment?.method);
  const total=rows.reduce((n,s)=>n+amountOf(s),0);
@@ -1101,13 +1151,13 @@ function renderTuitionGrid(){
  for(const s of rows.filter(x=>(!q||x.name.toLowerCase().includes(q))&&(filter==='all'||(filter==='paid'?!!x.payment?.method:!x.payment?.method)))){
   const tile=document.createElement('div');tile.className='tuition-tile tuition-student '+(s.payment?.method==='card'?'card-paid':s.payment?.method==='bank'?'bank-paid':s.payment?.method==='other'?'other-paid':'');
   const name=document.createElement('strong');name.textContent=s.name;
-  const plan=tuitionPlans.find(p=>p.id===s.assignment?.plan_id);
+  const plan=tuitionPlans.find(p=>p.id===s.assignment?.plan_id)||(!s.assignment?defaultTuitionPlan():null);
   const subtitle=document.createElement('small');subtitle.textContent=s.class_name||'수련반 미지정';
   const planLabel=document.createElement('label');planLabel.textContent='수련비 항목 선택';planLabel.className='tuition-inline-label';
   const planSelect=document.createElement('select');planSelect.setAttribute('aria-label',s.name+' 수련비 항목');
   planSelect.append(new Option('직접 입력 / 미지정',''));
   for(const item of tuitionPlans)planSelect.append(new Option(item.name+' · '+won(item.amount),item.id));
-  planSelect.value=s.assignment?.plan_id||'';planLabel.append(planSelect);
+  planSelect.value=s.assignment?.plan_id||(!s.assignment?defaultTuitionPlan()?.id:'')||'';planLabel.append(planSelect);
   const amountLabel=document.createElement('label');amountLabel.textContent='월 수련비 (원)';amountLabel.className='tuition-inline-label';
   const amount=document.createElement('input');amount.type='number';amount.min='0';amount.step='1000';amount.value=String(amountOf(s));amount.setAttribute('aria-label',s.name+' 수련비 금액');amountLabel.append(amount);
   planSelect.onchange=()=>{const chosen=tuitionPlans.find(x=>String(x.id)===planSelect.value);if(chosen)amount.value=String(chosen.amount);};
@@ -1151,7 +1201,7 @@ async function changeTuitionPayment(s,action,rawAmount,rawDate,selectedPlanId=''
  }catch(e){msg('tuitionMessage','저장 실패: '+e.message,true)}finally{tuitionBusy=false}
 }
 $('tuitionMonth').value=tuitionCurrentMonth();$('tuitionMonth').onchange=loadTuition;$('tuitionReload').onclick=loadTuition;$('tuitionSearch').oninput=renderTuitionGrid;$('tuitionFilter').onchange=renderTuitionGrid;
-$('tuitionCsv').onclick=()=>{const rows=[['번호','이름','수련반','금액','상태','납부일'],...tuitionMonthRows.map((s,i)=>[i+1,s.name,tuitionPlans.find(p=>p.id===s.assignment?.plan_id)?.name||s.class_name||'',s.payment?.amount??s.assignment?.amount??0,s.payment?.method==='card'?'카드':s.payment?.method==='bank'?'계좌':s.payment?.method==='other'?'기타':'미납',s.payment?.paid_date||''])];saveCsv(rows,'수련비_'+tuitionValue('tuitionMonth')+'.csv')};
+$('tuitionCsv').onclick=()=>{const rows=[['번호','이름','수련반','금액','상태','납부일'],...tuitionMonthRows.map((s,i)=>[i+1,s.name,tuitionPlans.find(p=>p.id===s.assignment?.plan_id)?.name||s.class_name||'',s.payment?.amount??s.snapshot?.amount??s.assignment?.amount??defaultTuitionPlan()?.amount??0,s.payment?.method==='card'?'카드':s.payment?.method==='bank'?'계좌':s.payment?.method==='other'?'기타':'미납',s.payment?.paid_date||''])];saveCsv(rows,'수련비_'+tuitionValue('tuitionMonth')+'.csv')};
 
 </script>
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}
