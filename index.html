@@ -78,6 +78,96 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
 @media(max-width:700px){main{padding:0 12px!important;margin:12px auto!important}.card{padding:16px!important;border-radius:13px!important}.row{flex-wrap:wrap}header{padding:16px 10px!important}.menu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.menu button{padding:10px 3px!important;font-size:11px!important;white-space:normal}.home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.home-grid button{min-height:75px;padding:12px!important;font-size:13px}.attendance-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.attile{padding:9px}.tools>*{min-width:0}.field-setting{grid-template-columns:1fr 1fr}.field-setting input{grid-column:1/-1}.field-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{gap:5px}.stat strong{font-size:19px}.student-card .actions{width:100%}.student-card .actions button{flex:1}#selectedTitle{font-size:17px;overflow-wrap:anywhere}}
 @media(max-width:380px){.menu{grid-template-columns:repeat(3,minmax(0,1fr))}.attendance-grid{grid-template-columns:1fr}.field-grid{grid-template-columns:1fr}}
 @media print{body{background:white!important}.card{background:white!important}}
+
+/* 2026-10 modern minimal visual refresh — presentation only; existing functions unchanged */
+@media screen {
+  :root{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--line:#e7edf5;--shadow:0 12px 38px rgba(22,46,82,.055);--radius:18px}
+  *{-webkit-tap-highlight-color:transparent}
+  body{line-height:1.55;letter-spacing:-.025em;min-height:100vh}
+  header{padding:27px 20px 26px!important;box-shadow:0 6px 22px rgba(5,32,68,.10)}
+  header h1{font-size:23px;font-weight:800;letter-spacing:-.055em}
+  header p{font-size:12px;opacity:.83;margin-top:5px}
+  main{max-width:1260px;margin:30px auto;padding:0 24px}
+  .card{border:1px solid var(--line)!important;border-radius:var(--radius)!important;box-shadow:var(--shadow)!important;padding:27px!important;margin-bottom:18px!important}
+  h2{font-size:19px;font-weight:800;letter-spacing:-.045em;color:var(--text);margin-bottom:16px}
+  h3{font-size:15px;margin:24px 0 10px}
+  .muted,.tag{color:#718098;font-size:13px}
+  .note{background:color-mix(in srgb,var(--primary) 5%,white);border:1px solid color-mix(in srgb,var(--primary) 10%,white);color:var(--text);border-radius:12px}
+  label{font-weight:700;color:var(--text);font-size:13px}
+  input:not([type=color]),select{background:#fff;border:1px solid #dce5f0;border-radius:11px;min-height:45px;padding:11px 13px;font-size:14px;box-shadow:0 1px 2px #0e234505;transition:border-color .16s,box-shadow .16s}
+  input:focus,select:focus{outline:none!important;border-color:var(--primary)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 12%,transparent)}
+  input[type=color]{min-height:47px;border:1px solid #dce5f0;padding:5px;background:white;border-radius:11px;cursor:pointer}
+  button{border-radius:10px;font-weight:750;letter-spacing:-.02em;transition:transform .12s,box-shadow .12s,filter .12s}
+  button:hover:not(:disabled){filter:brightness(.97);box-shadow:0 4px 13px rgba(18,53,95,.10)}
+  button:active:not(:disabled){transform:translateY(1px)}
+  .alt,.mutedbutton{background:#eef3f9!important;color:#24446e!important}
+  .tabs{background:#f0f4fa;border-radius:12px;padding:5px;gap:4px}
+  .tabs button{border-radius:9px;padding:12px}
+  .tabs button:not(.alt){background:var(--primary);color:white}
+  #authCard{max-width:610px;margin:0 auto 20px!important}
+  #authCard h2{margin-bottom:18px}
+  #dashboard>.card:first-child{padding:24px 27px!important}
+  .dojo{background:color-mix(in srgb,var(--primary) 7%,white)!important;border:1px solid color-mix(in srgb,var(--primary) 12%,white);color:var(--primary)!important;text-align:left;padding:14px 16px}
+  #selectedTitle{font-size:21px;margin:0 0 18px}
+  .menu{display:flex;gap:7px;flex-wrap:wrap;padding:0 0 15px;margin:0 0 17px;border-bottom:1px solid var(--line)}
+  .menu button{border:1px solid #e3eaf3!important;background:#f8fafc!important;color:#51627b!important;padding:10px 14px!important;font-size:13px!important;border-radius:10px;box-shadow:none!important}
+  .menu button.active{background:var(--primary)!important;border-color:var(--primary)!important;color:#fff!important}
+  .home-grid{gap:12px}
+  .home-grid button{min-height:104px!important;padding:20px!important;border:1px solid var(--line)!important;border-radius:14px!important;font-size:15px!important;font-weight:750;box-shadow:0 2px 9px rgba(10,39,81,.025)!important}
+  .home-grid button:hover{border-color:color-mix(in srgb,var(--primary) 35%,white)!important;transform:translateY(-2px)}
+  .stat{background:#f6f9fd;border:1px solid var(--line);border-radius:13px;padding:18px 8px}
+  .stat strong{color:var(--primary);font-size:27px}
+  .student-card,.attile{border:1px solid var(--line)!important;border-radius:13px!important;background:var(--card)!important}
+  .student-card{box-shadow:0 2px 8px rgba(20,42,80,.025)!important}
+  .attile.present{background:#edf9f1!important;border-color:#bfe7cb!important}
+  .attile.departed{background:#edf4ff!important;border-color:#c6d8f2!important}
+  .field-setting{padding:12px 0;gap:12px;border-color:var(--line)}
+  .field-setting button{white-space:nowrap}
+  #page-program>.card{padding:27px!important}
+  #page-program .field-grid{gap:16px}
+  #page-program .field-grid label{background:#f8fafc;border:1px solid var(--line);border-radius:13px;padding:15px}
+  #page-program .field-grid label input,#page-program .field-grid label select{margin-top:9px}
+  #page-program .full{max-width:360px}
+  .wide-table th{background:#f3f7fc}
+  .wide-table td,.wide-table th{border-color:#e5eaf2}
+  .scroll{border-radius:11px;border:1px solid var(--line)}
+  .dialog{border-radius:20px;box-shadow:0 20px 70px rgba(0,20,50,.22)}
+}
+@media screen and (max-width:900px){
+ main{padding:0 16px;margin:18px auto}
+ .card{padding:20px!important}
+ #page-students .students-layout{grid-template-columns:1fr!important}
+ #page-students .students-layout>.card{min-height:0!important}
+ .menu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+ .menu button{font-size:12px!important;padding:11px 5px!important;min-width:0}
+}
+@media screen and (max-width:600px){
+ header{padding:20px 12px!important}header h1{font-size:20px}header p{font-size:11px}
+ main{padding:0 11px!important;margin:13px auto!important}
+ .card,#dashboard>.card:first-child,#page-program>.card,#page-students .students-layout>.card{padding:17px!important;border-radius:15px!important;margin-bottom:12px!important}
+ h2{font-size:18px}#selectedTitle{font-size:18px}
+ .menu{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+ .menu button{font-size:11px!important;padding:10px 3px!important;line-height:1.4;min-height:43px}
+ .home-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .home-grid button{min-height:80px!important;padding:14px!important;font-size:13px!important}
+ .field-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ #page-program .field-grid label{padding:11px;font-size:12px}
+ .attendance-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .row{flex-wrap:wrap}
+ .tools{gap:7px}.tools>*{min-width:0}
+ .field-setting{grid-template-columns:1fr auto auto;gap:6px}
+ .field-setting button{padding:8px;font-size:11px}
+ .student-card .actions{width:100%;display:flex}.student-card .actions button{flex:1}
+ .stat{padding:11px 5px}.stat strong{font-size:21px}
+ #page-program .full{max-width:none}
+ .dialog{padding:17px}
+}
+@media screen and (max-width:390px){
+ .menu{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .field-grid{grid-template-columns:1fr!important}
+ .attendance-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body>
