@@ -362,7 +362,7 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 <div id="page-birthday" class="page"><div class="card"><h2>생일 관리</h2><div id="birthdayList" class="list"></div><p class="muted">생년월일을 등록한 재원생만 표시됩니다.</p></div></div>
 <div id="page-program" class="page"><section id="accountSettings" class="card hidden"><h2>비밀번호 변경</h2><p id="accountEmailDisplay" class="note"></p><h3>비밀번호 변경</h3><p class="muted">현재 비밀번호를 확인한 뒤 새 비밀번호로 변경합니다.</p><form id="accountPasswordForm" class="password-setting"><label for="accountOldPassword">현재 비밀번호</label><div class="password-wrap"><input id="accountOldPassword" type="password" required autocomplete="current-password"><button class="password-eye" type="button" data-toggle-password="accountOldPassword">보기</button></div><label for="accountNewPassword">새 비밀번호</label><div class="password-wrap"><input id="accountNewPassword" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPassword">보기</button></div><label for="accountNewPasswordConfirm">새 비밀번호 확인</label><div class="password-wrap"><input id="accountNewPasswordConfirm" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPasswordConfirm">보기</button></div><button class="full" id="accountPasswordSave" type="submit">비밀번호 변경</button><p id="accountPasswordMessage" class="message" role="status"></p></form></section><div class="card"><h2>프로그램 관리</h2><p id="programDojo" class="note"></p><h3>도장 정보</h3><p class="muted">도장 이름을 변경해도 학생·출석 기록은 그대로 유지됩니다.</p><div class="field-grid"><label>도장명<input id="editDojoName" maxlength="100" placeholder="도장명"></label><label>연락처<input id="editDojoPhone" maxlength="40" type="tel" placeholder="도장 연락처"></label></div><button id="saveDojoInfo" type="button">도장 정보 저장</button><p id="dojoInfoMessage" class="message"></p><h3>화면 디자인</h3><p class="muted">선택한 도장의 관리자 화면에 적용됩니다.</p><div class="field-grid"><label>대표 색상<input id="settingColor" type="color" value="#082e61"></label><label>글씨 색상<input id="settingTextColor" type="color" value="#182b45"></label><label>배경 색상<input id="settingBgColor" type="color" value="#f3f6fb"></label><label>카드 색상<input id="settingCardColor" type="color" value="#ffffff"></label></div><button id="saveSettings" class="full" type="button">디자인 저장</button><p id="settingMessage" class="message"></p></div><div class="card"><h2>수련생 관리 입력 항목</h2><p class="muted">기본 항목은 유지하며 추가 항목은 도장별로 만들고 이름을 수정하거나 삭제할 수 있습니다. 추가 항목은 학생 등록·수정 화면에 나타납니다.</p><h3>기본 등록 항목</h3><p class="muted">항목 이름·표시 여부·순서를 변경할 수 있습니다. 이름과 출석번호는 숨길 수 없습니다.</p><div id="baseFieldList" class="list"></div><h3>추가 등록 항목</h3><p class="muted">추가 항목도 이름 변경·표시 설정·위아래 이동이 가능합니다. 각 항목의 저장 버튼을 누르면 반영됩니다.</p><div id="customFieldList" class="list"></div><div class="field-grid" style="margin-top:14px"><label>새 항목 이름<input id="customFieldName" maxlength="40" placeholder="예: 보호자 성함"></label><label>입력 형태<select id="customFieldType"><option value="text">문자</option><option value="date">날짜</option><option value="number">숫자</option></select></label></div><button id="addCustomField" class="full" type="button">항목 추가</button><p id="customFieldMessage" class="message"></p></div><div class="card" id="tuitionPlanCard"><h2>수련반 · 월 수련비 설정</h2><p class="muted">도장별로 수련반 이름과 기본 월 수련비를 자유롭게 관리합니다. 기존 납부 내역은 변경되지 않습니다.</p><div id="tuitionPlanList"></div><div class="tuition-formrow" style="margin-top:14px"><label>새 수련반<input id="tuitionPlanName" placeholder="예: 주 2회반"></label><label>월 수련비 (원)<input id="tuitionPlanPrice" type="number" min="0" step="1000" placeholder="140000"></label><button id="tuitionAddPlan" type="button">수련반 추가</button></div><p id="tuitionPlanMessage" class="message"></p></div></div>
 
-<div id="page-tuition" class="page"><div class="card"><h2>수련비 납부 관리</h2><p class="muted">학생을 누르면 미납 → 카드(초록) → 계좌(파랑) → 기타(보라) 순서로 변경됩니다. 미납 버튼은 별도 확인 후 취소합니다. 학생별 금액과 납부일을 직접 수정할 수 있습니다.</p><div class="tools"><label>조회 월<input id="tuitionMonth" type="month"></label><label>학생 검색<input id="tuitionSearch" type="search" placeholder="이름 검색"></label><label>보기<select id="tuitionFilter"><option value="all">전체</option><option value="unpaid">미납만</option><option value="paid">납부 완료</option></select></label><button id="tuitionReload" type="button">조회</button><button id="tuitionCsv" class="alt" type="button">CSV 다운로드</button></div><div id="tuitionKpis" class="tuition-kpis"></div><div id="tuitionGrid" class="tuition-grid"></div><p id="tuitionMessage" class="message"></p></div></div>
+<div id="page-tuition" class="page"><div class="card"><h2>수련비 납부 관리</h2><p class="muted">수련비 항목을 선택하면 금액이 자동 입력됩니다. 카드 → 계좌 → 기타 변경은 바로 저장되며, 납부 취소만 확인 후 미납으로 변경됩니다.</p><div class="tools"><label>조회 월<input id="tuitionMonth" type="month"></label><label>학생 검색<input id="tuitionSearch" type="search" placeholder="이름 검색"></label><label>보기<select id="tuitionFilter"><option value="all">전체</option><option value="unpaid">미납만</option><option value="paid">납부 완료</option></select></label><button id="tuitionReload" type="button">조회</button><button id="tuitionCsv" class="alt" type="button">CSV 다운로드</button></div><div id="tuitionKpis" class="tuition-kpis"></div><div id="tuitionGrid" class="tuition-grid"></div><p id="tuitionMessage" class="message"></p></div></div>
 <div id="page-vehicle" class="page">
  <div class="card"><h2>차량운행 관리</h2><p class="muted">도장별로 승차·하차 장소와 요일별 탑승 학생을 관리합니다. 동일 시간·장소의 학생은 자동으로 묶입니다.</p>
  <h3>승하차 장소 관리</h3><div class="tools no-print"><label>새 장소 이름<input id="vehiclePlaceName" placeholder="예: 백양초" maxlength="80"></label><button id="vehicleAddPlace" type="button">장소 추가</button></div><div id="vehiclePlaceList" class="vehicle-chips"></div><p class="muted">사용 중인 장소는 해당 학생의 운행 정보를 먼저 삭제해야 제거할 수 있습니다.</p>
@@ -1102,42 +1102,45 @@ function renderTuitionGrid(){
   const tile=document.createElement('div');tile.className='tuition-tile tuition-student '+(s.payment?.method==='card'?'card-paid':s.payment?.method==='bank'?'bank-paid':s.payment?.method==='other'?'other-paid':'');
   const name=document.createElement('strong');name.textContent=s.name;
   const plan=tuitionPlans.find(p=>p.id===s.assignment?.plan_id);
-  const subtitle=document.createElement('small');subtitle.textContent=plan?.name||s.class_name||'수련반 미지정';
+  const subtitle=document.createElement('small');subtitle.textContent=s.class_name||'수련반 미지정';
+  const planLabel=document.createElement('label');planLabel.textContent='수련비 항목 선택';planLabel.className='tuition-inline-label';
+  const planSelect=document.createElement('select');planSelect.setAttribute('aria-label',s.name+' 수련비 항목');
+  planSelect.append(new Option('직접 입력 / 미지정',''));
+  for(const item of tuitionPlans)planSelect.append(new Option(item.name+' · '+won(item.amount),item.id));
+  planSelect.value=s.assignment?.plan_id||'';planLabel.append(planSelect);
   const amountLabel=document.createElement('label');amountLabel.textContent='월 수련비 (원)';amountLabel.className='tuition-inline-label';
   const amount=document.createElement('input');amount.type='number';amount.min='0';amount.step='1000';amount.value=String(amountOf(s));amount.setAttribute('aria-label',s.name+' 수련비 금액');amountLabel.append(amount);
+  planSelect.onchange=()=>{const chosen=tuitionPlans.find(x=>String(x.id)===planSelect.value);if(chosen)amount.value=String(chosen.amount);};
   const dateLabel=document.createElement('label');dateLabel.textContent='납부일';dateLabel.className='tuition-inline-label';
   const date=document.createElement('input');date.type='date';date.value=s.payment?.paid_date||todayKST();date.setAttribute('aria-label',s.name+' 납부일');dateLabel.append(date);
   const status=document.createElement('small');status.className='tuition-status';status.textContent=s.payment?.method==='card'?'카드 납부':s.payment?.method==='bank'?'계좌이체':s.payment?.method==='other'?'기타 납부':'미납';
   const buttons=document.createElement('div');buttons.className='tuition-card-actions';
   const cycle=document.createElement('button');cycle.type='button';cycle.className='tuition-cycle';cycle.textContent=s.payment?.method==='card'?'계좌로 변경':s.payment?.method==='bank'?'기타로 변경':s.payment?.method==='other'?'카드로 변경':'카드 납부';
-  cycle.onclick=()=>changeTuitionPayment(s,'cycle',amount.value,date.value);
-  const save=document.createElement('button');save.type='button';save.className='alt';save.textContent='금액·날짜 저장';save.onclick=()=>changeTuitionPayment(s,'save',amount.value,date.value);
-  const cancel=document.createElement('button');cancel.type='button';cancel.className='alt tuition-unpaid';cancel.textContent='미납';cancel.disabled=!s.payment?.method;cancel.onclick=()=>changeTuitionPayment(s,'unpaid',amount.value,date.value);
-  buttons.append(cycle,save,cancel);tile.append(name,subtitle,amountLabel,dateLabel,status,buttons);box.append(tile);
+  cycle.onclick=()=>changeTuitionPayment(s,'cycle',amount.value,date.value,planSelect.value);
+  const save=document.createElement('button');save.type='button';save.className='alt';save.textContent='항목·금액·날짜 저장';save.onclick=()=>changeTuitionPayment(s,'save',amount.value,date.value,planSelect.value);
+  const cancel=document.createElement('button');cancel.type='button';cancel.className='alt tuition-unpaid';cancel.textContent='납부 취소';cancel.disabled=!s.payment?.method;cancel.onclick=()=>changeTuitionPayment(s,'unpaid',amount.value,date.value,planSelect.value);
+  buttons.append(cycle,save,cancel);tile.append(name,subtitle,planLabel,amountLabel,dateLabel,status,buttons);box.append(tile);
  }
  if(!box.children.length){const p=document.createElement('p');p.className='muted';p.textContent='표시할 학생이 없습니다.';box.append(p)}
 }
-async function changeTuitionPayment(s,action,rawAmount,rawDate){
+async function changeTuitionPayment(s,action,rawAmount,rawDate,selectedPlanId=''){
  if(tuitionBusy||!currentDojo)return;
  const amount=Number(rawAmount),month=tuitionValue('tuitionMonth'),old=s.payment?.method||null;
  if(rawAmount===''||!Number.isFinite(amount)||amount<0){alert('수련비 금액을 확인하세요.');return}
  const validDate=/^\d{4}-\d{2}-\d{2}$/.test(rawDate)&&!Number.isNaN(Date.parse(rawDate));
  if(action==='unpaid'){
   if(!old)return;
-  if(!confirm(s.name+' 학생의 납부 기록을 정말로 취소하시겠습니까?\n확인을 누르면 미납으로 변경됩니다.'))return;
+  if(!confirm(s.name+' 학생의 납부를 정말로 취소하시겠습니까?\n확인을 누르면 미납으로 변경됩니다.'))return;
  }else if(action==='save'){
   if(old){if(!validDate){alert('납부일을 확인하세요.');return}if(!confirm(s.name+' 학생의 수련비 금액 또는 납부일을 수정하시겠습니까?'))return}
-  else if(!confirm(s.name+' 학생의 월 수련비를 '+won(amount)+'으로 저장하시겠습니까? (미납 상태 유지)'))return;
- }else if(old){
-  if(!validDate){alert('납부일을 확인하세요.');return}
-  if(!confirm(s.name+' 학생의 납부 방식을 변경하시겠습니까?'))return;
+  else { /* 미납 금액 및 항목은 확인창 없이 저장 */ }
  }else if(!validDate){alert('납부일을 확인하세요.');return}
  const next=action==='unpaid'?null:action==='save'?old:old===null?'card':old==='card'?'bank':old==='bank'?'other':'card';
  const dojoId=currentDojo.id;tuitionBusy=true;
  try{
   // 개인별 수련비는 납부 전에도 수정·저장 가능하며, 해당 도장의 학생에게만 적용됩니다.
-  if(action!=='unpaid'&&Number(s.assignment?.amount??0)!==amount){
-   const {error:assignmentError}=await db.from('platform_student_tuition').upsert({dojo_id:dojoId,student_id:s.id,plan_id:s.assignment?.plan_id||null,amount},{onConflict:'dojo_id,student_id'});
+  if(action!=='unpaid'&&(Number(s.assignment?.amount??0)!==amount||String(s.assignment?.plan_id||'')!==String(selectedPlanId||''))){
+   const {error:assignmentError}=await db.from('platform_student_tuition').upsert({dojo_id:dojoId,student_id:s.id,plan_id:selectedPlanId||null,amount},{onConflict:'dojo_id,student_id'});
    if(assignmentError)throw assignmentError;
   }
   if(action!=='save'||old){
