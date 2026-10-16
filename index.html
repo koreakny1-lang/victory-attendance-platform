@@ -168,6 +168,20 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
  .attendance-grid{grid-template-columns:1fr}
 }
 
+/* 전체 관리자 전용 도장 현황 */
+.master-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.master-kpi{padding:17px;border:1px solid var(--line);border-radius:14px;background:#f7f9fc}
+.master-kpi strong{display:block;font-size:25px;color:var(--primary);margin-top:6px}
+.master-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.master-dojo{padding:18px;border:1px solid var(--line);border-radius:15px;background:var(--card);min-width:0}
+.master-dojo h3{margin:0 0 7px;font-size:17px}
+.master-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+.master-metrics div{background:#f5f8fc;padding:10px;border-radius:9px;font-size:12px;color:#617086}
+.master-metrics strong{display:block;color:var(--text);font-size:19px;margin-bottom:3px}
+.master-dojo .master-open{width:100%}
+.master-badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#f0f4fa;color:#475a73;font-size:12px}
+.master-badge.warn{background:#fff4e5;color:#945800}
+@media(max-width:700px){.master-list{grid-template-columns:1fr}.master-summary{gap:7px}.master-kpi{padding:12px}.master-kpi strong{font-size:21px}}
 </style>
 </head>
 <body>
@@ -177,8 +191,9 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
 <form id="authForm"><label for="username">아이디</label><input id="username" type="text" minlength="4" maxlength="20" pattern="[a-zA-Z0-9_]{4,20}" autocomplete="username" required placeholder="영문·숫자 4~20자"><label for="password">비밀번호</label><input id="password" type="password" minlength="4" maxlength="72" autocomplete="current-password" required><div id="signupFields" class="hidden"><label for="signupDojo">도장명</label><input id="signupDojo" minlength="2" maxlength="100" placeholder="예: 고려태권도"><label for="signupName">성함</label><input id="signupName" minlength="2" maxlength="50" placeholder="관리자 성함"><label for="signupPhone">전화번호</label><input id="signupPhone" type="tel" inputmode="tel" placeholder="010-1234-5678"><label for="signupEmail">비밀번호 찾기용 이메일</label><input id="signupEmail" type="email" autocomplete="email" placeholder="example@gmail.com"></div><button id="authButton" class="full" type="submit">로그인</button></form>
 <button id="forgotPassword" type="button" class="alt full">비밀번호를 잊으셨나요?</button><div id="recoveryCard" class="hidden note" style="margin-top:12px"><label for="recoveryEmail">가입할 때 등록한 이메일</label><input id="recoveryEmail" type="email" autocomplete="email" placeholder="example@gmail.com"><button id="sendRecovery" type="button" class="full">비밀번호 재설정 이메일 받기</button><p class="muted">이메일 인증이 설정된 계정에만 재설정 메일이 발송됩니다.</p><p id="recoveryMessage" class="message" role="status"></p></div><div id="newPasswordCard" class="hidden note" style="margin-top:12px"><h3>새 비밀번호 설정</h3><p class="muted">이메일 링크 인증이 완료되었습니다. 여기서 새 비밀번호를 설정하세요.</p><label for="newPassword">새 비밀번호 (6자리 이상)</label><input id="newPassword" type="password" minlength="6" maxlength="72" autocomplete="new-password"><label for="newPasswordConfirm">새 비밀번호 확인</label><input id="newPasswordConfirm" type="password" minlength="6" maxlength="72" autocomplete="new-password" placeholder="새 비밀번호를 다시 입력하세요"><button id="saveNewPassword" type="button" class="full">비밀번호 변경</button><p id="newPasswordMessage" class="message" role="status"></p></div><p class="muted" id="authHelp">기존 계정이 있다면 로그인해 주세요.</p><p id="authMessage" class="message" role="status"></p></section>
 <section id="dashboard" class="hidden"><div class="card"><div class="row"><h2 style="margin:0">내 도장 관리</h2><button id="logout" class="alt" type="button">로그아웃</button></div><p id="signedIn" class="muted"></p><div id="dojoList" class="list"></div><p id="dashboardMessage" class="message" role="status"></p></div>
+<section id="masterPanel" class="card hidden"><div class="row"><div><h2 style="margin:0">전체 도장 관리</h2><p class="muted" style="margin:6px 0 0">가입 도장 현황과 최근 7일 출석 기록을 확인합니다.</p></div><button id="masterReload" class="alt" type="button">현황 새로고침</button></div><div id="masterSummary" class="master-summary"></div><div class="tools" style="margin:16px 0"><input id="masterSearch" type="search" placeholder="도장명 검색" aria-label="도장명 검색"></div><div id="masterList" class="master-list"></div><p id="masterMessage" class="message" role="status"></p></section>
 <div id="newDojoCard" class="card hidden"><h2>내 도장 등록</h2><p class="muted">본인 계정에 연결된 도장만 관리할 수 있습니다.</p><form id="dojoForm"><label for="dojoName">도장 이름</label><input id="dojoName" minlength="2" maxlength="100" required placeholder="예: 우리태권도"><label for="dojoPhone">도장 연락처 (선택)</label><input id="dojoPhone" maxlength="40" type="tel" placeholder="010-0000-0000"><button id="dojoButton" class="full" type="submit">도장 개설하기</button></form><p id="dojoMessage" class="message" role="status"></p></div>
-<div id="selectedCard" class="hidden"><div class="card"><h2 id="selectedTitle">관리자 홈</h2><div class="menu" id="adminMenu"></div><div id="page-home" class="page active"><h2>관리자 홈</h2><p class="muted">원하는 관리 메뉴를 선택하세요.</p><div class="home-grid" id="homeButtons"></div></div></div>
+<div id="selectedCard" class="hidden"><div class="card"><div id="masterBackRow" class="hidden" style="margin-bottom:16px"><button id="masterBack" class="alt" type="button">← 전체 도장 목록으로</button></div><h2 id="selectedTitle">관리자 홈</h2><div class="menu" id="adminMenu"></div><div id="page-home" class="page active"><h2>관리자 홈</h2><p class="muted">원하는 관리 메뉴를 선택하세요.</p><div class="home-grid" id="homeButtons"></div></div></div>
 <div id="page-attendance" class="page"><div class="card"><h2>출결 관리 · 바둑판</h2>
 <div class="row" style="margin:15px 0"><h2 style="margin:0">오늘 출석 현황</h2><button id="reloadAttendance" class="alt" type="button">새로고침</button></div>
 <p id="attendanceDate" class="muted"></p>
@@ -201,6 +216,7 @@ const KEY='sb_publishable_lmwJJaHfZzE5hXnZnF49oA__F7JpDZ8';
 const db=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id);
 let mode='login',currentDojo=null,sessionUser=null;
+let masterDojos=[],masterStats=new Map(),masterRequest=0;
 const menus=[['home','홈'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['links','주소 관리']];
 let monthlyRows=[],monthlyDays=0;
 function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#adminMenu button'))b.classList.toggle('active',b.dataset.page===name);if(name==='monthly')loadMonthly();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
@@ -302,7 +318,7 @@ async function initializeRecovery(){
 async function refresh(){
  const {data:{user},error}=await db.auth.getUser();
  sessionUser=error?null:user;currentDojo=null;isSuperAdmin=false;
- $('selectedCard').classList.add('hidden');$('newDojoCard').classList.add('hidden');
+ $('selectedCard').classList.add('hidden');$('newDojoCard').classList.add('hidden');$('masterPanel').classList.add('hidden');
  if(recoveryFlow){$('authCard').classList.remove('hidden');$('dashboard').classList.add('hidden');return;}
  $('authCard').classList.toggle('hidden',!!sessionUser);
  $('dashboard').classList.toggle('hidden',!sessionUser);
@@ -335,7 +351,10 @@ async function loadDojos(){
    return;
  }
  $('newDojoCard').classList.add('hidden');
- msg('dashboardMessage',isSuperAdmin?'전체 관리자 · 도장을 선택하세요.':'내 도장만 표시됩니다.');
+ $('masterPanel').classList.toggle('hidden',!isSuperAdmin);
+ $('masterBackRow').classList.toggle('hidden',!isSuperAdmin);
+ msg('dashboardMessage',isSuperAdmin?'전체 관리자 전용 · 아래에서 도장을 선택하세요.':'내 도장만 표시됩니다.');
+ if(isSuperAdmin){masterDojos=items.map(x=>x.dojo);$('dojoList').classList.add('hidden');await loadMasterOverview()}else{$('dojoList').classList.remove('hidden')}
  for(const item of items){
    const d=item.dojo;
    const btn=document.createElement('button');btn.className='dojo';btn.type='button';
@@ -347,7 +366,55 @@ async function loadDojos(){
  else if(currentDojo){const d=items.find(x=>x.dojo_id===currentDojo.id);if(d)await selectDojo(d.dojo);else{currentDojo=null;$('selectedCard').classList.add('hidden')}}
 }
 $('dojoForm').onsubmit=async e=>{e.preventDefault();const btn=$('dojoButton');btn.disabled=true;msg('dojoMessage','개설 중...');try{const {data,error}=await db.rpc('platform_create_dojo',{p_name:$('dojoName').value.trim(),p_phone:$('dojoPhone').value.trim()||null});if(error)throw error;msg('dojoMessage','도장 개설이 완료됐습니다.');$('dojoForm').reset();currentDojo=null;await loadDojos();}catch(err){msg('dojoMessage','개설 실패: '+err.message,true)}finally{btn.disabled=false}};
-async function selectDojo(dojo){currentDojo=dojo;$('selectedCard').classList.remove('hidden');$('selectedTitle').textContent=dojo.name;$('programDojo').textContent='선택된 도장: '+dojo.name+' / 연락처: '+(dojo.phone||'미등록');await loadDojoPreferences();$('kioskAddress').value='';$('parentCommonAddress').value=location.origin+'/parent.html?dojo='+encodeURIComponent(dojo.id);showPage('home');msg('studentMessage','');await loadStudents();await loadAttendance()}
+async function selectDojo(dojo){currentDojo=dojo;if(isSuperAdmin){$('masterPanel').classList.add('hidden');$('masterBackRow').classList.remove('hidden')} $('selectedCard').classList.remove('hidden');$('selectedTitle').textContent=dojo.name;$('programDojo').textContent='선택된 도장: '+dojo.name+' / 연락처: '+(dojo.phone||'미등록');await loadDojoPreferences();$('kioskAddress').value='';$('parentCommonAddress').value=location.origin+'/parent.html?dojo='+encodeURIComponent(dojo.id);showPage('home');msg('studentMessage','');await loadStudents();await loadAttendance()}
+
+// 전체 관리자 도장 목록. 서버의 platform_admin_dojos RPC와 RLS가 권한을 검증합니다.
+function masterNumber(v){return typeof v==='number'?v.toLocaleString('ko-KR'):'—'}
+function masterSummaryCard(label,value){const el=document.createElement('div');el.className='master-kpi';const l=document.createElement('span');l.className='muted';l.textContent=label;const n=document.createElement('strong');n.textContent=masterNumber(value);el.append(l,n);return el}
+function renderMasterOverview(){
+ const term=$('masterSearch').value.trim().toLowerCase();const list=$('masterList');list.replaceChildren();
+ const sum=$('masterSummary');sum.replaceChildren();
+ const stats=[...masterStats.values()];sum.append(masterSummaryCard('가입 도장',masterDojos.length),masterSummaryCard('전체 수련생',stats.length===masterDojos.length?stats.reduce((a,x)=>a+(x.students||0),0):null),masterSummaryCard('최근 7일 출석 건수',stats.length===masterDojos.length?stats.reduce((a,x)=>a+(x.week||0),0):null));
+ for(const d of masterDojos.filter(x=>x.name.toLowerCase().includes(term))){
+  const v=masterStats.get(d.id),box=document.createElement('article');box.className='master-dojo';
+  const title=document.createElement('h3');title.textContent=d.name;
+  const info=document.createElement('p');info.className='muted';info.textContent='가입일 '+(d.created_at?new Date(d.created_at).toLocaleDateString('ko-KR'):'미확인')+' · '+(d.status==='suspended'?'운영 중지':'운영 중');
+  const metrics=document.createElement('div');metrics.className='master-metrics';
+  for(const [label,num] of [['수련생',v?.students],['최근 7일 출석',v?.week],['오늘 출석',v?.today]]){const item=document.createElement('div');const b=document.createElement('strong');b.textContent=masterNumber(num);item.append(b,document.createTextNode(label));metrics.append(item)}
+  const badge=document.createElement('span');badge.className='master-badge'+(v?.issue?' warn':'');badge.textContent=v?.error?'현황 조회 오류':v?.issue||'기록 확인 가능';
+  const open=document.createElement('button');open.type='button';open.className='master-open';open.textContent='이 도장 관리 화면 열기 →';open.onclick=()=>selectDojo(d);
+  box.append(title,info,metrics,badge,open);list.append(box);
+ }
+ if(!list.children.length){const p=document.createElement('p');p.className='muted';p.textContent='검색 결과가 없습니다.';list.append(p)}
+}
+async function loadMasterOverview(){
+ if(!isSuperAdmin)return;const request=++masterRequest;masterStats=new Map();renderMasterOverview();
+ msg('masterMessage','도장별 현황을 확인하는 중입니다…');
+ const now=new Date(),seoul=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
+ const today=[seoul.getFullYear(),String(seoul.getMonth()+1).padStart(2,'0'),String(seoul.getDate()).padStart(2,'0')].join('-');
+ seoul.setDate(seoul.getDate()-6);
+ const since=[seoul.getFullYear(),String(seoul.getMonth()+1).padStart(2,'0'),String(seoul.getDate()).padStart(2,'0')].join('-');
+ // 조회 폭주를 막기 위해 순차 조회합니다. 도장이 많아져도 목록을 우선 표시합니다.
+ for(const dojo of masterDojos){
+  if(request!==masterRequest||!isSuperAdmin)break;
+  const id=dojo.id;
+  try{
+   const [students,week,todayResult]=await Promise.all([
+    db.from('platform_students').select('id',{count:'exact',head:true}).eq('dojo_id',id),
+    db.from('platform_attendance').select('id',{count:'exact',head:true}).eq('dojo_id',id).gte('attendance_date',since),
+    db.from('platform_attendance').select('id',{count:'exact',head:true}).eq('dojo_id',id).eq('attendance_date',today)
+   ]);
+   const err=students.error||week.error||todayResult.error;if(err)throw err;
+   const count=students.count||0,weekly=week.count||0;
+   masterStats.set(id,{students:count,week:weekly,today:todayResult.count||0,issue:count===0?'등록 수련생 없음':weekly===0?'최근 7일 출석 기록 없음':''});
+  }catch(e){masterStats.set(id,{error:true});}
+  renderMasterOverview();
+ }
+ if(request===masterRequest)msg('masterMessage','현황은 참고용입니다. 출석 기록이 없는 경우 휴관이나 미사용 등 여러 원인이 있을 수 있습니다.');
+}
+$('masterSearch').addEventListener('input',renderMasterOverview);
+$('masterReload').onclick=()=>loadMasterOverview();
+$('masterBack').onclick=()=>{currentDojo=null;masterRequest++;$('selectedCard').classList.add('hidden');$('masterPanel').classList.remove('hidden');applyTheme();renderMasterOverview();loadMasterOverview()};
 
 let customFields=[],studentExtras={};
 const defaultTheme={primary:'#082e61',text:'#182b45',bg:'#f3f6fb',card:'#ffffff'};
