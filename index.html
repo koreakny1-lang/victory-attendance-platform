@@ -213,6 +213,11 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
  @page{size:A4 landscape;margin:9mm}
 }
 </style>
+
+<style>
+.vehicle-chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.vehicle-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #dce5ef;border-radius:10px;background:#f7f9fd}.vehicle-chip button{padding:6px 8px!important}.vehicle-days{display:flex;flex-wrap:wrap;gap:15px;border:1px solid #dce5ef;border-radius:10px;padding:12px;margin:12px 0}.vehicle-days legend{padding:0 6px;font-weight:700}.vehicle-days label{display:flex;gap:5px;align-items:center}.vehicle-ride{display:flex;gap:8px;align-items:center;border-bottom:1px solid #e4e9f1;padding:8px 0}.vehicle-ride span{flex:1}.vehicle-table{table-layout:fixed;min-width:760px}.vehicle-table th:nth-child(1){width:65px}.vehicle-table th:nth-child(2){width:105px}.vehicle-table td{white-space:normal;word-break:keep-all;line-height:1.5}
+@media print{body.vehicle-printing header,body.vehicle-printing #dojoList,body.vehicle-printing #masterPanel,body.vehicle-printing #selectedCard>.card>h2,body.vehicle-printing #selectedCard .menu,body.vehicle-printing #selectedCard #page-home,body.vehicle-printing #selectedCard .page:not(#page-vehicle),body.vehicle-printing #page-vehicle>.card:not(:nth-child(3)),body.vehicle-printing #page-vehicle .no-print{display:none!important}body.vehicle-printing #page-vehicle{display:block!important}body.vehicle-printing #page-vehicle .scroll{overflow:visible!important}body.vehicle-printing #page-vehicle .vehicle-table{min-width:0;width:100%;font-size:10px}body.vehicle-printing #page-vehicle .vehicle-table td{padding:5px}body.vehicle-printing #page-vehicle .card{padding:0!important}body.vehicle-printing #page-vehicle h3{margin:15px 0 8px}}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -236,6 +241,15 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
 <div id="page-students" class="page"><div class="students-layout"><section class="card student-list-panel"><h2>수련생 관리</h2><p class="muted">학생 정보와 상태(재원생·휴관·퇴원생)를 수정할 수 있습니다. 상태 변경은 학생 카드의 버튼을 누르세요.</p><div class="tools"><input id="studentSearch" type="search" placeholder="이름·번호·학교·수련반 검색"><select id="studentStatusFilter"><option value="재원">재원생</option><option value="">전체</option><option value="휴원">휴관</option><option value="퇴원">퇴원생</option></select><button id="exportStudents" class="alt" type="button">명단 CSV</button></div><p id="studentCount" class="muted"></p><div id="studentsList"></div></section><section class="card student-register-panel"><h2>학생 등록</h2><p class="muted">새로운 수련생의 기본 정보를 입력해 주세요.</p><form id="studentForm"><label for="studentName">학생 이름</label><input id="studentName" required maxlength="80"><label for="studentPin">출석번호 4자리</label><input id="studentPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="숫자 4자리"><div class="field-grid"><label>학부모 연락처<input id="studentPhone" type="tel"></label><label>수련반<input id="studentClass"></label><label>학교<input id="studentSchool"></label><label>학년<input id="studentGrade"></label><label>띠<input id="studentBelt"></label><label>생년월일<input id="studentBirth" type="date"></label></div><div id="studentCustomFields" class="field-grid" style="margin-top:12px"></div><button id="studentButton" class="full" type="submit">학생 등록하기</button></form><p id="studentMessage" class="message" role="status"></p><p class="note">학부모 공용 페이지에서 출석사진을 확인할 수 있습니다. 학부모는 도장별 공용 주소에서 전화번호로 출결을 조회합니다. 학생용 번호 출석체크는 [주소 관리]에서 연결할 수 있습니다. 관리자 터치 출석은 알림을 발송하지 않습니다.</p></section></div></div>
 <div id="page-birthday" class="page"><div class="card"><h2>생일 관리</h2><div id="birthdayList" class="list"></div><p class="muted">생년월일을 등록한 재원생만 표시됩니다.</p></div></div>
 <div id="page-program" class="page"><section id="accountSettings" class="card"><h2>내 계정 · 비밀번호 변경</h2><p class="muted">현재 비밀번호를 확인한 뒤 새 비밀번호로 변경합니다.</p><form id="accountPasswordForm" class="password-setting"><label for="accountOldPassword">현재 비밀번호</label><div class="password-wrap"><input id="accountOldPassword" type="password" required autocomplete="current-password"><button class="password-eye" type="button" data-toggle-password="accountOldPassword">보기</button></div><label for="accountNewPassword">새 비밀번호</label><div class="password-wrap"><input id="accountNewPassword" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPassword">보기</button></div><label for="accountNewPasswordConfirm">새 비밀번호 확인</label><div class="password-wrap"><input id="accountNewPasswordConfirm" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPasswordConfirm">보기</button></div><button class="full" id="accountPasswordSave" type="submit">비밀번호 변경</button><p id="accountPasswordMessage" class="message" role="status"></p></form></section><div class="card"><h2>프로그램 관리</h2><p id="programDojo" class="note"></p><h3>도장 정보</h3><p class="muted">도장 이름을 변경해도 학생·출석 기록은 그대로 유지됩니다.</p><div class="field-grid"><label>도장명<input id="editDojoName" maxlength="100" placeholder="도장명"></label><label>연락처<input id="editDojoPhone" maxlength="40" type="tel" placeholder="도장 연락처"></label></div><button id="saveDojoInfo" type="button">도장 정보 저장</button><p id="dojoInfoMessage" class="message"></p><h3>화면 디자인</h3><p class="muted">선택한 도장의 관리자 화면에 적용됩니다.</p><div class="field-grid"><label>대표 색상<input id="settingColor" type="color" value="#082e61"></label><label>글씨 색상<input id="settingTextColor" type="color" value="#182b45"></label><label>배경 색상<input id="settingBgColor" type="color" value="#f3f6fb"></label><label>카드 색상<input id="settingCardColor" type="color" value="#ffffff"></label></div><button id="saveSettings" class="full" type="button">디자인 저장</button><p id="settingMessage" class="message"></p></div><div class="card"><h2>수련생 관리 입력 항목</h2><p class="muted">기본 항목은 유지하며 추가 항목은 도장별로 만들고 이름을 수정하거나 삭제할 수 있습니다. 추가 항목은 학생 등록·수정 화면에 나타납니다.</p><h3>기본 등록 항목</h3><p class="muted">항목 이름·표시 여부·순서를 변경할 수 있습니다. 이름과 출석번호는 숨길 수 없습니다.</p><div id="baseFieldList" class="list"></div><h3>추가 등록 항목</h3><p class="muted">추가 항목도 이름 변경·표시 설정·위아래 이동이 가능합니다. 각 항목의 저장 버튼을 누르면 반영됩니다.</p><div id="customFieldList" class="list"></div><div class="field-grid" style="margin-top:14px"><label>새 항목 이름<input id="customFieldName" maxlength="40" placeholder="예: 보호자 성함"></label><label>입력 형태<select id="customFieldType"><option value="text">문자</option><option value="date">날짜</option><option value="number">숫자</option></select></label></div><button id="addCustomField" class="full" type="button">항목 추가</button><p id="customFieldMessage" class="message"></p></div></div>
+
+<div id="page-vehicle" class="page">
+ <div class="card"><h2>🚌 차량운행 관리</h2><p class="muted">도장별로 승차·하차 장소와 요일별 탑승 학생을 관리합니다. 동일 시간·장소의 학생은 자동으로 묶입니다.</p>
+ <h3>승하차 장소 관리</h3><div class="tools no-print"><label>새 장소 이름<input id="vehiclePlaceName" placeholder="예: 백양초" maxlength="80"></label><button id="vehicleAddPlace" type="button">장소 추가</button></div><div id="vehiclePlaceList" class="vehicle-chips"></div><p class="muted">사용 중인 장소는 해당 학생의 운행 정보를 먼저 삭제해야 제거할 수 있습니다.</p>
+ </div>
+ <div class="card no-print"><h3>승차·하차 일정 등록</h3><div class="field-grid"><label>학생<select id="vehicleStudent"></select></label><label>구분<select id="vehicleKind"><option value="pickup">승차</option><option value="dropoff">하차</option></select></label><label>시간<input id="vehicleTime" type="time" value="14:00" step="60"></label><label>장소<select id="vehiclePlace"></select></label></div><fieldset class="vehicle-days"><legend>운행 요일 (여러 개 선택)</legend><label><input type="checkbox" value="1" checked> 월</label><label><input type="checkbox" value="2" checked> 화</label><label><input type="checkbox" value="3" checked> 수</label><label><input type="checkbox" value="4" checked> 목</label><label><input type="checkbox" value="5" checked> 금</label></fieldset><button id="vehicleAddRide" type="button">일정 등록</button><p id="vehicleMessage" class="message" role="status"></p></div>
+ <div class="card"><div class="tools no-print"><label>운행표 보기<select id="vehicleView"><option value="pickup">승차표</option><option value="dropoff">하차표</option><option value="all">승차 + 하차</option></select></label><button id="vehiclePrint" type="button">인쇄</button><button id="vehicleCsv" type="button">CSV 다운로드</button><button id="vehicleReload" type="button">새로고침</button></div><div id="vehicleTables"></div></div>
+ <div class="card no-print"><h3>등록된 일정 수정·삭제</h3><p class="muted">수정은 해당 일정의 변경 버튼을 누르면 입력창에 불러옵니다. 저장하면 기존 일정을 교체합니다.</p><div id="vehicleRideList" class="list"></div></div>
+</div>
 <div id="page-links" class="page"><div class="card"><h2>주소 관리</h2><p class="muted">통합 관리자 주소</p><input id="adminAddress" readonly><button id="copyAdmin" class="full" type="button">주소 복사</button><p class="muted">학생용 출석체크기 주소</p><input id="kioskAddress" readonly placeholder="도장을 선택하면 주소를 생성할 수 있습니다"><button id="createKioskLink" class="full" type="button">학생용 출석체크기 주소 만들기</button><button id="copyKiosk" class="full alt" type="button">학생용 주소 복사</button><p id="kioskLinkMessage" class="message" role="status"></p><div style="margin-top:20px;border-top:1px solid #dce5ef;padding-top:16px"><h2>학부모 공용 주소</h2><p class="muted">도장당 하나의 주소입니다. 밴드 등에 한 번 공지하면 학부모가 직접 연결합니다. 학부모는 본인 휴대전화번호만 입력하면 등록된 자녀의 출석정보를 확인합니다.</p><input id="parentCommonAddress" readonly placeholder="도장을 선택하면 주소가 표시됩니다"><button id="copyParentCommon" class="full alt" type="button">학부모 공용 주소 복사</button><p id="parentCommonMessage" class="message" role="status"></p></div><p class="warn">학생용 주소는 도장 내부 기기에만 공유하세요. 출석번호 4자리 입력으로 출석·귀가가 처리됩니다. 학부모 알림은 서버 설정 및 실제 수신 테스트 후 이용할 수 있습니다.</p></div></div>
 </div>
 </section>
@@ -248,9 +262,10 @@ const db=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,d
 const $=id=>document.getElementById(id);
 let mode='login',currentDojo=null,sessionUser=null;
 let masterDojos=[],masterStats=new Map(),masterRequest=0;
-const menus=[['home','홈'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['links','주소 관리']];
+const menus=[['home','홈'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['vehicle','🚌 차량운행'],['links','주소 관리']];
 let monthlyRows=[],monthlyDays=0;
-function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#adminMenu button'))b.classList.toggle('active',b.dataset.page===name);if(name==='monthly')loadMonthly();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
+let vehiclePlaces=[],vehicleRides=[],vehicleEditing=null;
+function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#adminMenu button'))b.classList.toggle('active',b.dataset.page===name);if(name==='monthly')loadMonthly();if(name==='vehicle')loadVehicle();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
 function buildMenu(){const menu=$('adminMenu'),home=$('homeButtons');for(const [id,label] of menus){const b=document.createElement('button');b.textContent=label;b.dataset.page=id;b.type='button';b.onclick=()=>showPage(id);menu.append(b);if(id!=='home'){const c=document.createElement('button');c.type='button';c.textContent=label;c.onclick=()=>showPage(id);home.append(c)}}showPage('home')}
 buildMenu();
 $('createKioskLink').onclick=async()=>{
@@ -706,6 +721,83 @@ $('exportMonthly').onclick=()=>{
   setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},15000);
   msg('monthlyMessage','엑셀에서 열 수 있는 출석부 파일을 다운로드했습니다. 다운로드 폴더를 확인해 주세요.');
  }catch(err){msg('monthlyMessage','다운로드 실패: '+err.message,true)}
+};
+
+
+// 도장별 차량운행 관리
+const vehicleDays=['','월','화','수','목','금'];
+function vehicleEsc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function vehicleNotice(t,bad=false){msg('vehicleMessage',t,bad)}
+function vehicleTimeText(t){return String(t||'').slice(0,5)}
+function vehicleStudentName(id){return allStudents.find(x=>String(x.id)===String(id))?.name||'미등록 학생'}
+function vehiclePlaceName(id){return vehiclePlaces.find(x=>x.id===id)?.name||'삭제된 장소'}
+async function loadVehicle(){
+ if(!currentDojo)return;
+ const dojoId=currentDojo.id;
+ const [p,r]=await Promise.all([db.from('platform_vehicle_places').select('id,name').eq('dojo_id',dojoId).order('name'),db.from('platform_vehicle_rides').select('id,student_id,place_id,kind,weekday,ride_time').eq('dojo_id',dojoId).order('ride_time')]);
+ if(currentDojo?.id!==dojoId)return;
+ if(p.error||r.error){vehicleNotice('차량운행 데이터 조회 실패: '+(p.error||r.error).message+' (차량운행 SQL을 먼저 실행해 주세요.)',true);return}
+ vehiclePlaces=p.data||[];vehicleRides=r.data||[];renderVehicle();
+}
+function renderVehicle(){
+ $('vehiclePlaceList').innerHTML='';
+ for(const p of vehiclePlaces){const item=document.createElement('span');item.className='vehicle-chip';const name=document.createElement('span');name.textContent=p.name;const rename=document.createElement('button');rename.type='button';rename.className='mini alt';rename.textContent='수정';rename.onclick=()=>vehicleRenamePlace(p);const del=document.createElement('button');del.type='button';del.className='mini mutedbutton';del.textContent='삭제';del.onclick=()=>vehicleDeletePlace(p);item.append(name,rename,del);$('vehiclePlaceList').append(item)}
+ const placeSel=$('vehiclePlace'),studentSel=$('vehicleStudent'),prevPlace=placeSel.value,prevStudent=studentSel.value;
+ placeSel.replaceChildren(...vehiclePlaces.map(p=>new Option(p.name,p.id)));
+ studentSel.replaceChildren(...allStudents.filter(x=>x.status!=='퇴원').map(x=>new Option(x.name+' ('+x.pin+')',x.id)));
+ if(vehiclePlaces.some(x=>x.id===prevPlace))placeSel.value=prevPlace;
+ if(allStudents.some(x=>String(x.id)===prevStudent))studentSel.value=prevStudent;
+ const list=$('vehicleRideList');list.innerHTML='';
+ for(const ride of vehicleRides){const row=document.createElement('div');row.className='vehicle-ride';const info=document.createElement('span');info.textContent=vehicleDays[ride.weekday]+' · '+(ride.kind==='pickup'?'승차':'하차')+' · '+vehicleTimeText(ride.ride_time)+' · '+vehiclePlaceName(ride.place_id)+' · '+vehicleStudentName(ride.student_id);const edit=document.createElement('button');edit.type='button';edit.className='mini alt';edit.textContent='변경';edit.onclick=()=>vehicleEditRide(ride);const del=document.createElement('button');del.type='button';del.className='mini mutedbutton';del.textContent='삭제';del.onclick=()=>vehicleDeleteRide(ride);row.append(info,edit,del);list.append(row)}
+ if(!vehicleRides.length)list.textContent='등록된 일정이 없습니다.';
+ renderVehicleTables();
+}
+function renderVehicleTables(){
+ const box=$('vehicleTables');box.innerHTML='';const view=$('vehicleView').value;
+ for(const kind of (view==='all'?['pickup','dropoff']:[view])){
+  const title=document.createElement('h3');title.textContent=(currentDojo?.name||'')+' · '+(kind==='pickup'?'승차':'하차')+' 운행표';box.append(title);
+  const groups=new Map();
+  for(const r of vehicleRides.filter(x=>x.kind===kind)){
+   const key=vehicleTimeText(r.ride_time)+'|'+r.place_id;
+   if(!groups.has(key))groups.set(key,{time:vehicleTimeText(r.ride_time),place:vehiclePlaceName(r.place_id),days:[[],[],[],[],[],[]]});
+   groups.get(key).days[r.weekday]?.push(vehicleStudentName(r.student_id));
+  }
+  const table=document.createElement('table');table.className='wide-table vehicle-table';table.innerHTML='<thead><tr><th>시간</th><th>장소</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th></tr></thead>';
+  const tbody=document.createElement('tbody');
+  for(const g of [...groups.values()].sort((a,b)=>a.time.localeCompare(b.time)||a.place.localeCompare(b.place,'ko'))){const tr=document.createElement('tr');for(const val of [g.time,g.place,...g.days.slice(1).map(a=>[...new Set(a)].join(', '))]){const td=document.createElement('td');td.textContent=val;tr.append(td)}tbody.append(tr)}
+  if(!groups.size){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=7;td.textContent='등록된 일정이 없습니다.';tr.append(td);tbody.append(tr)}
+  table.append(tbody);const wrap=document.createElement('div');wrap.className='scroll';wrap.append(table);box.append(wrap);
+ }
+}
+$('vehicleView').onchange=renderVehicleTables;
+$('vehicleReload').onclick=loadVehicle;
+$('vehicleAddPlace').onclick=async()=>{
+ if(!currentDojo)return;const name=$('vehiclePlaceName').value.trim();if(!name)return vehicleNotice('장소 이름을 입력하세요.',true);
+ const {error}=await db.from('platform_vehicle_places').insert({dojo_id:currentDojo.id,name});if(error)return vehicleNotice('장소 추가 실패: '+error.message,true);
+ $('vehiclePlaceName').value='';await loadVehicle();vehicleNotice('장소를 추가했습니다.');
+};
+async function vehicleRenamePlace(p){const name=prompt('장소 이름 변경',p.name)?.trim();if(!name||name===p.name)return;const {error}=await db.from('platform_vehicle_places').update({name}).eq('id',p.id).eq('dojo_id',currentDojo.id);if(error)return vehicleNotice(error.message,true);await loadVehicle()}
+async function vehicleDeletePlace(p){if(vehicleRides.some(x=>x.place_id===p.id))return vehicleNotice('사용 중인 장소입니다. 해당 장소의 운행 일정을 먼저 삭제하세요.',true);if(!confirm(p.name+' 장소를 삭제할까요?'))return;const {error}=await db.from('platform_vehicle_places').delete().eq('id',p.id).eq('dojo_id',currentDojo.id);if(error)return vehicleNotice(error.message,true);await loadVehicle()}
+$('vehicleAddRide').onclick=async()=>{
+ if(!currentDojo)return;const student_id=$('vehicleStudent').value,place_id=$('vehiclePlace').value,kind=$('vehicleKind').value,ride_time=$('vehicleTime').value,days=[...document.querySelectorAll('#page-vehicle .vehicle-days input:checked')].map(x=>Number(x.value));
+ if(!student_id||!place_id||!ride_time||!days.length)return vehicleNotice('학생·장소·시간·요일을 모두 선택하세요.',true);
+ const rows=days.map(weekday=>({dojo_id:currentDojo.id,student_id,place_id,kind,ride_time,weekday}));
+ const btn=$('vehicleAddRide');btn.disabled=true;
+ try{
+  if(vehicleEditing){const old=vehicleEditing;const {error}=await db.from('platform_vehicle_rides').delete().eq('dojo_id',currentDojo.id).eq('id',old.id);if(error)throw error}
+  const {error}=await db.from('platform_vehicle_rides').insert(rows);if(error)throw error;
+  vehicleEditing=null;btn.textContent='일정 등록';await loadVehicle();vehicleNotice('일정을 저장했습니다.');
+ }catch(e){vehicleNotice('저장 실패: '+e.message,true)}finally{btn.disabled=false}
+};
+function vehicleEditRide(r){vehicleEditing=r;$('vehicleStudent').value=r.student_id;$('vehiclePlace').value=r.place_id;$('vehicleKind').value=r.kind;$('vehicleTime').value=vehicleTimeText(r.ride_time);document.querySelectorAll('#page-vehicle .vehicle-days input').forEach(x=>x.checked=Number(x.value)===r.weekday);$('vehicleAddRide').textContent='변경 내용 저장';vehicleNotice('선택한 일정의 값을 변경하고 저장하세요.');$('vehicleTime').focus()}
+async function vehicleDeleteRide(r){if(!confirm(vehicleStudentName(r.student_id)+' 학생의 '+vehicleDays[r.weekday]+' 운행 일정을 삭제할까요?'))return;const {error}=await db.from('platform_vehicle_rides').delete().eq('dojo_id',currentDojo.id).eq('id',r.id);if(error)return vehicleNotice(error.message,true);await loadVehicle()}
+$('vehiclePrint').onclick=()=>{document.body.classList.add('vehicle-printing');window.print();setTimeout(()=>document.body.classList.remove('vehicle-printing'),1500)};
+window.addEventListener('afterprint',()=>document.body.classList.remove('vehicle-printing'));
+$('vehicleCsv').onclick=()=>{
+ const rows=[['구분','시간','장소','월','화','수','목','금']];for(const kind of ['pickup','dropoff']){
+ const groups=new Map();for(const r of vehicleRides.filter(x=>x.kind===kind)){const key=vehicleTimeText(r.ride_time)+'|'+r.place_id;if(!groups.has(key))groups.set(key,{time:vehicleTimeText(r.ride_time),place:vehiclePlaceName(r.place_id),days:[[],[],[],[],[],[]]});groups.get(key).days[r.weekday].push(vehicleStudentName(r.student_id))}
+ for(const g of [...groups.values()].sort((a,b)=>a.time.localeCompare(b.time)))rows.push([kind==='pickup'?'승차':'하차',g.time,g.place,...g.days.slice(1).map(x=>[...new Set(x)].join(', '))]);}
+ const csv='\ufeff'+rows.map(row=>row.map(x=>'"'+String(x??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=window.URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(currentDojo?.name||'태권도')+'_차량운행표.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>window.URL.revokeObjectURL(url),1000);
 };
 
 await initializeRecovery();
