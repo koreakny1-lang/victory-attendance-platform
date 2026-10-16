@@ -225,7 +225,7 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
 :root{--gold:#d6a52b;--navy:#101f43;--cream:#fffaf0;--line:#e6e9f0;--shadow:0 9px 30px rgba(16,31,67,.075)}
 body{background:linear-gradient(160deg,#f5f7fc 0%,#fff9ed 100%) fixed!important;color:#1a2a48}
 header{background:linear-gradient(115deg,#0d1d40,#142c58 70%,#223e68)!important;border-bottom:4px solid #d6a52b;box-shadow:0 8px 30px #07163121!important}
-header h1{font-size:26px;letter-spacing:-.04em}header h1:before{content:'★';font-size:19px;color:#ffd45b;margin-right:10px}
+header h1{font-size:26px;letter-spacing:-.04em}header h1:before{content:none!important}
 header p{color:#d9e1f1!important}
 main{max-width:1370px!important}
 .card{border:1px solid #e9e9e8!important;border-radius:19px!important;box-shadow:0 10px 28px rgba(18,35,72,.055)!important;background:#fff!important}
@@ -235,7 +235,7 @@ h2{color:#102650!important}h3{color:#142f5c;font-weight:800}
 button:not(.alt):not(.mutedbutton):not(.dojo):not(.mini):not(.password-eye){background:#142e60!important;color:#fff}
 button:not(.alt):not(.mutedbutton):not(.dojo):not(.mini):not(.password-eye):hover{background:#203e76!important}
 #page-home .home-grid button{background:linear-gradient(135deg,#fff,#fff9ed)!important;border:1px solid #e9dfc6!important;color:#122b57!important;min-height:100px}
-#page-home .home-grid button:before{content:'◆';color:#d6a52b;margin-right:10px}
+#page-home .home-grid button:before{content:none!important}
 .stat,.master-kpi{background:#fffaf0!important;border:1px solid #efe2c8!important}
 .stat strong,.master-kpi strong{color:#152f60!important}
 input:not([type=color]),select{background:#fff!important;border-color:#d9e1ec!important}
@@ -270,6 +270,20 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 @media screen and (max-width:650px){header h1{font-size:22px}#page-vehicle .vehicle-days{gap:10px;padding:10px}#page-vehicle .vehicle-table td{padding:8px 4px}.card{padding:16px!important}}
 @media print{body.vehicle-printing{background:#fff!important}body.vehicle-printing #page-vehicle .vehicle-table tr{-webkit-print-color-adjust:exact;print-color-adjust:exact}body.vehicle-printing #page-vehicle .vehicle-table th{background:#152e5a!important;color:#fff!important}body.vehicle-printing #page-vehicle .vehicle-table td{padding:6px 3px!important;font-size:9px!important}body.vehicle-printing #page-vehicle .vehicle-table{table-layout:fixed!important}}
 </style>
+
+<style id="readability-fix">
+@media screen {
+ header h1:before,#page-home .home-grid button:before{content:none!important;display:none!important}
+ #page-home .home-grid{gap:12px!important}
+ #page-home .home-grid button{background:#ffffff!important;color:#142b4f!important;border:1px solid #d9e2ee!important;box-shadow:0 2px 8px rgba(12,38,75,.06)!important;font-size:16px!important;font-weight:800!important;line-height:1.5!important;text-align:left!important;padding:22px 18px!important;min-height:92px!important}
+ #page-home .home-grid button:hover{border-color:#7895bd!important;background:#f5f8fd!important}
+ .menu button{color:#173153!important;font-weight:800!important;font-size:13px!important}
+ .menu button.active{background:#173766!important;color:#ffffff!important}
+ .card h2,.card h3{color:#152c50!important;font-weight:800!important}
+ .muted,.note{font-size:13px!important;line-height:1.7!important}
+ #page-vehicle label,#page-vehicle input,#page-vehicle select{font-size:14px!important}
+}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -295,7 +309,7 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 <div id="page-program" class="page"><section id="accountSettings" class="card"><h2>내 계정 · 비밀번호 변경</h2><p class="muted">현재 비밀번호를 확인한 뒤 새 비밀번호로 변경합니다.</p><form id="accountPasswordForm" class="password-setting"><label for="accountOldPassword">현재 비밀번호</label><div class="password-wrap"><input id="accountOldPassword" type="password" required autocomplete="current-password"><button class="password-eye" type="button" data-toggle-password="accountOldPassword">보기</button></div><label for="accountNewPassword">새 비밀번호</label><div class="password-wrap"><input id="accountNewPassword" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPassword">보기</button></div><label for="accountNewPasswordConfirm">새 비밀번호 확인</label><div class="password-wrap"><input id="accountNewPasswordConfirm" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPasswordConfirm">보기</button></div><button class="full" id="accountPasswordSave" type="submit">비밀번호 변경</button><p id="accountPasswordMessage" class="message" role="status"></p></form></section><div class="card"><h2>프로그램 관리</h2><p id="programDojo" class="note"></p><h3>도장 정보</h3><p class="muted">도장 이름을 변경해도 학생·출석 기록은 그대로 유지됩니다.</p><div class="field-grid"><label>도장명<input id="editDojoName" maxlength="100" placeholder="도장명"></label><label>연락처<input id="editDojoPhone" maxlength="40" type="tel" placeholder="도장 연락처"></label></div><button id="saveDojoInfo" type="button">도장 정보 저장</button><p id="dojoInfoMessage" class="message"></p><h3>화면 디자인</h3><p class="muted">선택한 도장의 관리자 화면에 적용됩니다.</p><div class="field-grid"><label>대표 색상<input id="settingColor" type="color" value="#082e61"></label><label>글씨 색상<input id="settingTextColor" type="color" value="#182b45"></label><label>배경 색상<input id="settingBgColor" type="color" value="#f3f6fb"></label><label>카드 색상<input id="settingCardColor" type="color" value="#ffffff"></label></div><button id="saveSettings" class="full" type="button">디자인 저장</button><p id="settingMessage" class="message"></p></div><div class="card"><h2>수련생 관리 입력 항목</h2><p class="muted">기본 항목은 유지하며 추가 항목은 도장별로 만들고 이름을 수정하거나 삭제할 수 있습니다. 추가 항목은 학생 등록·수정 화면에 나타납니다.</p><h3>기본 등록 항목</h3><p class="muted">항목 이름·표시 여부·순서를 변경할 수 있습니다. 이름과 출석번호는 숨길 수 없습니다.</p><div id="baseFieldList" class="list"></div><h3>추가 등록 항목</h3><p class="muted">추가 항목도 이름 변경·표시 설정·위아래 이동이 가능합니다. 각 항목의 저장 버튼을 누르면 반영됩니다.</p><div id="customFieldList" class="list"></div><div class="field-grid" style="margin-top:14px"><label>새 항목 이름<input id="customFieldName" maxlength="40" placeholder="예: 보호자 성함"></label><label>입력 형태<select id="customFieldType"><option value="text">문자</option><option value="date">날짜</option><option value="number">숫자</option></select></label></div><button id="addCustomField" class="full" type="button">항목 추가</button><p id="customFieldMessage" class="message"></p></div></div>
 
 <div id="page-vehicle" class="page">
- <div class="card"><h2>🚌 차량운행 관리</h2><p class="muted">도장별로 승차·하차 장소와 요일별 탑승 학생을 관리합니다. 동일 시간·장소의 학생은 자동으로 묶입니다.</p>
+ <div class="card"><h2>차량운행 관리</h2><p class="muted">도장별로 승차·하차 장소와 요일별 탑승 학생을 관리합니다. 동일 시간·장소의 학생은 자동으로 묶입니다.</p>
  <h3>승하차 장소 관리</h3><div class="tools no-print"><label>새 장소 이름<input id="vehiclePlaceName" placeholder="예: 백양초" maxlength="80"></label><button id="vehicleAddPlace" type="button">장소 추가</button></div><div id="vehiclePlaceList" class="vehicle-chips"></div><p class="muted">사용 중인 장소는 해당 학생의 운행 정보를 먼저 삭제해야 제거할 수 있습니다.</p>
  </div>
  <div class="card no-print"><h3>승차·하차 일정 등록</h3><div class="field-grid"><label>학생 이름<input id="vehicleStudent" type="text" maxlength="60" placeholder="예: 김승리" autocomplete="off"></label><label>구분<select id="vehicleKind"><option value="pickup">승차</option><option value="dropoff">하차</option></select></label><label>시간<input id="vehicleTime" type="time" value="14:00" step="60"></label><label>장소<select id="vehiclePlace"></select></label></div><fieldset class="vehicle-days"><legend>운행 요일 (여러 개 선택)</legend><label><input type="checkbox" value="1" checked> 월</label><label><input type="checkbox" value="2" checked> 화</label><label><input type="checkbox" value="3" checked> 수</label><label><input type="checkbox" value="4" checked> 목</label><label><input type="checkbox" value="5" checked> 금</label></fieldset><button id="vehicleAddRide" type="button">일정 등록</button><p id="vehicleMessage" class="message" role="status"></p></div>
@@ -314,7 +328,7 @@ const db=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,d
 const $=id=>document.getElementById(id);
 let mode='login',currentDojo=null,sessionUser=null;
 let masterDojos=[],masterStats=new Map(),masterRequest=0;
-const menus=[['home','홈'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['vehicle','🚌 차량운행'],['links','주소 관리']];
+const menus=[['home','홈'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['vehicle','차량운행'],['links','주소 관리']];
 let monthlyRows=[],monthlyDays=0;
 let vehiclePlaces=[],vehicleRides=[],vehicleEditing=null;
 function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#adminMenu button'))b.classList.toggle('active',b.dataset.page===name);if(name==='monthly')loadMonthly();if(name==='vehicle')loadVehicle();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
