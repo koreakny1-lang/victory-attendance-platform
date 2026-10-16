@@ -339,6 +339,8 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 <section id="masterPanel" class="card hidden"><div class="row"><div><h2 style="margin:0">전체 도장 관리</h2><p class="muted" style="margin:6px 0 0">가입 도장 현황과 최근 7일 출석 기록을 확인합니다.</p></div><button id="masterReload" class="alt" type="button">현황 새로고침</button></div><div id="masterSummary" class="master-summary"></div><div class="tools" style="margin:16px 0"><input id="masterSearch" type="search" placeholder="도장명 검색" aria-label="도장명 검색"></div><div class="tools" style="margin-bottom:12px"><select id="masterStatusFilter" aria-label="운영 상태"><option value="">전체 도장</option><option value="pending">승인 대기</option><option value="active">운영 중</option><option value="suspended">운영 중지</option></select></div><div id="masterList" class="master-list"></div><p id="masterMessage" class="message" role="status"></p></section>
 
 <div id="newDojoCard" class="card hidden"><h2>내 도장 등록</h2><p class="muted">본인 계정에 연결된 도장만 관리할 수 있습니다.</p><form id="dojoForm"><label for="dojoName">도장 이름</label><input id="dojoName" minlength="2" maxlength="100" required placeholder="예: 우리태권도"><label for="dojoPhone">도장 연락처 (선택)</label><input id="dojoPhone" maxlength="40" type="tel" placeholder="010-0000-0000"><button id="dojoButton" class="full" type="submit">도장 개설하기</button></form><p id="dojoMessage" class="message" role="status"></p></div>
+<section id="masterPasswordPanel" class="card hidden" style="margin:14px 0"><h2>마스터 전용 · 계정 비밀번호 초기화</h2><p class="muted">선택한 관리자에게 임시 비밀번호를 발급합니다. 임시 비밀번호는 한 번만 표시되며, 다음 로그인에서 반드시 변경해야 합니다.</p><button type="button" id="masterPasswordLoad" class="alt">관리자 계정 목록 새로고침</button><div id="masterPasswordAccounts" class="list" style="margin-top:12px"></div><p id="masterPasswordMessage" class="message" role="status"></p></section>
+<section id="forcePasswordPanel" class="card hidden" style="border:2px solid #b7852a"><h2>임시 비밀번호 변경</h2><p>보안을 위해 임시 비밀번호를 새 비밀번호로 변경해야 합니다.</p><form id="forcePasswordForm"><label>새 비밀번호 (최소 4자, 실제 서버 정책에 따라 더 길어야 할 수 있습니다)<input id="forceNewPassword" type="password" minlength="4" required autocomplete="new-password"></label><label>새 비밀번호 확인<input id="forceNewPasswordConfirm" type="password" minlength="4" required autocomplete="new-password"></label><button type="submit">새 비밀번호 저장</button></form><p id="forcePasswordMessage" class="message" role="status"></p></section>
 <div id="selectedCard" class="hidden"><div class="card"><div id="masterBackRow" class="hidden" style="margin-bottom:16px"><button id="masterBack" class="alt" type="button">← 전체 도장 목록으로</button></div><h2 id="selectedTitle">관리자 홈</h2><div class="menu" id="adminMenu"></div><div id="page-home" class="page active"><h2>관리자 홈</h2><p class="muted">원하는 관리 메뉴를 선택하세요.</p><div class="home-grid" id="homeButtons"></div></div></div>
 <div id="page-attendance" class="page"><div class="card"><h2>출결 관리 · 바둑판</h2>
 <div class="row" style="margin:15px 0"><h2 style="margin:0">오늘 출석 현황</h2><button id="reloadAttendance" class="alt" type="button">새로고침</button></div>
@@ -534,15 +536,64 @@ async function initializeRecovery(){
   else{recoveryFlow=false;endRecoveryForm();$('recoveryCard').classList.remove('hidden');msg('recoveryMessage','링크 인증이 완료되지 않았습니다. 가장 최근에 받은 재설정 이메일로 다시 시도하세요.',true)}
  }
 }
+// 비밀번호 초기화: 브라우저는 서비스 역할 키를 사용하지 않습니다.
+async function masterPasswordApi(action,extra={}){
+ const {data:{session}}=await db.auth.getSession();
+ if(!session)throw Error('다시 로그인해 주세요.');
+ const res=await fetch(URL+'/functions/v1/platform-master-password-reset',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({action,...extra})});
+ const result=await res.json().catch(()=>({}));
+ if(!res.ok||!result.success)throw Error(result.error||'서버 요청 실패');
+ return result;
+}
+async function loadMasterPasswordAccounts(){
+ const list=$('masterPasswordAccounts');list.replaceChildren();msg('masterPasswordMessage','계정 목록을 불러오는 중입니다.');
+ try{
+  const result=await masterPasswordApi('list');
+  for(const a of result.accounts){
+   const row=document.createElement('div');row.className='row';row.style.cssText='padding:10px;border-bottom:1px solid #e1e5ec;gap:10px';
+   const label=document.createElement('span');label.textContent=(a.dojos.join(', ')||'미연결')+' / '+a.username+' / '+(a.full_name||'');
+   const button=document.createElement('button');button.type='button';button.textContent='비밀번호 초기화';
+   button.onclick=async()=>{
+    if(!confirm(a.username+' 계정의 기존 비밀번호를 무효화하고 임시 비밀번호를 발급할까요?'))return;
+    button.disabled=true;
+    try{const r=await masterPasswordApi('reset',{user_id:a.user_id});
+      list.replaceChildren();const box=document.createElement('div');box.className='note';
+      const title=document.createElement('p');title.textContent=r.username+' 임시 비밀번호 (지금만 표시됩니다)';
+      const value=document.createElement('strong');value.style.cssText='font-size:24px;letter-spacing:2px;user-select:all';value.textContent=r.temporary_password;
+      const warning=document.createElement('p');warning.textContent='대상 관리자에게 안전하게 전달해 주세요. 첫 로그인에서 변경해야 합니다.';
+      box.append(title,value,warning);list.append(box);
+      msg('masterPasswordMessage','초기화가 완료되었습니다. 이 화면을 닫으면 임시 비밀번호를 다시 볼 수 없습니다.');
+    }catch(e){msg('masterPasswordMessage',e.message,true);button.disabled=false;}
+   };
+   row.append(label,button);list.append(row);
+  }
+  if(!result.accounts.length)msg('masterPasswordMessage','표시할 계정이 없습니다.');else msg('masterPasswordMessage','초기화할 계정을 선택하세요.');
+ }catch(e){msg('masterPasswordMessage','계정 조회 실패: '+e.message,true)}
+}
+$('masterPasswordLoad').onclick=loadMasterPasswordAccounts;
+$('forcePasswordForm').onsubmit=async e=>{
+ e.preventDefault();const pw=$('forceNewPassword').value;
+ if(pw!==$('forceNewPasswordConfirm').value){msg('forcePasswordMessage','새 비밀번호가 일치하지 않습니다.',true);return}
+ if(pw.length<4){msg('forcePasswordMessage','4자 이상 입력해 주세요.',true);return}
+ try{
+  await masterPasswordApi('complete',{new_password:pw});
+  $('forcePasswordPanel').classList.add('hidden');$('dashboard').classList.remove('hidden');
+  msg('dashboardMessage','새 비밀번호로 변경했습니다.');await refresh();
+ }catch(err){msg('forcePasswordMessage','변경 처리 오류: '+err.message,true)}
+};
 async function refresh(){
  const {data:{user},error}=await db.auth.getUser();
  sessionUser=error?null:user;currentDojo=null;isSuperAdmin=false;
- $('selectedCard').classList.add('hidden');$('newDojoCard').classList.add('hidden');$('masterPanel').classList.add('hidden');$('accountSettings').classList.add('hidden');$('accountProfilePanel').classList.add('hidden');
+ $('selectedCard').classList.add('hidden');$('newDojoCard').classList.add('hidden');$('masterPanel').classList.add('hidden');$('masterPasswordPanel').classList.add('hidden');$('accountSettings').classList.add('hidden');$('accountProfilePanel').classList.add('hidden');
  if(recoveryFlow){$('authCard').classList.remove('hidden');$('dashboard').classList.add('hidden');return;}
  $('authCard').classList.toggle('hidden',!!sessionUser);
  $('dashboard').classList.toggle('hidden',!sessionUser);
  if(!sessionUser)return;
  $('signedIn').textContent='관리자 로그인 완료';
+ if(sessionUser.app_metadata?.platform_password_reset_required===true){
+  $('dashboard').classList.remove('hidden');$('forcePasswordPanel').classList.remove('hidden');$('dojoList').classList.add('hidden');$('masterPanel').classList.add('hidden');$('masterPasswordPanel').classList.add('hidden');return;
+ }
+ $('forcePasswordPanel').classList.add('hidden');$('dojoList').classList.remove('hidden');
  await loadDojos();
 }
 async function loadDojos(){
@@ -572,6 +623,8 @@ async function loadDojos(){
  }
  $('newDojoCard').classList.add('hidden');
  $('masterPanel').classList.toggle('hidden',!isSuperAdmin);
+ $('masterPasswordPanel').classList.toggle('hidden',!isSuperAdmin);
+ if(isSuperAdmin)loadMasterPasswordAccounts();
  $('masterBackRow').classList.toggle('hidden',!isSuperAdmin);
  msg('dashboardMessage',isSuperAdmin?'전체 관리자 전용 · 아래에서 도장을 선택하세요.':'내 도장만 표시됩니다.');
  if(isSuperAdmin){masterDojos=items.map(x=>x.dojo);$('dojoList').classList.add('hidden');await loadMasterOverview()}else{$('dojoList').classList.remove('hidden')}
