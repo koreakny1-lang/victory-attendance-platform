@@ -79,8 +79,18 @@ input:focus,select:focus{outline:2px solid #9dc5fa;outline-offset:1px;border-col
 <main>
 <section id="authCard" class="card"><h2>관리자 계정</h2><div class="tabs"><button id="loginTab" type="button">로그인</button><button id="signupTab" class="alt" type="button">회원가입</button></div>
 <form id="authForm"><label for="username">아이디</label><input id="username" type="text" minlength="4" maxlength="20" pattern="[a-zA-Z0-9_]{4,20}" autocomplete="username" required placeholder="영문·숫자 4~20자"><label for="password">비밀번호</label><input id="password" type="password" minlength="4" maxlength="72" autocomplete="current-password" required><div id="signupFields" class="hidden"><label for="signupDojo">도장명</label><input id="signupDojo" minlength="2" maxlength="100" placeholder="예: 고려태권도"><label for="signupName">성함</label><input id="signupName" minlength="2" maxlength="50" placeholder="관리자 성함"><label for="signupPhone">전화번호</label><input id="signupPhone" type="tel" inputmode="tel" placeholder="010-1234-5678"><label for="signupEmail">비밀번호 찾기용 이메일</label><input id="signupEmail" type="email" autocomplete="email" placeholder="example@gmail.com"></div><button id="authButton" class="full" type="submit">로그인</button></form>
-<button id="forgotPassword" type="button" class="alt full">비밀번호를 잊으셨나요?</button><div id="recoveryCard" class="hidden note" style="margin-top:12px"><label for="recoveryEmail">가입할 때 등록한 이메일</label><input id="recoveryEmail" type="email" autocomplete="email" placeholder="example@gmail.com"><button id="sendRecovery" type="button" class="full">비밀번호 재설정 이메일 받기</button><p class="muted">이메일 인증이 설정된 계정에만 재설정 메일이 발송됩니다.</p><p id="recoveryMessage" class="message" role="status"></p></div><div id="newPasswordCard" class="hidden note" style="margin-top:12px"><h3>새 비밀번호 설정</h3><label for="newPassword">새 비밀번호 (4자리 이상)</label><input id="newPassword" type="password" minlength="4" maxlength="72" autocomplete="new-password"><button id="saveNewPassword" type="button" class="full">비밀번호 변경</button><p id="newPasswordMessage" class="message" role="status"></p></div><p class="muted" id="authHelp">기존 계정이 있다면 로그인해 주세요.</p><p id="authMessage" class="message" role="status"></p></section>
-<section id="dashboard" class="hidden"><div class="card"><div class="row"><h2 style="margin:0">내 도장 관리</h2><button id="logout" class="alt" type="button">로그아웃</button></div><p id="signedIn" class="muted"></p><div id="dojoList" class="list"></div><p id="dashboardMessage" class="message" role="status"></p></div>
+<button id="forgotPassword" type="button" class="alt full">비밀번호를 잊으셨나요?</button>
+<div id="recoveryCard" class="hidden note" style="margin-top:12px">
+ <h3>이메일 인증으로 임시 비밀번호 발급</h3>
+ <label for="recoveryEmail">가입할 때 등록한 이메일</label><input id="recoveryEmail" type="email" autocomplete="email" placeholder="example@gmail.com">
+ <button id="sendRecovery" type="button" class="full">인증번호 이메일 받기</button>
+ <label for="recoveryCode">이메일로 받은 인증번호</label><input id="recoveryCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="12" placeholder="인증번호 입력">
+ <button id="verifyRecovery" type="button" class="full alt">인증하고 임시 비밀번호 발급</button>
+ <div id="tempPasswordBox" class="hidden warn" style="margin-top:12px"><strong>임시 비밀번호 (이 화면에서 한 번만 표시됩니다)</strong><p id="tempPasswordValue" style="font-size:22px;letter-spacing:1px;overflow-wrap:anywhere"></p><p>임시 비밀번호를 복사한 후 기존 아이디로 로그인하세요. 로그인하면 내 계정에서 비밀번호를 바꾸세요.</p></div>
+ <p id="recoveryMessage" class="message" role="status"></p>
+</div>
+<p class="muted" id="authHelp">기존 계정이 있다면 로그인해 주세요.</p><p id="authMessage" class="message" role="status"></p></section>
+<section id="dashboard" class="hidden"><div class="card"><div class="row"><h2 style="margin:0">내 도장 관리</h2><button id="logout" class="alt" type="button">로그아웃</button></div><p id="signedIn" class="muted"></p><button id="toggleAccount" type="button" class="alt" style="margin:10px 0">내 계정 · 비밀번호 변경</button><div id="accountPanel" class="hidden note"><h3>비밀번호 변경</h3><label for="accountCurrentPassword">현재 비밀번호 (임시 비밀번호 포함)</label><input id="accountCurrentPassword" type="password" autocomplete="current-password"><label for="accountNewPassword">새 비밀번호 (8자리 이상 권장)</label><input id="accountNewPassword" type="password" minlength="4" maxlength="72" autocomplete="new-password"><label for="accountNewConfirm">새 비밀번호 확인</label><input id="accountNewConfirm" type="password" autocomplete="new-password"><button id="changeAccountPassword" type="button" class="full">비밀번호 변경</button><p id="accountMessage" class="message" role="status"></p></div><div id="dojoList" class="list"></div><p id="dashboardMessage" class="message" role="status"></p></div>
 <div id="newDojoCard" class="card hidden"><h2>내 도장 등록</h2><p class="muted">본인 계정에 연결된 도장만 관리할 수 있습니다.</p><form id="dojoForm"><label for="dojoName">도장 이름</label><input id="dojoName" minlength="2" maxlength="100" required placeholder="예: 우리태권도"><label for="dojoPhone">도장 연락처 (선택)</label><input id="dojoPhone" maxlength="40" type="tel" placeholder="010-0000-0000"><button id="dojoButton" class="full" type="submit">도장 개설하기</button></form><p id="dojoMessage" class="message" role="status"></p></div>
 <div id="selectedCard" class="hidden"><div class="card"><h2 id="selectedTitle">관리자 홈</h2><div class="menu" id="adminMenu"></div><div id="page-home" class="page active"><h2>관리자 홈</h2><p class="muted">원하는 관리 메뉴를 선택하세요.</p><div class="home-grid" id="homeButtons"></div></div></div>
 <div id="page-attendance" class="page"><div class="card"><h2>출결 관리 · 바둑판</h2>
@@ -127,35 +137,60 @@ $('loginTab').onclick=()=>setMode('login');$('signupTab').onclick=()=>setMode('s
 $('authForm').onsubmit=async e=>{e.preventDefault();const username=$('username').value.trim().toLowerCase(),password=$('password').value;const btn=$('authButton');btn.disabled=true;msg('authMessage','처리 중...');try{const payload=mode==='signup'?{username,password,dojoName:$('signupDojo').value.trim(),fullName:$('signupName').value.trim(),phone:$('signupPhone').value.trim(),email:$('signupEmail').value.trim().toLowerCase()}:{username,password};const res=await fetch(URL+'/functions/v1/'+(mode==='signup'?'platform-signup':'platform-login'),{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify(payload)});const result=await res.json().catch(()=>({}));if(!res.ok||!result.success)throw Error(result.error||'요청에 실패했습니다.');if(mode==='signup'){setMode('login');$('username').value=username;$('password').value='';msg('authMessage','가입 신청이 완료되었습니다. 등록한 이메일의 확인 링크를 누른 뒤 로그인하세요.')}else{const {error}=await db.auth.setSession({access_token:result.access_token,refresh_token:result.refresh_token});if(error)throw error;await refresh()}}catch(err){msg('authMessage',err.message||'요청에 실패했습니다.',true)}finally{btn.disabled=false}};
 $('logout').onclick=async()=>{await db.auth.signOut();currentDojo=null;await refresh()};
 let isSuperAdmin=false;
-$('forgotPassword').onclick=()=>{$('recoveryCard').classList.toggle('hidden');$('newPasswordCard').classList.add('hidden')};
+$('forgotPassword').onclick=()=>{$('recoveryCard').classList.toggle('hidden');$('tempPasswordBox').classList.add('hidden')};
 $('sendRecovery').onclick=async()=>{
  const email=$('recoveryEmail').value.trim().toLowerCase();
- if(!email||!$('recoveryEmail').checkValidity()){msg('recoveryMessage','올바른 이메일을 입력해 주세요.',true);return}
+ if(!email||!$('recoveryEmail').checkValidity()){msg('recoveryMessage','올바른 이메일을 입력하세요.',true);return}
  const btn=$('sendRecovery');btn.disabled=true;
  try{
-  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname+'?recovery=1'});
+  const {error}=await db.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
   if(error)throw error;
-  msg('recoveryMessage','이메일이 등록되어 있다면 재설정 안내를 보내드립니다. 메일함과 스팸함을 확인해 주세요.');
- }catch(e){msg('recoveryMessage','재설정 요청 실패: '+e.message,true)}finally{btn.disabled=false}
+  msg('recoveryMessage','등록된 이메일이라면 인증번호가 발송됩니다. 이메일의 숫자 인증번호를 아래에 입력하세요.');
+ }catch(e){msg('recoveryMessage','발송 실패: '+e.message,true)}finally{btn.disabled=false}
 };
-db.auth.onAuthStateChange((event)=>{
- if(event==='PASSWORD_RECOVERY'){
-   document.getElementById('dashboard').classList.add('hidden');
-  $('authCard').classList.remove('hidden');$('newPasswordCard').classList.remove('hidden');$('recoveryCard').classList.add('hidden');
- }
-});
-$('saveNewPassword').onclick=async()=>{
- const password=$('newPassword').value;
- if(password.length<4){msg('newPasswordMessage','비밀번호는 4자리 이상 입력해 주세요.',true);return}
- const btn=$('saveNewPassword');btn.disabled=true;
- try{const {error}=await db.auth.updateUser({password});if(error)throw error;msg('newPasswordMessage','비밀번호가 변경되었습니다. 로그인해 주세요.');$('newPasswordCard').classList.add('hidden');await db.auth.signOut();await refresh()}
- catch(e){msg('newPasswordMessage','변경 실패: '+e.message,true)}finally{btn.disabled=false}
+function makeTemporaryPassword(){
+ const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$';
+ const bytes=new Uint32Array(16);crypto.getRandomValues(bytes);
+ return Array.from(bytes,n=>alphabet[n%alphabet.length]).join('');
+}
+$('verifyRecovery').onclick=async()=>{
+ const email=$('recoveryEmail').value.trim().toLowerCase(),token=$('recoveryCode').value.trim();
+ if(!email||!token){msg('recoveryMessage','이메일과 인증번호를 입력하세요.',true);return}
+ const btn=$('verifyRecovery');btn.disabled=true;
+ try{
+  // Supabase Recovery email template must show {{ .Token }} (not the default URL-only template).
+  const {data,error}=await db.auth.verifyOtp({email,token,type:'recovery'});
+  if(error||!data.session)throw error||Error('인증번호를 확인할 수 없습니다.');
+  const temp=makeTemporaryPassword();
+  const {error:updateError}=await db.auth.updateUser({password:temp});
+  if(updateError)throw updateError;
+  $('tempPasswordValue').textContent=temp;$('tempPasswordBox').classList.remove('hidden');
+  msg('recoveryMessage','임시 비밀번호가 발급되었습니다. 아래 번호를 보관한 후 기존 아이디로 로그인하세요.');
+  await db.auth.signOut();
+ }catch(e){msg('recoveryMessage','인증 또는 발급 실패: '+e.message,true)}finally{btn.disabled=false}
+};
+$('toggleAccount').onclick=()=>$('accountPanel').classList.toggle('hidden');
+$('changeAccountPassword').onclick=async()=>{
+ const current=$('accountCurrentPassword').value,next=$('accountNewPassword').value,confirmNext=$('accountNewConfirm').value;
+ if(next.length<4||next.length>72){msg('accountMessage','새 비밀번호는 4~72자리입니다. 8자리 이상을 권장합니다.',true);return}
+ if(next!==confirmNext){msg('accountMessage','새 비밀번호 확인이 일치하지 않습니다.',true);return}
+ const btn=$('changeAccountPassword');btn.disabled=true;
+ try{
+  const {data:{user},error:userError}=await db.auth.getUser();
+  if(userError||!user?.email)throw Error('다시 로그인해 주세요.');
+  const {error:reauthError}=await db.auth.signInWithPassword({email:user.email,password:current});
+  if(reauthError)throw Error('현재 비밀번호가 올바르지 않습니다.');
+  const {error:changeError}=await db.auth.updateUser({password:next});
+  if(changeError)throw changeError;
+  $('accountCurrentPassword').value='';$('accountNewPassword').value='';$('accountNewConfirm').value='';
+  msg('accountMessage','비밀번호가 변경되었습니다.');
+ }catch(e){msg('accountMessage','변경 실패: '+e.message,true)}finally{btn.disabled=false}
 };
 async function refresh(){
  const {data:{user},error}=await db.auth.getUser();
  sessionUser=error?null:user;currentDojo=null;isSuperAdmin=false;
  $('selectedCard').classList.add('hidden');$('newDojoCard').classList.add('hidden');
- $('authCard').classList.toggle('hidden',!!sessionUser && $('newPasswordCard').classList.contains('hidden'));
+ $('authCard').classList.toggle('hidden',!!sessionUser);
  $('dashboard').classList.toggle('hidden',!sessionUser);
  if(!sessionUser)return;
  $('signedIn').textContent='관리자 로그인 완료';
