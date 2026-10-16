@@ -188,6 +188,9 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
 .password-wrap input{padding-right:70px}
 .password-eye{position:absolute;right:7px;top:50%;transform:translateY(-50%);background:#e8f0fc;color:#173d72;border-radius:7px;padding:8px 10px;font-size:12px;min-width:49px}
 .password-eye:focus-visible{outline:2px solid #176bd2;outline-offset:2px}
+
+/* 마스터 운영 관리 / 내 계정 비밀번호 변경 */
+.master-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.master-actions button{flex:1;min-width:85px;font-size:12px;padding:10px}.master-actions .danger{background:#a62f38!important;color:white!important}.master-actions .approve{background:#117449!important;color:white!important}.master-actions .pause{background:#a66a13!important;color:white!important}.master-status{display:inline-block;font-size:12px;padding:4px 9px;border-radius:99px;background:#edf2fa}.master-status.pending{background:#fff0cf;color:#845600}.master-status.suspended{background:#fbe8e9;color:#a62f38}.password-setting{max-width:520px}.password-setting .password-wrap{margin-top:5px}
 </style>
 </head>
 <body>
@@ -196,8 +199,9 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
 <section id="authCard" class="card"><h2>관리자 계정</h2><div class="tabs"><button id="loginTab" type="button">로그인</button><button id="signupTab" class="alt" type="button">회원가입</button></div>
 <form id="authForm"><label for="username">아이디</label><input id="username" type="text" minlength="4" maxlength="20" pattern="[a-zA-Z0-9_]{4,20}" autocomplete="username" required placeholder="영문·숫자 4~20자"><label for="password">비밀번호</label><div class="password-wrap"><input id="password" type="password" minlength="4" maxlength="72" autocomplete="current-password" required><button type="button" class="password-eye" data-toggle-password="password" aria-label="비밀번호 표시" aria-pressed="false">보기</button></div><div id="signupFields" class="hidden"><label for="signupPasswordConfirm">비밀번호 확인</label><div class="password-wrap"><input id="signupPasswordConfirm" type="password" minlength="4" maxlength="72" autocomplete="new-password" placeholder="비밀번호를 다시 입력하세요"><button type="button" class="password-eye" data-toggle-password="signupPasswordConfirm" aria-label="비밀번호 확인 표시" aria-pressed="false">보기</button></div><label for="signupDojo">도장명</label><input id="signupDojo" minlength="2" maxlength="100" placeholder="예: 승리태권도"><label for="signupName">성함</label><input id="signupName" minlength="2" maxlength="50" placeholder="관리자 성함"><label for="signupPhone">전화번호</label><input id="signupPhone" type="tel" inputmode="tel" placeholder="010-1234-5678"><label for="signupEmail">비밀번호 찾기용 이메일</label><input id="signupEmail" type="email" autocomplete="email" placeholder="example@gmail.com"></div><button id="authButton" class="full" type="submit">로그인</button></form>
 <button id="forgotPassword" type="button" class="alt full">비밀번호를 잊으셨나요?</button><div id="recoveryCard" class="hidden note" style="margin-top:12px"><label for="recoveryEmail">가입할 때 등록한 이메일</label><input id="recoveryEmail" type="email" autocomplete="email" placeholder="example@gmail.com"><button id="sendRecovery" type="button" class="full">비밀번호 재설정 이메일 받기</button><p class="muted">이메일 인증이 설정된 계정에만 재설정 메일이 발송됩니다.</p><p id="recoveryMessage" class="message" role="status"></p></div><div id="newPasswordCard" class="hidden note" style="margin-top:12px"><h3>새 비밀번호 설정</h3><p class="muted">이메일 링크 인증이 완료되었습니다. 여기서 새 비밀번호를 설정하세요.</p><label for="newPassword">새 비밀번호 (6자리 이상)</label><input id="newPassword" type="password" minlength="6" maxlength="72" autocomplete="new-password"><label for="newPasswordConfirm">새 비밀번호 확인</label><input id="newPasswordConfirm" type="password" minlength="6" maxlength="72" autocomplete="new-password" placeholder="새 비밀번호를 다시 입력하세요"><button id="saveNewPassword" type="button" class="full">비밀번호 변경</button><p id="newPasswordMessage" class="message" role="status"></p></div><p class="muted" id="authHelp">기존 계정이 있다면 로그인해 주세요.</p><p id="authMessage" class="message" role="status"></p></section>
-<section id="dashboard" class="hidden"><div class="card"><div class="row"><h2 style="margin:0">내 도장 관리</h2><button id="logout" class="alt" type="button">로그아웃</button></div><p id="signedIn" class="muted"></p><div id="dojoList" class="list"></div><p id="dashboardMessage" class="message" role="status"></p></div>
-<section id="masterPanel" class="card hidden"><div class="row"><div><h2 style="margin:0">전체 도장 관리</h2><p class="muted" style="margin:6px 0 0">가입 도장 현황과 최근 7일 출석 기록을 확인합니다.</p></div><button id="masterReload" class="alt" type="button">현황 새로고침</button></div><div id="masterSummary" class="master-summary"></div><div class="tools" style="margin:16px 0"><input id="masterSearch" type="search" placeholder="도장명 검색" aria-label="도장명 검색"></div><div id="masterList" class="master-list"></div><p id="masterMessage" class="message" role="status"></p></section>
+<section id="dashboard" class="hidden"><div class="card"><div class="row"><h2 style="margin:0">내 도장 관리</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="accountSettingsToggle" class="alt" type="button">내 계정 · 비밀번호 변경</button><button id="logout" class="alt" type="button">로그아웃</button></div></div><p id="signedIn" class="muted"></p><div id="dojoList" class="list"></div><p id="dashboardMessage" class="message" role="status"></p></div>
+<section id="masterPanel" class="card hidden"><div class="row"><div><h2 style="margin:0">전체 도장 관리</h2><p class="muted" style="margin:6px 0 0">가입 도장 현황과 최근 7일 출석 기록을 확인합니다.</p></div><button id="masterReload" class="alt" type="button">현황 새로고침</button></div><div id="masterSummary" class="master-summary"></div><div class="tools" style="margin:16px 0"><input id="masterSearch" type="search" placeholder="도장명 검색" aria-label="도장명 검색"></div><div class="tools" style="margin-bottom:12px"><select id="masterStatusFilter" aria-label="운영 상태"><option value="">전체 도장</option><option value="pending">승인 대기</option><option value="active">운영 중</option><option value="suspended">운영 중지</option></select></div><div id="masterList" class="master-list"></div><p id="masterMessage" class="message" role="status"></p></section>
+<section id="accountSettings" class="card hidden"><h2>내 계정 · 비밀번호 변경</h2><p class="muted">현재 비밀번호를 확인한 뒤 새 비밀번호로 변경합니다.</p><form id="accountPasswordForm" class="password-setting"><label for="accountOldPassword">현재 비밀번호</label><div class="password-wrap"><input id="accountOldPassword" type="password" required autocomplete="current-password"><button class="password-eye" type="button" data-toggle-password="accountOldPassword">보기</button></div><label for="accountNewPassword">새 비밀번호</label><div class="password-wrap"><input id="accountNewPassword" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPassword">보기</button></div><label for="accountNewPasswordConfirm">새 비밀번호 확인</label><div class="password-wrap"><input id="accountNewPasswordConfirm" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPasswordConfirm">보기</button></div><button class="full" id="accountPasswordSave" type="submit">비밀번호 변경</button><p id="accountPasswordMessage" class="message" role="status"></p></form></section>
 <div id="newDojoCard" class="card hidden"><h2>내 도장 등록</h2><p class="muted">본인 계정에 연결된 도장만 관리할 수 있습니다.</p><form id="dojoForm"><label for="dojoName">도장 이름</label><input id="dojoName" minlength="2" maxlength="100" required placeholder="예: 우리태권도"><label for="dojoPhone">도장 연락처 (선택)</label><input id="dojoPhone" maxlength="40" type="tel" placeholder="010-0000-0000"><button id="dojoButton" class="full" type="submit">도장 개설하기</button></form><p id="dojoMessage" class="message" role="status"></p></div>
 <div id="selectedCard" class="hidden"><div class="card"><div id="masterBackRow" class="hidden" style="margin-bottom:16px"><button id="masterBack" class="alt" type="button">← 전체 도장 목록으로</button></div><h2 id="selectedTitle">관리자 홈</h2><div class="menu" id="adminMenu"></div><div id="page-home" class="page active"><h2>관리자 홈</h2><p class="muted">원하는 관리 메뉴를 선택하세요.</p><div class="home-grid" id="homeButtons"></div></div></div>
 <div id="page-attendance" class="page"><div class="card"><h2>출결 관리 · 바둑판</h2>
@@ -244,6 +248,18 @@ function setMode(next){mode=next;$('loginTab').className=mode==='login'?'':'alt'
 document.querySelectorAll('[data-toggle-password]').forEach(button=>{button.addEventListener('click',()=>{const input=$(button.dataset.togglePassword);const show=input.type==='password';input.type=show?'text':'password';button.textContent=show?'숨김':'보기';button.setAttribute('aria-pressed',String(show));button.setAttribute('aria-label',show?'비밀번호 숨기기':'비밀번호 표시');});});
 $('loginTab').onclick=()=>setMode('login');$('signupTab').onclick=()=>setMode('signup');
 $('authForm').onsubmit=async e=>{e.preventDefault();const username=$('username').value.trim().toLowerCase(),password=$('password').value;if(mode==='signup'&&password!==$('signupPasswordConfirm').value){msg('authMessage','비밀번호와 비밀번호 확인이 일치하지 않습니다.',true);$('signupPasswordConfirm').focus();return;}const btn=$('authButton');btn.disabled=true;msg('authMessage','처리 중...');try{const payload=mode==='signup'?{username,password,dojoName:$('signupDojo').value.trim(),fullName:$('signupName').value.trim(),phone:$('signupPhone').value.trim(),email:$('signupEmail').value.trim().toLowerCase()}:{username,password};const res=await fetch(URL+'/functions/v1/'+(mode==='signup'?'platform-signup':'platform-login'),{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY},body:JSON.stringify(payload)});const result=await res.json().catch(()=>({}));if(!res.ok||!result.success)throw Error(result.error||'요청에 실패했습니다.');if(mode==='signup'){setMode('login');$('username').value=username;$('password').value='';msg('authMessage','가입 신청이 완료되었습니다. 등록한 이메일의 확인 링크를 누른 뒤 로그인하세요.')}else{const {error}=await db.auth.setSession({access_token:result.access_token,refresh_token:result.refresh_token});if(error)throw error;await refresh()}}catch(err){msg('authMessage',err.message||'요청에 실패했습니다.',true)}finally{btn.disabled=false}};
+$('accountSettingsToggle').onclick=()=>{$('accountSettings').classList.toggle('hidden');if(!$('accountSettings').classList.contains('hidden'))$('accountSettings').scrollIntoView({behavior:'smooth',block:'start'})};
+$('accountPasswordForm').onsubmit=async e=>{e.preventDefault();const old=$('accountOldPassword').value,pw=$('accountNewPassword').value,confirmPw=$('accountNewPasswordConfirm').value;
+ if(pw!==confirmPw){msg('accountPasswordMessage','새 비밀번호가 일치하지 않습니다.',true);return}
+ if(pw.length<6){msg('accountPasswordMessage','새 비밀번호는 6자 이상 입력하세요.',true);return}
+ if(old===pw){msg('accountPasswordMessage','기존 비밀번호와 다른 비밀번호를 입력하세요.',true);return}
+ const b=$('accountPasswordSave');b.disabled=true;
+ try{const {data:{user}}=await db.auth.getUser();if(!user?.email)throw Error('계정 이메일을 확인할 수 없습니다.');
+ const verify=await db.auth.signInWithPassword({email:user.email,password:old});if(verify.error)throw Error('현재 비밀번호가 올바르지 않습니다.');
+ const {error}=await db.auth.updateUser({password:pw});if(error)throw error;
+ $('accountPasswordForm').reset();msg('accountPasswordMessage','비밀번호가 변경되었습니다.');
+ }catch(err){msg('accountPasswordMessage','변경 실패: '+err.message,true)}finally{b.disabled=false}
+};
 $('logout').onclick=async()=>{await db.auth.signOut();currentDojo=null;await refresh()};
 let isSuperAdmin=false;
 // 이메일 재설정 링크는 기존 Supabase 이메일 템플릿 그대로 사용합니다.
@@ -325,7 +341,7 @@ async function initializeRecovery(){
 async function refresh(){
  const {data:{user},error}=await db.auth.getUser();
  sessionUser=error?null:user;currentDojo=null;isSuperAdmin=false;
- $('selectedCard').classList.add('hidden');$('newDojoCard').classList.add('hidden');$('masterPanel').classList.add('hidden');
+ $('selectedCard').classList.add('hidden');$('newDojoCard').classList.add('hidden');$('masterPanel').classList.add('hidden');$('accountSettings').classList.add('hidden');
  if(recoveryFlow){$('authCard').classList.remove('hidden');$('dashboard').classList.add('hidden');return;}
  $('authCard').classList.toggle('hidden',!!sessionUser);
  $('dashboard').classList.toggle('hidden',!sessionUser);
@@ -348,7 +364,8 @@ async function loadDojos(){
    items=adminData.map(d=>({dojo_id:d.id,role:'super_admin',dojo:d}));
  }
  // 일반 계정이 두 도장에 연결된 경우 정보 유출 방지를 위해 자동 선택하지 않습니다.
- if(!isSuperAdmin && items.length>1){
+ if(!isSuperAdmin && items.some(x=>x.dojo.status==='pending'||x.dojo.status==='suspended')){msg('dashboardMessage',items.some(x=>x.dojo.status==='pending')?'가입 승인 대기 중입니다. 마스터 관리자 승인 후 이용할 수 있습니다.':'도장 이용이 중지되었습니다. 마스터 관리자에게 문의하세요.',true);$('newDojoCard').classList.add('hidden');$('selectedCard').classList.add('hidden');return;}
+  if(!isSuperAdmin && items.length>1){
    msg('dashboardMessage','계정에 여러 도장이 연결되어 있습니다. 보안을 위해 접근을 중지했습니다. 전체 관리자에게 연결 상태를 확인받으세요.',true);
    $('newDojoCard').classList.add('hidden');$('selectedCard').classList.add('hidden');return;
  }
@@ -379,18 +396,26 @@ async function selectDojo(dojo){currentDojo=dojo;if(isSuperAdmin){$('masterPanel
 function masterNumber(v){return typeof v==='number'?v.toLocaleString('ko-KR'):'—'}
 function masterSummaryCard(label,value){const el=document.createElement('div');el.className='master-kpi';const l=document.createElement('span');l.className='muted';l.textContent=label;const n=document.createElement('strong');n.textContent=masterNumber(value);el.append(l,n);return el}
 function renderMasterOverview(){
- const term=$('masterSearch').value.trim().toLowerCase();const list=$('masterList');list.replaceChildren();
+ const term=$('masterSearch').value.trim().toLowerCase(),filter=$('masterStatusFilter').value;const list=$('masterList');list.replaceChildren();
  const sum=$('masterSummary');sum.replaceChildren();
  const stats=[...masterStats.values()];sum.append(masterSummaryCard('가입 도장',masterDojos.length),masterSummaryCard('전체 수련생',stats.length===masterDojos.length?stats.reduce((a,x)=>a+(x.students||0),0):null),masterSummaryCard('최근 7일 출석 건수',stats.length===masterDojos.length?stats.reduce((a,x)=>a+(x.week||0),0):null));
- for(const d of masterDojos.filter(x=>x.name.toLowerCase().includes(term))){
+ for(const d of masterDojos.filter(x=>x.name.toLowerCase().includes(term)&&(!filter||((x.status||'active')===filter)))){
   const v=masterStats.get(d.id),box=document.createElement('article');box.className='master-dojo';
   const title=document.createElement('h3');title.textContent=d.name;
-  const info=document.createElement('p');info.className='muted';info.textContent='가입일 '+(d.created_at?new Date(d.created_at).toLocaleDateString('ko-KR'):'미확인')+' · '+(d.status==='suspended'?'운영 중지':'운영 중');
+  const info=document.createElement('p');info.className='muted';const statusText=d.status==='pending'?'승인 대기':d.status==='suspended'?'운영 중지':'운영 중';info.textContent='가입일 '+(d.created_at?new Date(d.created_at).toLocaleDateString('ko-KR'):'미확인')+' · '+statusText;
   const metrics=document.createElement('div');metrics.className='master-metrics';
   for(const [label,num] of [['수련생',v?.students],['최근 7일 출석',v?.week],['오늘 출석',v?.today]]){const item=document.createElement('div');const b=document.createElement('strong');b.textContent=masterNumber(num);item.append(b,document.createTextNode(label));metrics.append(item)}
   const badge=document.createElement('span');badge.className='master-badge'+(v?.issue?' warn':'');badge.textContent=v?.error?'현황 조회 오류':v?.issue||'기록 확인 가능';
   const open=document.createElement('button');open.type='button';open.className='master-open';open.textContent='이 도장 관리 화면 열기 →';open.onclick=()=>selectDojo(d);
-  box.append(title,info,metrics,badge,open);list.append(box);
+  const actions=document.createElement('div');actions.className='master-actions';
+   const actionButton=(label,cls,handler)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.className=cls;b.onclick=handler;actions.append(b)};
+   if(d.status==='pending')actionButton('가입 승인','approve',()=>masterAction(d,'active'));
+   if(d.status==='pending')actionButton('가입 거절','danger',()=>masterAction(d,'suspended'));
+   if(d.status==='suspended')actionButton('운영 재개 / 승인','approve',()=>masterAction(d,'active'));
+   if(d.status!=='pending'&&d.status!=='suspended')actionButton('운영 중지','pause',()=>masterAction(d,'suspended'));
+   actionButton('도장명·연락처 수정','alt',()=>masterEditDojo(d));
+   actionButton('삭제 요청 안내','alt',()=>alert('수련생·출석 기록이 함께 삭제될 수 있어 영구 삭제는 이 화면에서 지원하지 않습니다. 운영 중지를 먼저 사용하세요.'));
+   box.append(title,info,metrics,badge,open,actions);list.append(box);
  }
  if(!list.children.length){const p=document.createElement('p');p.className='muted';p.textContent='검색 결과가 없습니다.';list.append(p)}
 }
@@ -419,6 +444,22 @@ async function loadMasterOverview(){
  }
  if(request===masterRequest)msg('masterMessage','현황은 참고용입니다. 출석 기록이 없는 경우 휴관이나 미사용 등 여러 원인이 있을 수 있습니다.');
 }
+async function masterAction(dojo,status){
+ if(!isSuperAdmin)return;
+ const label=status==='active'?'승인 / 운영 재개':'운영 중지 / 가입 거절';
+ if(!confirm(dojo.name+' 도장을 '+label+' 처리하시겠습니까?'))return;
+ try{const {error}=await db.rpc('platform_master_set_dojo_status',{p_dojo_id:dojo.id,p_status:status});if(error)throw error;dojo.status=status;renderMasterOverview();msg('masterMessage',dojo.name+' · '+label+' 처리되었습니다.');}
+ catch(e){msg('masterMessage','처리 실패: '+e.message,true)}
+}
+async function masterEditDojo(dojo){
+ if(!isSuperAdmin)return;
+ const name=prompt('변경할 도장명',dojo.name);if(name===null)return;
+ if(name.trim().length<2){alert('도장명은 2자 이상 입력하세요.');return}
+ const phone=prompt('도장 연락처',dojo.phone||'');if(phone===null)return;
+ try{const {error}=await db.rpc('platform_update_dojo_info',{p_dojo_id:dojo.id,p_name:name.trim(),p_phone:phone.trim()});if(error)throw error;dojo.name=name.trim();dojo.phone=phone.trim();if(currentDojo?.id===dojo.id){currentDojo.name=dojo.name;currentDojo.phone=dojo.phone;$('selectedTitle').textContent=dojo.name;$('editDojoName').value=dojo.name;$('editDojoPhone').value=dojo.phone;}renderMasterOverview();msg('masterMessage','도장 정보를 수정했습니다.');}
+ catch(e){msg('masterMessage','도장 정보 수정 실패: '+e.message,true)}
+}
+$('masterStatusFilter').addEventListener('change',renderMasterOverview);
 $('masterSearch').addEventListener('input',renderMasterOverview);
 $('masterReload').onclick=()=>loadMasterOverview();
 $('masterBack').onclick=()=>{currentDojo=null;masterRequest++;$('selectedCard').classList.add('hidden');$('masterPanel').classList.remove('hidden');applyTheme();renderMasterOverview();loadMasterOverview()};
