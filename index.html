@@ -232,7 +232,7 @@ main{max-width:1370px!important}
 h2{color:#102650!important}h3{color:#142f5c;font-weight:800}
 .menu{gap:9px!important}.menu button{background:#fff!important;color:#213a5e!important;border:1px solid #e1e6f0!important;font-weight:800!important}
 .menu button.active{background:#132a56!important;color:#ffdc79!important;border-color:#132a56!important;box-shadow:0 4px 12px #102a522b!important}
-button:not(.alt):not(.mutedbutton):not(.dojo):not(.mini):not(.password-eye){background:#142e60!important;color:#fff}
+button:not(.alt):not(.mutedbutton):not(.dojo):not(.mini):not(.password-eye):not(.menu-button){background:#142e60!important;color:#fff}
 button:not(.alt):not(.mutedbutton):not(.dojo):not(.mini):not(.password-eye):hover{background:#203e76!important}
 #page-home .home-grid button{background:linear-gradient(135deg,#fff,#fff9ed)!important;border:1px solid #e9dfc6!important;color:#122b57!important;min-height:100px}
 #page-home .home-grid button:before{content:none!important}
@@ -284,6 +284,50 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
  #page-vehicle label,#page-vehicle input,#page-vehicle select{font-size:14px!important}
 }
 </style>
+
+<style id="menu-text-contrast-fix">
+/* 메뉴는 흰 배경/진한 글자, 선택 메뉴는 남색 배경/흰 글자 */
+@media screen {
+  #selectedCard #adminMenu.menu button, #selectedCard #adminMenu.menu button:not(.active) {
+    background:#ffffff!important; color:#142b4f!important; border:1px solid #cbd7e8!important;
+    font-size:14px!important; font-weight:800!important; line-height:1.5!important;
+    min-height:44px; padding:10px 14px!important; text-shadow:none!important; opacity:1!important;
+  }
+  #selectedCard #adminMenu.menu button.active {
+    background:#142e60!important; color:#ffffff!important; border-color:#142e60!important;
+  }
+  #selectedCard #page-home #homeButtons.home-grid button {
+    background:#ffffff!important; color:#142b4f!important; border:1px solid #d6e0ed!important;
+    font-size:16px!important; font-weight:800!important; text-shadow:none!important; opacity:1!important;
+  }
+  #selectedCard #page-home #homeButtons.home-grid button:hover {background:#f2f6fc!important;}
+}
+@media screen and (max-width:600px){
+ #selectedCard #adminMenu.menu button{font-size:12px!important;padding:10px 5px!important;}
+ #selectedCard #page-home #homeButtons.home-grid button{font-size:14px!important;}
+}
+</style>
+<style id="vehicle-clean-manage-style">
+@media screen {
+#page-vehicle .card{border:1px solid #e3e9f1!important;box-shadow:0 5px 18px rgba(19,42,75,.055)!important;border-radius:15px!important}
+#page-vehicle h2,#page-vehicle h3{color:#142d51!important;font-weight:800!important;font-size:19px!important}
+#page-vehicle label{color:#243c5a!important;font-size:13px!important;font-weight:700!important}
+#page-vehicle input,#page-vehicle select{background:#fff!important;color:#152c4b!important;border:1px solid #cbd7e6!important;min-height:42px!important;font-size:14px!important}
+#page-vehicle button{font-weight:750!important;font-size:13px!important;min-height:37px}
+#page-vehicle button:not(.alt):not(.mutedbutton){background:#173b70!important;color:#fff!important}
+.vehicle-filterbar{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:12px;margin:16px 0 12px}
+.vehicle-filterbar label{display:flex;flex-direction:column;gap:6px}
+.vehicle-manage-list{display:grid;gap:9px;margin-top:12px}
+.vehicle-group-card{display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid #e0e8f2;background:#f9fbfe;border-radius:12px;padding:14px 16px}
+.vehicle-group-info{display:flex;flex-wrap:wrap;align-items:center;gap:12px;color:#253d5d;font-size:14px}
+.vehicle-group-info strong{font-size:16px;color:#0c2b56;min-width:66px}
+.vehicle-day-badges{color:#1c5791;font-weight:750;background:#e9f2fc;padding:6px 10px;border-radius:7px}
+.vehicle-group-actions{display:flex;gap:6px;flex-shrink:0}
+.vehicle-group-actions button{background:#fff!important;color:#173b70!important;border:1px solid #cbd7e6!important}
+.vehicle-empty{padding:25px;text-align:center;color:#63748c;background:#f7f9fc;border-radius:10px}
+}
+@media(max-width:680px){.vehicle-filterbar{grid-template-columns:1fr!important}.vehicle-group-card{align-items:flex-start;flex-direction:column}.vehicle-group-actions{width:100%}.vehicle-group-actions button{flex:1}}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -314,7 +358,7 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
  </div>
  <div class="card no-print"><h3>승차·하차 일정 등록</h3><div class="field-grid"><label>학생 이름<input id="vehicleStudent" type="text" maxlength="60" placeholder="예: 김승리" autocomplete="off"></label><label>구분<select id="vehicleKind"><option value="pickup">승차</option><option value="dropoff">하차</option></select></label><label>시간<input id="vehicleTime" type="time" value="14:00" step="60"></label><label>장소<select id="vehiclePlace"></select></label></div><fieldset class="vehicle-days"><legend>운행 요일 (여러 개 선택)</legend><label><input type="checkbox" value="1" checked> 월</label><label><input type="checkbox" value="2" checked> 화</label><label><input type="checkbox" value="3" checked> 수</label><label><input type="checkbox" value="4" checked> 목</label><label><input type="checkbox" value="5" checked> 금</label></fieldset><button id="vehicleAddRide" type="button">일정 등록</button><p id="vehicleMessage" class="message" role="status"></p></div>
  <div class="card"><div class="tools no-print"><label>운행표 보기<select id="vehicleView"><option value="pickup">승차표</option><option value="dropoff">하차표</option><option value="all">승차 + 하차</option></select></label><button id="vehiclePrint" type="button">인쇄</button><button id="vehicleCsv" type="button">CSV 다운로드</button><button id="vehicleReload" type="button">새로고침</button></div><div id="vehicleTables"></div></div>
- <div class="card no-print"><h3>등록된 일정 수정·삭제</h3><p class="muted">수정은 해당 일정의 변경 버튼을 누르면 입력창에 불러옵니다. 저장하면 기존 일정을 교체합니다.</p><div id="vehicleRideList" class="list"></div></div>
+ <div class="card no-print vehicle-manage"><h3>등록된 일정 관리</h3><p class="muted">학생별 또는 장소별로 찾아서 여러 요일을 한 번에 수정할 수 있습니다.</p><div class="vehicle-filterbar"><label>관리 방식<select id="vehicleManageMode"><option value="student">학생별 관리</option><option value="place">장소별 관리</option></select></label><label>학생 또는 장소 선택<select id="vehicleManageTarget"></select></label><label>승차·하차<select id="vehicleManageKind"><option value="all">전체</option><option value="pickup">승차</option><option value="dropoff">하차</option></select></label></div><p id="vehicleManageCount" class="muted"></p><div id="vehicleRideList" class="vehicle-manage-list"></div></div>
 </div>
 <div id="page-links" class="page"><div class="card"><h2>주소 관리</h2><p class="muted">통합 관리자 주소</p><input id="adminAddress" readonly><button id="copyAdmin" class="full" type="button">주소 복사</button><p class="muted">학생용 출석체크기 주소</p><input id="kioskAddress" readonly placeholder="도장을 선택하면 주소를 생성할 수 있습니다"><button id="createKioskLink" class="full" type="button">학생용 출석체크기 주소 만들기</button><button id="copyKiosk" class="full alt" type="button">학생용 주소 복사</button><p id="kioskLinkMessage" class="message" role="status"></p><div style="margin-top:20px;border-top:1px solid #dce5ef;padding-top:16px"><h2>학부모 공용 주소</h2><p class="muted">도장당 하나의 주소입니다. 밴드 등에 한 번 공지하면 학부모가 직접 연결합니다. 학부모는 본인 휴대전화번호만 입력하면 등록된 자녀의 출석정보를 확인합니다.</p><input id="parentCommonAddress" readonly placeholder="도장을 선택하면 주소가 표시됩니다"><button id="copyParentCommon" class="full alt" type="button">학부모 공용 주소 복사</button><p id="parentCommonMessage" class="message" role="status"></p></div><p class="warn">학생용 주소는 도장 내부 기기에만 공유하세요. 출석번호 4자리 입력으로 출석·귀가가 처리됩니다. 학부모 알림은 서버 설정 및 실제 수신 테스트 후 이용할 수 있습니다.</p></div></div>
 </div>
@@ -811,11 +855,43 @@ function renderVehicle(){
  const placeSel=$('vehiclePlace'),prevPlace=placeSel.value;
  placeSel.replaceChildren(...vehiclePlaces.map(p=>new Option(p.name,p.id)));
  if(vehiclePlaces.some(x=>x.id===prevPlace))placeSel.value=prevPlace;
- const list=$('vehicleRideList');list.innerHTML='';
- for(const ride of vehicleRides){const row=document.createElement('div');row.className='vehicle-ride';const info=document.createElement('span');info.textContent=vehicleDays[ride.weekday]+' · '+(ride.kind==='pickup'?'승차':'하차')+' · '+vehicleTimeText(ride.ride_time)+' · '+vehiclePlaceName(ride.place_id)+' · '+vehicleStudentName(ride);const edit=document.createElement('button');edit.type='button';edit.className='mini alt';edit.textContent='변경';edit.onclick=()=>vehicleEditRide(ride);const del=document.createElement('button');del.type='button';del.className='mini mutedbutton';del.textContent='삭제';del.onclick=()=>vehicleDeleteRide(ride);row.append(info,edit,del);list.append(row)}
- if(!vehicleRides.length)list.textContent='등록된 일정이 없습니다.';
+ renderVehicleManageFilters();
+ renderVehicleManageList();
  renderVehicleTables();
 }
+function renderVehicleManageFilters(){
+ const mode=$('vehicleManageMode').value,sel=$('vehicleManageTarget'),previous=sel.value;
+ const values=mode==='student'?[...new Set(vehicleRides.map(vehicleStudentName))].sort((a,b)=>a.localeCompare(b,'ko')):vehiclePlaces.filter(p=>vehicleRides.some(r=>r.place_id===p.id)).map(p=>({id:p.id,name:p.name}));
+ sel.innerHTML='';sel.add(new Option(mode==='student'?'전체 학생':'전체 장소',''));
+ for(const x of values)sel.add(new Option(mode==='student'?x:x.name,mode==='student'?x:x.id));
+ if([...sel.options].some(o=>o.value===previous))sel.value=previous;
+}
+function vehicleGroupedRides(){
+ const mode=$('vehicleManageMode').value,target=$('vehicleManageTarget').value,kind=$('vehicleManageKind').value;
+ const rows=vehicleRides.filter(r=>(kind==='all'||r.kind===kind)&&(!target||(mode==='student'?vehicleStudentName(r)===target:r.place_id===target)));
+ const groups=new Map();
+ for(const r of rows){const key=[vehicleStudentName(r),r.kind,r.place_id,vehicleTimeText(r.ride_time)].join('\u0001');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r)}
+ return [...groups.values()].sort((a,b)=>vehicleTimeText(a[0].ride_time).localeCompare(vehicleTimeText(b[0].ride_time))||vehicleStudentName(a[0]).localeCompare(vehicleStudentName(b[0]),'ko'));
+}
+function renderVehicleManageList(){
+ const list=$('vehicleRideList');list.replaceChildren();const groups=vehicleGroupedRides();
+ $('vehicleManageCount').textContent=`${groups.length}개 일정 묶음 · 요일별 ${groups.reduce((n,g)=>n+g.length,0)}건`;
+ if(!groups.length){const empty=document.createElement('div');empty.className='vehicle-empty';empty.textContent='해당 조건에 등록된 운행 일정이 없습니다.';list.append(empty);return}
+ for(const group of groups){const r=group[0],card=document.createElement('article');card.className='vehicle-group-card';
+ const info=document.createElement('div');info.className='vehicle-group-info';
+ const title=document.createElement('strong');title.textContent=vehicleStudentName(r);
+ const details=document.createElement('span');details.textContent=`${r.kind==='pickup'?'승차':'하차'}  |  ${vehicleTimeText(r.ride_time)}  |  ${vehiclePlaceName(r.place_id)}`;
+ const days=document.createElement('span');days.className='vehicle-day-badges';days.textContent=[...new Set(group.map(x=>x.weekday))].sort().map(d=>vehicleDays[d]).join(' · ');
+ info.append(title,details,days);const actions=document.createElement('div');actions.className='vehicle-group-actions';
+ const edit=document.createElement('button');edit.type='button';edit.className='alt';edit.textContent='일괄 수정';edit.onclick=()=>vehicleEditGroup(group);
+ const del=document.createElement('button');del.type='button';del.className='alt';del.textContent='삭제';del.onclick=()=>vehicleDeleteGroup(group);
+ actions.append(edit,del);card.append(info,actions);list.append(card)}
+}
+$('vehicleManageMode').addEventListener('change',()=>{ $('vehicleManageTarget').value='';renderVehicleManageFilters();renderVehicleManageList()});
+$('vehicleManageTarget').addEventListener('change',renderVehicleManageList);
+$('vehicleManageKind').addEventListener('change',renderVehicleManageList);
+function vehicleEditGroup(group){vehicleEditing=[...group];const r=group[0];$('vehicleStudent').value=vehicleStudentName(r);$('vehiclePlace').value=r.place_id;$('vehicleKind').value=r.kind;$('vehicleTime').value=vehicleTimeText(r.ride_time);const days=new Set(group.map(x=>Number(x.weekday)));document.querySelectorAll('#page-vehicle .vehicle-days input').forEach(x=>x.checked=days.has(Number(x.value)));$('vehicleAddRide').textContent='일괄 수정 저장';vehicleNotice('선택한 일정의 요일·시간·장소·이름을 수정한 뒤 저장하세요.');$('vehicleStudent').scrollIntoView({behavior:'smooth',block:'center'});$('vehicleStudent').focus()}
+async function vehicleDeleteGroup(group){if(!confirm(`${vehicleStudentName(group[0])} 학생의 선택된 ${group.length}건 일정을 삭제할까요?`))return;const ids=group.map(r=>r.id);const {error}=await db.from('platform_vehicle_rides').delete().eq('dojo_id',currentDojo.id).in('id',ids);if(error)return vehicleNotice('삭제 실패: '+error.message,true);await loadVehicle();vehicleNotice('선택한 일정을 삭제했습니다.')}
 function renderVehicleTables(){
  const box=$('vehicleTables');box.innerHTML='';const view=$('vehicleView').value;
  for(const kind of (view==='all'?['pickup','dropoff']:[view])){
@@ -858,13 +934,16 @@ $('vehicleAddRide').onclick=async()=>{
  const rows=days.map(weekday=>({dojo_id:currentDojo.id,student_name,place_id,kind,ride_time,weekday}));
  const btn=$('vehicleAddRide');btn.disabled=true;
  try{
-  if(vehicleEditing){const old=vehicleEditing;const {error}=await db.from('platform_vehicle_rides').delete().eq('dojo_id',currentDojo.id).eq('id',old.id);if(error)throw error}
-  const {error}=await db.from('platform_vehicle_rides').insert(rows);if(error)throw error;
+  if(vehicleEditing){
+   const old=Array.isArray(vehicleEditing)?vehicleEditing:[vehicleEditing];
+   const oldByDay=new Map(old.map(r=>[Number(r.weekday),r]));
+   // 기존 행은 먼저 UPDATE하여 삭제 후 INSERT 실패로 인한 데이터 손실을 피합니다.
+   for(const row of rows){const existing=oldByDay.get(row.weekday);if(existing){const {error}=await db.from('platform_vehicle_rides').update({student_name:row.student_name,place_id:row.place_id,kind:row.kind,ride_time:row.ride_time}).eq('dojo_id',currentDojo.id).eq('id',existing.id);if(error)throw error}else{const {error}=await db.from('platform_vehicle_rides').insert(row);if(error)throw error}}
+   const removed=old.filter(r=>!days.includes(Number(r.weekday)));if(removed.length){const {error}=await db.from('platform_vehicle_rides').delete().eq('dojo_id',currentDojo.id).in('id',removed.map(r=>r.id));if(error)throw error}
+  }else{const {error}=await db.from('platform_vehicle_rides').insert(rows);if(error)throw error}
   vehicleEditing=null;btn.textContent='일정 등록';$('vehicleStudent').value='';await loadVehicle();vehicleNotice('일정을 저장했습니다.');
  }catch(e){vehicleNotice('저장 실패: '+e.message,true)}finally{btn.disabled=false}
 };
-function vehicleEditRide(r){vehicleEditing=r;$('vehicleStudent').value=vehicleStudentName(r);$('vehiclePlace').value=r.place_id;$('vehicleKind').value=r.kind;$('vehicleTime').value=vehicleTimeText(r.ride_time);document.querySelectorAll('#page-vehicle .vehicle-days input').forEach(x=>x.checked=Number(x.value)===r.weekday);$('vehicleAddRide').textContent='변경 내용 저장';vehicleNotice('선택한 일정의 값을 변경하고 저장하세요.');$('vehicleTime').focus()}
-async function vehicleDeleteRide(r){if(!confirm(vehicleStudentName(r)+' 학생의 '+vehicleDays[r.weekday]+' 운행 일정을 삭제할까요?'))return;const {error}=await db.from('platform_vehicle_rides').delete().eq('dojo_id',currentDojo.id).eq('id',r.id);if(error)return vehicleNotice(error.message,true);await loadVehicle()}
 $('vehiclePrint').onclick=()=>{document.body.classList.add('vehicle-printing');window.print();setTimeout(()=>document.body.classList.remove('vehicle-printing'),1500)};
 window.addEventListener('afterprint',()=>document.body.classList.remove('vehicle-printing'));
 $('vehicleCsv').onclick=()=>{
