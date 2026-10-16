@@ -191,6 +191,27 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
 
 /* 마스터 운영 관리 / 내 계정 비밀번호 변경 */
 .master-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.master-actions button{flex:1;min-width:85px;font-size:12px;padding:10px}.master-actions .danger{background:#a62f38!important;color:white!important}.master-actions .approve{background:#117449!important;color:white!important}.master-actions .pause{background:#a66a13!important;color:white!important}.master-status{display:inline-block;font-size:12px;padding:4px 9px;border-radius:99px;background:#edf2fa}.master-status.pending{background:#fff0cf;color:#845600}.master-status.suspended{background:#fbe8e9;color:#a62f38}.password-setting{max-width:520px}.password-setting .password-wrap{margin-top:5px}
+
+/* 월별 출석부: 번호, 가운데 정렬, A4 가로 20명 단위 페이지 */
+#monthlyPrintPages{display:none}
+#page-monthly .wide-table th,#page-monthly .wide-table td{text-align:center;vertical-align:middle}
+#page-monthly .wide-table .left{text-align:center;position:static}
+#page-monthly .wide-table th:first-child,#page-monthly .wide-table td:first-child{width:35px;min-width:35px}
+@media print{
+ #page-monthly #monthlyTable,#page-monthly #monthlyPrintTitle{display:none!important}
+ #monthlyPrintPages{display:block!important}
+ .monthly-print-sheet{display:block;break-after:page;page-break-after:always;width:100%;margin:0;padding:0}
+ .monthly-print-sheet:last-child{break-after:auto;page-break-after:auto}
+ .monthly-print-sheet h2{text-align:center!important;font-size:16px!important;margin:0 0 2mm!important}
+ .print-page-count{text-align:right;font-size:9px;margin:0 0 2mm}
+ .monthly-print-sheet .wide-table{width:100%!important;table-layout:fixed!important;border-collapse:collapse;font-size:9px!important}
+ .monthly-print-sheet .wide-table th,.monthly-print-sheet .wide-table td{border:1px solid #dce5ef;padding:0 1px!important;height:8.2mm!important;max-height:8.2mm!important;text-align:center!important;vertical-align:middle!important;white-space:nowrap;overflow:hidden}
+ .monthly-print-sheet .wide-table tr:nth-child(-n+2) th{height:6mm!important;max-height:6mm!important}
+ .monthly-print-sheet .wide-table th:first-child,.monthly-print-sheet .wide-table td:first-child{width:9mm!important;min-width:0!important}
+ .monthly-print-sheet .wide-table th:nth-child(2),.monthly-print-sheet .wide-table td:nth-child(2){width:23mm!important;min-width:0!important;position:static!important;text-align:center!important}
+ .monthly-print-sheet .wide-table th:last-child,.monthly-print-sheet .wide-table td:last-child{width:13mm!important}
+ @page{size:A4 landscape;margin:9mm}
+}
 </style>
 </head>
 <body>
@@ -210,7 +231,7 @@ body{background:var(--bg);color:var(--text)}header{background:var(--primary)!imp
 <div class="stats"><div class="stat"><strong id="countAll">0</strong>전체</div><div class="stat"><strong id="countPresent">0</strong>출석</div><div class="stat"><strong id="countMissing">0</strong>미출석</div></div>
 <div id="attendanceGrid" class="attendance-grid"></div><p id="attendanceMessage" class="message" role="status"></p>
 </div></div>
-<div id="page-monthly" class="page"><div class="card"><h2 id="monthlyPrintTitle">월별 출석부</h2><div class="tools no-print"><label>조회 월<input id="monthInput" type="month"></label><button id="loadMonthly" type="button">조회</button><button id="printMonthly" class="alt" type="button">A4 인쇄</button><button id="exportMonthly" class="alt" type="button">엑셀 파일 다운로드</button></div><p id="monthlyMessage" class="muted"></p><div id="monthlyTable" class="scroll"></div></div></div>
+<div id="page-monthly" class="page"><div class="card"><h2 id="monthlyPrintTitle">월별 출석부</h2><div class="tools no-print"><label>조회 월<input id="monthInput" type="month"></label><button id="loadMonthly" type="button">조회</button><button id="printMonthly" class="alt" type="button">A4 인쇄</button><button id="exportMonthly" class="alt" type="button">엑셀 파일 다운로드</button></div><p id="monthlyMessage" class="muted"></p><div id="monthlyTable" class="scroll"></div><div id="monthlyPrintPages" aria-hidden="true"></div></div></div>
 <div id="page-manual" class="page"><div class="card"><h2>터치 출석</h2><p class="muted">한 번 누르면 출석, 다시 누르면 출석 취소됩니다. 이 화면에서는 귀가 처리하지 않습니다. 학부모 알림도 발송하지 않습니다.</p><div id="manualGrid" class="attendance-grid"></div></div></div>
 <div id="page-students" class="page"><div class="students-layout"><section class="card student-list-panel"><h2>수련생 관리</h2><p class="muted">학생 정보와 상태(재원생·휴관·퇴원생)를 수정할 수 있습니다. 상태 변경은 학생 카드의 버튼을 누르세요.</p><div class="tools"><input id="studentSearch" type="search" placeholder="이름·번호·학교·수련반 검색"><select id="studentStatusFilter"><option value="재원">재원생</option><option value="">전체</option><option value="휴원">휴관</option><option value="퇴원">퇴원생</option></select><button id="exportStudents" class="alt" type="button">명단 CSV</button></div><p id="studentCount" class="muted"></p><div id="studentsList"></div></section><section class="card student-register-panel"><h2>학생 등록</h2><p class="muted">새로운 수련생의 기본 정보를 입력해 주세요.</p><form id="studentForm"><label for="studentName">학생 이름</label><input id="studentName" required maxlength="80"><label for="studentPin">출석번호 4자리</label><input id="studentPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="숫자 4자리"><div class="field-grid"><label>학부모 연락처<input id="studentPhone" type="tel"></label><label>수련반<input id="studentClass"></label><label>학교<input id="studentSchool"></label><label>학년<input id="studentGrade"></label><label>띠<input id="studentBelt"></label><label>생년월일<input id="studentBirth" type="date"></label></div><div id="studentCustomFields" class="field-grid" style="margin-top:12px"></div><button id="studentButton" class="full" type="submit">학생 등록하기</button></form><p id="studentMessage" class="message" role="status"></p><p class="note">학부모 공용 페이지에서 출석사진을 확인할 수 있습니다. 학부모는 도장별 공용 주소에서 전화번호로 출결을 조회합니다. 학생용 번호 출석체크는 [주소 관리]에서 연결할 수 있습니다. 관리자 터치 출석은 알림을 발송하지 않습니다.</p></section></div></div>
 <div id="page-birthday" class="page"><div class="card"><h2>생일 관리</h2><div id="birthdayList" class="list"></div><p class="muted">생년월일을 등록한 재원생만 표시됩니다.</p></div></div>
@@ -617,22 +638,22 @@ async function loadMonthly(){
  const weekendClass=d=>dayOfWeek(d)===0?'sunday-col':dayOfWeek(d)===6?'saturday-col':'';
  const table=document.createElement('table');table.className='wide-table';
  const head=document.createElement('tr');
- for(const x of ['이름',...Array.from({length:last},(_,i)=>String(i+1)),'출석일수']){
+ for(const x of ['번호','이름',...Array.from({length:last},(_,i)=>String(i+1)),'출석일수']){
   const th=document.createElement('th');th.textContent=x;
   const d=head.children.length;
-  if(d>=1&&d<=last){th.className=weekendClass(d);th.title=m+'-'+String(d).padStart(2,'0')+' '+weekdays[dayOfWeek(d)]+'요일';}
+  if(d>=2&&d<=last+1){th.className=weekendClass(d-1);th.title=m+'-'+String(d-1).padStart(2,'0')+' '+weekdays[dayOfWeek(d-1)]+'요일';}
   head.append(th);
  }
  table.append(head);
  const weekHead=document.createElement('tr');
- for(let i=0;i<last+2;i++){
+ for(let i=0;i<last+3;i++){
   const th=document.createElement('th');
-  if(i>=1&&i<=last){th.textContent=weekdays[dayOfWeek(i)];th.className=weekendClass(i)}
+  if(i>=2&&i<=last+1){th.textContent=weekdays[dayOfWeek(i-1)];th.className=weekendClass(i-1)}
   weekHead.append(th);
  }
  table.append(weekHead);
- for(const st of students){
-  const tr=document.createElement('tr'),cells=[st.name];let total=0;
+ for(const [studentIndex,st] of students.entries()){
+  const tr=document.createElement('tr'),cells=[String(studentIndex+1),st.name];let total=0;
   for(let d=1;d<=last;d++){
    const key=st.id+'|'+m+'-'+String(d).padStart(2,'0');
    const checked=present.has(key);cells.push(checked?'○':'');if(checked)total++;
@@ -640,15 +661,30 @@ async function loadMonthly(){
   cells.push(String(total));monthlyRows.push(cells);
   cells.forEach((value,i)=>{
    const td=document.createElement('td');td.textContent=value;
-   if(i===0)td.className='left';
-   else if(i<=last)td.className=weekendClass(i)+(value==='○'?' marked':'');
+   if(i===1)td.className='left';
+   else if(i>=2&&i<=last+1)td.className=weekendClass(i-1)+(value==='○'?' marked':'');
    tr.append(td);
   });
   table.append(tr);
  }
  $('monthlyTable').replaceChildren(table);
+ buildMonthlyPrintPages(table,m);
  $('monthlyPrintTitle').textContent=(currentDojo?.name||'')+' · '+m+' 월별 출석부';
  $('monthlyMessage').textContent=m+' 출석부 · 학생 '+students.length+'명 · 기록 '+(ar.data||[]).length+'건 · 토요일 파랑 / 일요일 분홍';
+}
+function buildMonthlyPrintPages(table,month){
+ const target=$('monthlyPrintPages');target.replaceChildren();
+ const bodyRows=Array.from(table.rows).slice(2);
+ const pages=Math.max(1,Math.ceil(bodyRows.length/20));
+ for(let page=0;page<pages;page++){
+  const section=document.createElement('section');section.className='monthly-print-sheet';
+  const title=document.createElement('h2');title.textContent=(currentDojo?.name||'')+' · '+month+' 월별 출석부';
+  const caption=document.createElement('p');caption.className='print-page-count';caption.textContent=(page+1)+' / '+pages+' 페이지';
+  const t=document.createElement('table');t.className='wide-table monthly-print-table';
+  t.append(table.rows[0].cloneNode(true),table.rows[1].cloneNode(true));
+  for(const row of bodyRows.slice(page*20,(page+1)*20))t.append(row.cloneNode(true));
+  section.append(title,caption,t);target.append(section);
+ }
 }
 $('exportMonthly').onclick=()=>{
  const table=$('monthlyTable').querySelector('table');
