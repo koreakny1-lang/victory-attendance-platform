@@ -1,9 +1,55 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#082e61"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><title>태권도 출석관리 · 학부모</title><style>*{box-sizing:border-box}body{margin:0;background:#eef3f9;font-family:"Malgun Gothic",sans-serif;color:#172a40}main{max-width:540px;margin:32px auto;padding:0 15px}h1{text-align:center;color:#082e61;font-size:23px}p{line-height:1.6}.card{background:#fff;border-radius:15px;padding:22px;margin:16px 0;box-shadow:0 5px 24px #1c3e6312}label{display:block;margin:12px 0 8px;font-weight:bold}input{width:100%;padding:15px;font-size:18px;border:1px solid #c9d6e6;border-radius:9px}button{background:#082e61;color:#fff;border:0;border-radius:9px;padding:14px 18px;font-size:16px;cursor:pointer;width:100%;margin-top:12px}button:disabled{opacity:.5}.muted{color:#637589;font-size:13px}.student{border-top:1px solid #e0e8f1;padding:15px 0}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:10px 6px;border-bottom:1px solid #e6ecf3;text-align:center}img{width:100%;max-height:350px;object-fit:contain;border-radius:9px;background:#eef2f7}#msg,#pushMsg{min-height:24px;color:#174b83}.hide{display:none}.badge{font-weight:bold;color:#176045}</style></head><body><main><h1>태권도 출석관리</h1><p style="text-align:center" class="muted" id="intro">도장에서 안내받은 학부모 공용 주소입니다.</p><section class="card"><form id="form"><label for="phone">학부모 휴대전화번호</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-1234-5678" required><p class="muted">도장에 등록된 번호를 입력하세요. 출석번호는 학생이 출석체크기에 입력하는 번호입니다.</p><button id="lookup" type="submit">자녀 출석 확인</button></form><p id="msg" role="status"></p></section><section id="results" class="card hide"><h2 id="dojoName"></h2><div id="children"></div><button type="button" id="pushOn">이 휴대폰에서 출석·귀가 알림 켜기</button><p id="pushMsg" role="status"></p><p class="muted">휴대전화번호만으로 조회하는 간편 방식입니다. 번호를 아는 사람도 조회할 수 있으므로 공용 기기에서는 사용 후 입력 내용을 지워 주세요.</p></section></main><script>
-const PROJECT='https://ixuxlblfkoccmwqxsjbw.supabase.co',KEY='sb_publishable_lmwJJaHfZzE5hXnZnF49oA__F7JpDZ8';const dojo=new URLSearchParams(location.search).get('dojo');const $=id=>document.getElementById(id);let accessToken=null,publicKey=null;
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#082e61"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><link rel="apple-touch-icon" href="/icon-192.png"><title>태권도 출석관리 · 학부모</title><style>*{box-sizing:border-box}body{margin:0;background:#eef3f9;font-family:"Malgun Gothic",sans-serif;color:#172a40}main{max-width:540px;margin:32px auto;padding:0 15px}h1{text-align:center;color:#082e61;font-size:23px}p{line-height:1.6}.card{background:#fff;border-radius:15px;padding:22px;margin:16px 0;box-shadow:0 5px 24px #1c3e6312}label{display:block;margin:12px 0 8px;font-weight:bold}input{width:100%;padding:15px;font-size:18px;border:1px solid #c9d6e6;border-radius:9px}button{background:#082e61;color:#fff;border:0;border-radius:9px;padding:14px 18px;font-size:16px;cursor:pointer;width:100%;margin-top:12px}button:disabled{opacity:.5}.muted{color:#637589;font-size:13px}.student{border-top:1px solid #e0e8f1;padding:15px 0}table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:10px 6px;border-bottom:1px solid #e6ecf3;text-align:center}img{width:100%;max-height:350px;object-fit:contain;border-radius:9px;background:#eef2f7}#msg,#pushMsg{min-height:24px;color:#174b83}.hide{display:none}.badge{font-weight:bold;color:#176045}</style></head><body><main><h1>태권도 출석관리</h1><p style="text-align:center" class="muted" id="intro">도장에서 안내받은 학부모 공용 주소입니다.</p><section class="card" id="phoneCard"><form id="form"><label for="phone">학부모 휴대전화번호</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-1234-5678" required><p class="muted">도장에 등록된 번호를 입력하세요. 출석번호는 학생이 출석체크기에 입력하는 번호입니다.</p><button id="lookup" type="submit">자녀 출석 확인</button></form><p id="msg" role="status"></p></section><section id="results" class="card hide"><h2 id="dojoName"></h2><div id="children"></div><button type="button" id="installApp">휴대폰 홈 화면에 앱 설치하기</button><p id="installMsg" class="muted" role="status"></p><button type="button" id="resetDevice" class="alt" style="background:#e8f0fc;color:#103d75">이 휴대폰의 연결 해제 / 번호 변경</button><button type="button" id="pushOn">이 휴대폰에서 출석·귀가 알림 켜기</button><p id="pushMsg" role="status"></p><p class="muted">휴대전화번호만으로 조회하는 간편 방식입니다. 번호를 아는 사람도 조회할 수 있으므로 공용 기기에서는 사용 후 입력 내용을 지워 주세요.</p></section></main><script>
+const PROJECT='https://ixuxlblfkoccmwqxsjbw.supabase.co',KEY='sb_publishable_lmwJJaHfZzE5hXnZnF49oA__F7JpDZ8';const requestedDojo=new URLSearchParams(location.search).get('dojo');const savedDojo=localStorage.getItem('tkd:lastDojo');const dojo=requestedDojo||savedDojo;const $=id=>document.getElementById(id);let accessToken=null,publicKey=null;let deferredInstall=null;const deviceKey='tkd:parentDevice:'+dojo;const validDojo=/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(dojo||'');
 function fmt(v){return v?new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(v)):'—'}
 async function call(name,payload){const res=await fetch(PROJECT+'/functions/v1/'+name,{method:'POST',headers:{'Content-Type':'application/json',apikey:KEY},body:JSON.stringify(payload)});const data=await res.json().catch(()=>({}));if(!res.ok||!data.success)throw Error(data.message||'서버 연결 오류');return data}
 function render(data){$('dojoName').textContent=data.dojo_name||'우리 도장';$('children').replaceChildren();for(const child of data.children||[]){const sec=document.createElement('section');sec.className='student';const title=document.createElement('h3');title.textContent=child.name+' 학생';sec.append(title);const records=child.records||[];const recent=document.createElement('p');recent.className='badge';recent.textContent=records.length?'최근 출석 '+records[0].attendance_date+' '+fmt(records[0].checked_at)+' · 귀가 '+fmt(records[0].departed_at):'출석 기록 없음';sec.append(recent);if(child.photo_url){const pic=document.createElement('img');pic.src=child.photo_url;pic.alt=child.name+' 최근 출석사진';sec.append(pic)}const table=document.createElement('table');const thead=document.createElement('thead');thead.innerHTML='<tr><th>날짜</th><th>출석</th><th>귀가</th></tr>';table.append(thead);const tbody=document.createElement('tbody');for(const r of records){const tr=document.createElement('tr');for(const val of [r.attendance_date,fmt(r.checked_at),fmt(r.departed_at)]){const td=document.createElement('td');td.textContent=val;tr.append(td)}tbody.append(tr)}table.append(tbody);sec.append(table);$('children').append(sec)}$('results').classList.remove('hide')}
-$('form').addEventListener('submit',async e=>{e.preventDefault();const phone=$('phone').value.replace(/\D/g,'');if(!/^01[016789][0-9]{7,8}$/.test(phone)){ $('msg').textContent='휴대전화번호를 확인해 주세요.';return}if(!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(dojo||'')){$('msg').textContent='도장 공용 주소를 확인해 주세요.';return} $('lookup').disabled=true;$('msg').textContent='조회 중입니다.';try{const data=await call('platform-parent-phone',{dojo_id:dojo,phone});accessToken=data.access_token;publicKey=data.vapid_public_key;render(data);$('msg').textContent='조회되었습니다.';$('phone').value='';}catch(err){accessToken=null;$('results').classList.add('hide');$('msg').textContent=err.message||'조회 실패'}finally{$('lookup').disabled=false}});
+$('form').addEventListener('submit',async e=>{e.preventDefault();const phone=$('phone').value.replace(/\D/g,'');if(!/^01[016789][0-9]{7,8}$/.test(phone)){ $('msg').textContent='휴대전화번호를 확인해 주세요.';return}if(!/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(dojo||'')){$('msg').textContent='도장 공용 주소를 확인해 주세요.';return} $('lookup').disabled=true;$('msg').textContent='조회 중입니다.';try{const data=await call('platform-parent-phone',{dojo_id:dojo,phone});accessToken=data.access_token;publicKey=data.vapid_public_key;render(data);$('msg').textContent='조회되었습니다.';if(validDojo)localStorage.setItem('tkd:lastDojo',dojo);await linkDevice(data.access_token);$('phone').value='';}catch(err){accessToken=null;$('results').classList.add('hide');$('msg').textContent=err.message||'조회 실패'}finally{$('lookup').disabled=false}});
+
+async function linkDevice(shortToken){
+ try{
+  const data=await call('platform-parent-device',{action:'link',dojo_id:dojo,access_token:shortToken});
+  localStorage.setItem(deviceKey,data.device_token);accessToken=data.device_token;
+  $('phoneCard').classList.add('hide');$('msg').textContent='';
+ }catch(err){$('msg').textContent='조회되었습니다. 자동 연결 저장 실패: '+err.message;}
+}
+async function openSaved(){
+ if(!validDojo){$('msg').textContent='도장에서 받은 학부모 전용 주소로 다시 접속해 주세요.';return}
+ const token=localStorage.getItem(deviceKey);if(!token)return;
+ $('msg').textContent='자녀 출석정보를 불러오는 중입니다.';
+ try{
+  const data=await call('platform-parent-device',{action:'view',dojo_id:dojo,device_token:token});
+  accessToken=token;publicKey=data.vapid_public_key;render(data);
+  $('phoneCard').classList.add('hide');$('msg').textContent='';
+ }catch(err){
+  localStorage.removeItem(deviceKey);$('phoneCard').classList.remove('hide');$('results').classList.add('hide');
+  $('msg').textContent='연결 기간이 만료되었거나 해제되었습니다. 전화번호를 다시 입력해 주세요.';
+ }
+}
+$('resetDevice').onclick=async()=>{
+ if(!confirm('이 휴대폰의 학부모 연결을 해제하고 전화번호를 다시 입력하시겠습니까?'))return;
+ const token=localStorage.getItem(deviceKey);
+ localStorage.removeItem(deviceKey);accessToken=null;publicKey=null;
+ $('results').classList.add('hide');$('phoneCard').classList.remove('hide');$('phone').value='';$('msg').textContent='전화번호를 입력해 주세요.';
+ if(token)call('platform-parent-device',{action:'revoke',dojo_id:dojo,device_token:token}).catch(()=>{});
+};
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e});
+$('installApp').onclick=async()=>{
+ const ua=navigator.userAgent||'';const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+ if(standalone){$('installMsg').textContent='이미 홈 화면에서 실행 중입니다.';return}
+ if(deferredInstall){
+  deferredInstall.prompt();const choice=await deferredInstall.userChoice;deferredInstall=null;
+  $('installMsg').textContent=choice?.outcome==='accepted'?'설치가 진행됩니다.':'브라우저 메뉴에서 홈 화면에 추가할 수 있습니다.';return;
+ }
+ if(/iPad|iPhone|iPod/i.test(ua)){
+  $('installMsg').textContent='아이폰: Safari에서 이 주소를 연 뒤 공유(□↑) → 홈 화면에 추가 → 추가를 누르세요. 알림은 설치된 앱에서 허용해 주세요.';
+ }else if(/SamsungBrowser/i.test(ua)){
+  $('installMsg').textContent='삼성 인터넷: 하단 메뉴(≡) → 현재 페이지 추가 → 홈 화면을 선택하세요.';
+ }else{
+  $('installMsg').textContent='브라우저 메뉴(⋮) → 앱 설치 또는 홈 화면에 추가를 선택하세요.';
+ }
+};
+window.addEventListener('appinstalled',()=>{$('installMsg').textContent='앱이 설치되었습니다.'});
+openSaved();
 function b64bytes(str){const pad='='.repeat((4-str.length%4)%4);const raw=atob((str+pad).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(raw,c=>c.charCodeAt(0))}
 $('pushOn').onclick=async()=>{
  let stage='① 사전 확인';const btn=$('pushOn');btn.disabled=true;
