@@ -680,7 +680,7 @@ function renderMasterOverview(){
  const term=$('masterSearch').value.trim().toLowerCase(),filter=$('masterStatusFilter').value;const list=$('masterList');list.replaceChildren();
  const sum=$('masterSummary');sum.replaceChildren();
  const stats=[...masterStats.values()];sum.append(masterSummaryCard('가입 도장',masterDojos.length),masterSummaryCard('전체 수련생',stats.length===masterDojos.length?stats.reduce((a,x)=>a+(x.students||0),0):null),masterSummaryCard('최근 7일 출석 건수',stats.length===masterDojos.length?stats.reduce((a,x)=>a+(x.week||0),0):null));
- for(const d of masterDojos.filter(x=>x.name.toLowerCase().includes(term)&&(!filter||((x.status||'active')===filter)))){
+ for(const d of masterDojos.filter(x=>x.name.toLowerCase().includes(term)&&(!filter||((x.status||'active')===filter))).sort((a,b)=>({active:0,pending:1,suspended:2}[a.status||'active']??3)-({active:0,pending:1,suspended:2}[b.status||'active']??3))){
   const v=masterStats.get(d.id),box=document.createElement('article');box.className='master-dojo';
   const title=document.createElement('h3');title.textContent=d.name;
   const info=document.createElement('p');info.className='muted';const statusText=d.status==='pending'?'승인 대기':d.status==='suspended'?'운영 중지':'운영 중';info.textContent='가입일 '+(d.created_at?new Date(d.created_at).toLocaleDateString('ko-KR'):'미확인')+' · '+statusText;
@@ -695,7 +695,7 @@ function renderMasterOverview(){
    if(d.status==='suspended')actionButton('운영 재개 / 승인','approve',()=>masterAction(d,'active'));
    if(d.status!=='pending'&&d.status!=='suspended')actionButton('운영 중지','pause',()=>masterAction(d,'suspended'));
    actionButton('도장명·연락처 수정','alt',()=>masterEditDojo(d));
-   actionButton('삭제 요청 안내','alt',()=>alert('수련생·출석 기록이 함께 삭제될 수 있어 영구 삭제는 이 화면에서 지원하지 않습니다. 운영 중지를 먼저 사용하세요.'));
+   if(d.status==='suspended')actionButton('완전 삭제','danger',()=>masterDeleteDojo(d));
    box.append(title,info,metrics,badge,open,actions);list.append(box);
  }
  if(!list.children.length){const p=document.createElement('p');p.className='muted';p.textContent='검색 결과가 없습니다.';list.append(p)}
@@ -731,6 +731,21 @@ async function masterAction(dojo,status){
  if(!confirm(dojo.name+' 도장을 '+label+' 처리하시겠습니까?'))return;
  try{const {error}=await db.rpc('platform_master_set_dojo_status',{p_dojo_id:dojo.id,p_status:status});if(error)throw error;dojo.status=status;renderMasterOverview();msg('masterMessage',dojo.name+' · '+label+' 처리되었습니다.');}
  catch(e){msg('masterMessage','처리 실패: '+e.message,true)}
+}
+async function masterDeleteDojo(dojo){
+ if(!isSuperAdmin || dojo.status!=='suspended')return;
+ if(!confirm('['+dojo.name+'] 도장과 수련생, 출석 기록 등 연결 데이터를 영구 삭제합니다. 복구할 수 없습니다. 계속하시겠습니까?'))return;
+ const typed=prompt('삭제를 확인하려면 도장명을 정확히 입력하세요.\\n'+dojo.name);
+ if(typed!==dojo.name){if(typed!==null)alert('도장명이 일치하지 않아 삭제하지 않았습니다.');return;}
+ if(!confirm('마지막 확인: ['+dojo.name+'] 도장을 완전히 삭제하시겠습니까?'))return;
+ try{
+  const {error}=await db.rpc('platform_master_delete_dojo',{p_dojo_id:dojo.id});
+  if(error)throw error;
+  masterDojos=masterDojos.filter(x=>x.id!==dojo.id);
+  masterStats.delete(dojo.id);
+  renderMasterOverview();
+  msg('masterMessage',dojo.name+' 도장 삭제가 완료되었습니다.');
+ }catch(e){msg('masterMessage','삭제 실패: '+e.message+' (서버 삭제 함수 설치 여부를 확인하세요.)',true)}
 }
 async function masterEditDojo(dojo){
  if(!isSuperAdmin)return;
