@@ -402,7 +402,7 @@ const KEY='sb_publishable_lmwJJaHfZzE5hXnZnF49oA__F7JpDZ8';
 const db=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id);
 let mode='login',currentDojo=null,sessionUser=null;
-let masterDojos=[],masterStats=new Map(),masterRequest=0;
+let masterDojos=[],masterStats=new Map(),masterRequest=0,masterDeletionDates=new Map();
 const menus=[['home','홈'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['tuition','수련비 관리'],['vehicle','차량운행'],['links','주소 관리']];
 let monthlyRows=[],monthlyDays=0;
 let vehiclePlaces=[],vehicleRides=[],vehicleEditing=null;
@@ -683,7 +683,7 @@ function renderMasterOverview(){
  for(const d of masterDojos.filter(x=>x.name.toLowerCase().includes(term)&&(!filter||((x.status||'active')===filter))).sort((a,b)=>({active:0,pending:1,suspended:2}[a.status||'active']??3)-({active:0,pending:1,suspended:2}[b.status||'active']??3))){
   const v=masterStats.get(d.id),box=document.createElement('article');box.className='master-dojo';
   const title=document.createElement('h3');title.textContent=d.name;
-  const info=document.createElement('p');info.className='muted';const statusText=d.status==='pending'?'승인 대기':d.status==='suspended'?'운영 중지':'운영 중';info.textContent='가입일 '+(d.created_at?new Date(d.created_at).toLocaleDateString('ko-KR'):'미확인')+' · '+statusText;
+  const info=document.createElement('p');info.className='muted';const due=masterDeletionDates.get(d.id);const statusText=due?'삭제 예정 · '+new Date(due).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):d.status==='pending'?'승인 대기':d.status==='suspended'?'운영 중지':'운영 중';info.textContent='가입일 '+(d.created_at?new Date(d.created_at).toLocaleDateString('ko-KR'):'미확인')+' · '+statusText;
   const metrics=document.createElement('div');metrics.className='master-metrics';
   for(const [label,num] of [['수련생',v?.students],['최근 7일 출석',v?.week],['오늘 출석',v?.today]]){const item=document.createElement('div');const b=document.createElement('strong');b.textContent=masterNumber(num);item.append(b,document.createTextNode(label));metrics.append(item)}
   const badge=document.createElement('span');badge.className='master-badge'+(v?.issue?' warn':'');badge.textContent=v?.error?'현황 조회 오류':v?.issue||'기록 확인 가능';
@@ -692,16 +692,22 @@ function renderMasterOverview(){
    const actionButton=(label,cls,handler)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.className=cls;b.onclick=handler;actions.append(b)};
    if(d.status==='pending')actionButton('가입 승인','approve',()=>masterAction(d,'active'));
    if(d.status==='pending')actionButton('가입 거절','danger',()=>masterAction(d,'suspended'));
-   if(d.status==='suspended')actionButton('운영 재개 / 승인','approve',()=>masterAction(d,'active'));
+   if(d.status==='suspended'&&!masterDeletionDates.has(d.id))actionButton('운영 재개 / 승인','approve',()=>masterAction(d,'active'));
    if(d.status!=='pending'&&d.status!=='suspended')actionButton('운영 중지','pause',()=>masterAction(d,'suspended'));
    actionButton('도장명·연락처 수정','alt',()=>masterEditDojo(d));
-   if(d.status==='suspended')actionButton('완전 삭제','danger',()=>masterDeleteDojo(d));
+   if(d.status==='suspended'){if(masterDeletionDates.has(d.id))actionButton('삭제 취소','approve',()=>masterCancelDeletion(d));else actionButton('삭제 신청 (7일 보관)','danger',()=>masterScheduleDeletion(d));}
    box.append(title,info,metrics,badge,open,actions);list.append(box);
  }
  if(!list.children.length){const p=document.createElement('p');p.className='muted';p.textContent='검색 결과가 없습니다.';list.append(p)}
 }
 async function loadMasterOverview(){
- if(!isSuperAdmin)return;const request=++masterRequest;masterStats=new Map();renderMasterOverview();
+ if(!isSuperAdmin)return;const request=++masterRequest;masterStats=new Map();
+ const deletionResult=await db.rpc('platform_master_dojo_deletion_requests');
+ if(request!==masterRequest)return;
+ masterDeletionDates=new Map();
+ if(deletionResult.error){msg('masterMessage','삭제 예약 조회 실패: '+deletionResult.error.message,true)}
+ else for(const r of (deletionResult.data||[]))masterDeletionDates.set(r.dojo_id,r.delete_after);
+ renderMasterOverview();
  msg('masterMessage','도장별 현황을 확인하는 중입니다…');
  const now=new Date(),seoul=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Seoul'}));
  const today=[seoul.getFullYear(),String(seoul.getMonth()+1).padStart(2,'0'),String(seoul.getDate()).padStart(2,'0')].join('-');
@@ -732,20 +738,27 @@ async function masterAction(dojo,status){
  try{const {error}=await db.rpc('platform_master_set_dojo_status',{p_dojo_id:dojo.id,p_status:status});if(error)throw error;dojo.status=status;renderMasterOverview();msg('masterMessage',dojo.name+' · '+label+' 처리되었습니다.');}
  catch(e){msg('masterMessage','처리 실패: '+e.message,true)}
 }
-async function masterDeleteDojo(dojo){
- if(!isSuperAdmin || dojo.status!=='suspended')return;
- if(!confirm('['+dojo.name+'] 도장과 수련생, 출석 기록 등 연결 데이터를 영구 삭제합니다. 복구할 수 없습니다. 계속하시겠습니까?'))return;
- const typed=prompt('삭제를 확인하려면 도장명을 정확히 입력하세요.\\n'+dojo.name);
- if(typed!==dojo.name){if(typed!==null)alert('도장명이 일치하지 않아 삭제하지 않았습니다.');return;}
- if(!confirm('마지막 확인: ['+dojo.name+'] 도장을 완전히 삭제하시겠습니까?'))return;
+async function masterScheduleDeletion(dojo){
+ if(!isSuperAdmin||dojo.status!=='suspended')return;
+ if(!confirm('['+dojo.name+'] 도장 삭제를 신청하시겠습니까?\n7일 동안 기록을 보관하고 그 후 영구 삭제 대상으로 지정됩니다.'))return;
+ const typed=prompt('삭제 신청을 확인하려면 도장명을 정확히 입력하세요.\n'+dojo.name);
+ if(typed!==dojo.name){if(typed!==null)alert('도장명이 일치하지 않습니다.');return;}
  try{
-  const {error}=await db.rpc('platform_master_delete_dojo',{p_dojo_id:dojo.id});
+  const {data,error}=await db.rpc('platform_master_schedule_dojo_deletion',{p_dojo_id:dojo.id});
   if(error)throw error;
-  masterDojos=masterDojos.filter(x=>x.id!==dojo.id);
-  masterStats.delete(dojo.id);
-  renderMasterOverview();
-  msg('masterMessage',dojo.name+' 도장 삭제가 완료되었습니다.');
- }catch(e){msg('masterMessage','삭제 실패: '+e.message+' (서버 삭제 함수 설치 여부를 확인하세요.)',true)}
+  masterDeletionDates.set(dojo.id,data);renderMasterOverview();
+  msg('masterMessage',dojo.name+' 삭제 예약 완료. 예정일: '+new Date(data).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})+' (자동 영구 삭제 작업은 별도 설치 필요)');
+ }catch(e){msg('masterMessage','삭제 예약 실패: '+e.message,true)}
+}
+async function masterCancelDeletion(dojo){
+ if(!isSuperAdmin||!masterDeletionDates.has(dojo.id))return;
+ if(!confirm('['+dojo.name+'] 도장의 삭제 예약을 취소하시겠습니까?'))return;
+ try{
+  const {error}=await db.rpc('platform_master_cancel_dojo_deletion',{p_dojo_id:dojo.id});
+  if(error)throw error;
+  masterDeletionDates.delete(dojo.id);renderMasterOverview();
+  msg('masterMessage',dojo.name+' 삭제 예약을 취소했습니다. 운영 중지 상태는 유지됩니다.');
+ }catch(e){msg('masterMessage','삭제 취소 실패: '+e.message,true)}
 }
 async function masterEditDojo(dojo){
  if(!isSuperAdmin)return;
