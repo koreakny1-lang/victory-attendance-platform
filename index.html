@@ -1193,7 +1193,7 @@ async function loadAttendance(){
  ]);
  if(currentDojo?.id!==dojoId)return;
  if(sr.error||ar.error){msg('attendanceMessage','조회 실패: '+(sr.error?.message||ar.error?.message),true);return}
- const students=(sr.data||[]).filter(x=>x.status==='재원');
+ const students=(sr.data||[]).filter(x=>String(x.status||'').trim()==='재원');
  const records=new Map((ar.data||[]).map(x=>[x.student_id,x]));
  const present=students.filter(x=>records.has(x.id)).length;
  $('countAll').textContent=students.length;$('countPresent').textContent=present;$('countMissing').textContent=students.length-present;
@@ -1216,6 +1216,10 @@ async function loadAttendance(){
  }
 }
 async function toggleManualAttendance(student,record,day,dojoId,isTouch=false){
+ if(isTouch){
+  const {data:activeStudent,error:statusError}=await db.from('platform_students').select('id,status').eq('dojo_id',dojoId).eq('id',student.id).maybeSingle();
+  if(statusError||String(activeStudent?.status||'').trim()!=='재원'){alert('현재 재원생만 터치 출석할 수 있습니다.');await loadAttendance();return;}
+ }
  if(attendanceBusy||currentDojo?.id!==dojoId)return;
  if(isTouch&&record?.departed_at){alert('귀가 완료된 기록은 터치 출석에서 취소할 수 없습니다. 출결 관리에서 취소해 주세요.');return}
  const action=record?'출석 취소':'출석';
