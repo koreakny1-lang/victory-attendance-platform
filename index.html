@@ -1117,23 +1117,8 @@ function renderStudentList(){
   [['재원','재원생'],['휴원','휴관'],['퇴원','퇴원']].forEach(([v,t])=>statusSelect.add(new Option(t,v)));
   statusSelect.value=s.status||'재원';statusSelect.addEventListener('change',mark);statusTd.append(statusSelect);tr.append(statusTd);
   const actions=document.createElement('td');actions.className='student-row-actions';actions.append(save,notice);
-  save.onclick=async()=>{
-   if(!currentDojo)return;
-   const payload=Object.fromEntries(fields.map(k=>[k,inputs[k].value.trim()||null]));try{payload.birth_date=normalizeBirthDate(payload.birth_date)}catch(e){alert(e.message);inputs.birth_date.focus();return}payload.status=statusSelect.value;
-   if(!payload.name){alert('학생 이름을 입력해 주세요.');inputs.name.focus();return}
-   if(!/^\d{4}$/.test(payload.pin||'')){alert('출석번호는 숫자 4자리여야 합니다.');inputs.pin.focus();return}
-   if(allStudents.some(other=>other.id!==s.id&&other.pin===payload.pin)){alert('같은 도장에 이미 사용 중인 출석번호입니다.');inputs.pin.focus();return}
-   if(payload.birth_date&&!/^\d{4}-\d{2}-\d{2}$/.test(payload.birth_date)){alert('생년월일을 확인해 주세요.');return}
-   save.disabled=true;notice.textContent='저장 중...';
-   const dojoId=currentDojo.id;
-   try{
-    const {data,error}=await db.from('platform_students').update(payload).eq('dojo_id',dojoId).eq('id',s.id).select('id');
-    if(error)throw error;if(!data?.length)throw Error('수정 권한이 없거나 해당 학생을 찾을 수 없습니다.');
-    if(currentDojo?.id!==dojoId)return;
-    Object.assign(s,payload);notice.textContent='저장 완료';tr.classList.remove('student-dirty');
-    await loadStudents();await loadAttendance();msg('studentMessage',s.name+' 학생 정보가 저장되었습니다.');
-   }catch(e){notice.textContent='저장 실패';alert('학생 정보 저장 실패: '+e.message);save.disabled=false}
-  };
+  // 어느 학생의 [저장]을 눌러도 현재 수정 중인 모든 학생을 일괄 저장합니다.
+  save.onclick=()=>saveAllStudentEdits();
   if(s.status==='퇴원'){
    const del=document.createElement('button');del.type='button';del.className='alt mini';del.textContent='삭제';del.onclick=()=>deleteRetiredStudent(s);actions.append(del)
   }
