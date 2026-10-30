@@ -430,6 +430,17 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 }
 @media screen and (max-width:600px){#page-birthday .birthday-section{padding:9px!important}#page-birthday .birthday-compact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
+<style id="single-menu-birthday-priority">
+@media screen{
+ #selectedCard #adminMenu{display:none!important}
+ #selectedCard #homeButtons{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:7px!important;margin:8px 0 15px}
+ #selectedCard #homeButtons button{min-height:45px!important;padding:10px 12px!important;font-size:13px!important;line-height:1.3!important;text-align:center!important;white-space:nowrap!important;border-radius:9px!important}
+ #selectedCard #homeButtons button.active{background:#142e60!important;color:#fff!important;border-color:#142e60!important}
+ #page-home{margin:0!important}
+ #page-birthday .birthday-current-month{border:2px solid #d9b665!important;background:#fffaf0!important}
+}
+@media screen and (max-width:650px){#selectedCard #homeButtons{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}#selectedCard #homeButtons button{font-size:11px!important;padding:9px 3px!important;white-space:normal!important;word-break:keep-all!important;min-height:43px!important}}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -444,7 +455,7 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 <div id="masterPasswordEntry" class="card hidden" style="margin:14px 0;padding:14px!important"><button id="masterPasswordToggle" type="button" class="alt" aria-expanded="false" aria-controls="masterPasswordPanel">관리자 계정 비밀번호 초기화 열기</button></div>
 <section id="masterPasswordPanel" class="card hidden" style="margin:14px 0"><h2>마스터 전용 · 계정 비밀번호 초기화</h2><p class="muted">선택한 관리자에게 임시 비밀번호를 발급합니다. 임시 비밀번호는 한 번만 표시되며, 다음 로그인에서 반드시 변경해야 합니다.</p><button type="button" id="masterPasswordLoad" class="alt">관리자 계정 목록 새로고침</button><div id="masterPasswordAccounts" class="list" style="margin-top:12px"></div><p id="masterPasswordMessage" class="message" role="status"></p></section>
 <section id="forcePasswordPanel" class="card hidden" style="border:2px solid #b7852a"><h2>임시 비밀번호 변경</h2><p>보안을 위해 임시 비밀번호를 새 비밀번호로 변경해야 합니다.</p><form id="forcePasswordForm"><label>새 비밀번호 (최소 4자, 실제 서버 정책에 따라 더 길어야 할 수 있습니다)<input id="forceNewPassword" type="password" minlength="4" required autocomplete="new-password"></label><label>새 비밀번호 확인<input id="forceNewPasswordConfirm" type="password" minlength="4" required autocomplete="new-password"></label><button type="submit">새 비밀번호 저장</button></form><p id="forcePasswordMessage" class="message" role="status"></p></section>
-<div id="selectedCard" class="hidden"><div class="card"><div id="masterBackRow" class="hidden" style="margin-bottom:16px"><button id="masterBack" class="alt" type="button">← 전체 도장 목록으로</button></div><h2 id="selectedTitle">관리자 홈</h2><div class="menu" id="adminMenu"></div><div id="page-home" class="page active"><h2>관리자 홈</h2><p class="muted">원하는 관리 메뉴를 선택하세요.</p><div class="home-grid" id="homeButtons"></div></div></div>
+<div id="selectedCard" class="hidden"><div class="card"><div id="masterBackRow" class="hidden" style="margin-bottom:16px"><button id="masterBack" class="alt" type="button">← 전체 도장 목록으로</button></div><h2 id="selectedTitle">관리자 홈</h2><div class="menu hidden" id="adminMenu" aria-hidden="true"></div><div class="home-grid" id="homeButtons" aria-label="관리 메뉴"></div><div id="page-home" class="page active"><p class="muted" style="margin:14px 0 0">관리할 메뉴를 선택해 주세요.</p></div></div>
 <div id="page-attendance" class="page"><div class="card"><h2>출결 관리 · 바둑판</h2>
 <div class="row" style="margin:15px 0"><h2 style="margin:0">오늘 출석 현황</h2><button id="reloadAttendance" class="alt" type="button">새로고침</button></div>
 <p id="attendanceDate" class="muted"></p>
@@ -481,8 +492,8 @@ let masterDojos=[],masterStats=new Map(),masterRequest=0,masterDeletionDates=new
 const menus=[['home','홈'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['tuition','수련비 관리'],['vehicle','차량운행'],['links','주소 관리']];
 let monthlyRows=[],monthlyDays=0;
 let vehiclePlaces=[],vehicleRides=[],vehicleEditing=null;
-function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#adminMenu button'))b.classList.toggle('active',b.dataset.page===name);if(name==='monthly')loadMonthly();if(name==='vehicle')loadVehicle();if(name==='tuition'){loadTuitionPlans().then(()=>loadTuition()).catch(e=>msg('tuitionMessage','수련비 조회 오류: '+e.message,true))};if(name==='program')loadTuitionPlans();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
-function buildMenu(){const menu=$('adminMenu'),home=$('homeButtons');for(const [id,label] of menus){const b=document.createElement('button');b.textContent=label;b.dataset.page=id;b.type='button';b.onclick=()=>showPage(id);menu.append(b);if(id!=='home'){const c=document.createElement('button');c.type='button';c.textContent=label;c.onclick=()=>showPage(id);home.append(c)}}showPage('home')}
+function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#homeButtons button')){b.classList.toggle('active',b.dataset.page===name);b.setAttribute('aria-current',b.dataset.page===name?'page':'false')}if(name==='monthly')loadMonthly();if(name==='vehicle')loadVehicle();if(name==='tuition'){loadTuitionPlans().then(()=>loadTuition()).catch(e=>msg('tuitionMessage','수련비 조회 오류: '+e.message,true))};if(name==='program')loadTuitionPlans();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
+function buildMenu(){const menu=$('adminMenu'),home=$('homeButtons');menu.replaceChildren();home.replaceChildren();for(const [id,label] of menus){const c=document.createElement('button');c.type='button';c.dataset.page=id;c.textContent=label==='홈'?'관리자 홈':label;c.onclick=()=>showPage(id);home.append(c)}showPage('home')}
 buildMenu();
 $('createKioskLink').onclick=async()=>{
  if(!currentDojo){msg('kioskLinkMessage','먼저 도장을 선택하세요.',true);return}
@@ -997,7 +1008,8 @@ function renderBirthdays(){
  const title=document.createElement('strong');title.textContent='월별 생일자 현황';
  const total=document.createElement('span');total.textContent='등록 '+students.length+'명 · 이번 달 '+students.filter(s=>Number(s.birth_date.slice(5,7))===currentMonth).length+'명';
  heading.append(title,total);box.append(heading);
- for(let month=1;month<=12;month++){
+ for(let offset=0;offset<12;offset++){
+  const month=(currentMonth-1+offset)%12+1;
   const arr=students.filter(s=>Number(s.birth_date.slice(5,7))===month).sort((a,b)=>Number(a.birth_date.slice(8,10))-Number(b.birth_date.slice(8,10))||a.name.localeCompare(b.name,'ko'));
   const section=document.createElement('section');section.className='birthday-section'+(month===currentMonth?' birthday-current-month':'');
   const head=document.createElement('h3');head.className='birthday-section-title';
