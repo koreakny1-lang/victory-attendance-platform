@@ -519,6 +519,20 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 @media(max-width:390px){#page-manual #manualGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}#page-manual #manualGrid .attile{padding:7px 5px!important}}
 @media print{#page-monthly .wide-table th:not(.saturday-col):not(.sunday-col){background:#f0f2f5!important;color:#17345d!important}#page-monthly .wide-table td:not(.saturday-col):not(.sunday-col){background:#f7f8fa!important;color:#17345d!important}#page-monthly .wide-table th,#page-monthly .wide-table td{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
 </style>
+<style id="touch-desktop-square-20261030">
+/* 휴대전화: 기존 3열 카드 유지 */
+@media screen and (min-width:701px){
+ #page-manual #manualGrid{grid-template-columns:repeat(auto-fill,minmax(125px,1fr))!important;gap:12px!important;align-items:stretch}
+ #page-manual #manualGrid .attile{aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px!important;text-align:center;border-radius:14px!important;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+ #page-manual #manualGrid .attile strong{font-size:17px!important;line-height:1.3!important}
+ #page-manual #manualGrid .attile small{font-size:12px!important;margin:0!important;line-height:1.4!important}
+ #page-manual #manualGrid .tile-actions{width:100%;margin-top:2px}
+ #page-manual #manualGrid .tile-actions button{width:100%;padding:10px 4px!important;font-size:13px!important}
+ #page-manual #manualGrid .attile:focus-visible{outline:3px solid #2563eb;outline-offset:3px}
+ #page-manual #manualGrid .attile:hover{border-color:#7699c8!important;transform:translateY(-1px)}
+}
+@media screen and (max-width:700px){#page-manual #manualGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -1552,4 +1566,32 @@ $('tuitionCsv').onclick=()=>{const rows=[['번호','이름','수련반','금액'
 </script>
 <script>if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));}
 
-</script></body></html>
+</script><script id="touch-desktop-full-card-click">
+/* PC/태블릿 넓은 화면에서는 카드 전체를 출석 버튼으로 사용 */
+(function(){
+ const grid=document.getElementById('manualGrid');
+ if(!grid)return;
+ grid.addEventListener('click',function(e){
+  if(!window.matchMedia('(min-width:701px)').matches)return;
+  if(e.target.closest('button'))return;
+  const card=e.target.closest('.attile');
+  if(!card||!grid.contains(card))return;
+  const button=card.querySelector('.tile-actions button');
+  if(button&&!button.disabled)button.click();
+ });
+ grid.addEventListener('keydown',function(e){
+  if(!window.matchMedia('(min-width:701px)').matches)return;
+  if(e.target.matches('.attile')&&(e.key==='Enter'||e.key===' ')){
+   e.preventDefault();const button=e.target.querySelector('.tile-actions button');
+   if(button&&!button.disabled)button.click();
+  }
+ });
+ const observer=new MutationObserver(()=>{
+  grid.querySelectorAll('.attile').forEach(card=>{
+   if(card.tabIndex!==0){card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label',card.innerText.replace(/\s+/g,' ').trim());}
+  });
+ });
+ observer.observe(grid,{childList:true});
+})();
+</script>
+</body></html>
