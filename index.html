@@ -414,6 +414,22 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 }
 @media screen and (max-width:600px){#page-birthday .birthday-compact-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px!important}#page-birthday .birthday-compact-item{padding:7px 8px}}
 </style>
+<style id="birthday-monthly-20261030">
+@media screen{
+ #page-birthday .birthday-overview{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;padding:10px 12px;background:#f2f6fc;border-radius:9px;font-size:13px}
+ #page-birthday .birthday-overview strong{font-size:15px;color:#142e60}
+ #page-birthday .birthday-overview span{color:#60738e}
+ #page-birthday .birthday-section{margin:0 0 9px!important;padding:10px 12px;border:1px solid #e5ebf3;border-radius:10px;background:#fff}
+ #page-birthday .birthday-section-title{display:flex;align-items:center;gap:8px;margin:0 0 8px!important;font-size:14px!important}
+ #page-birthday .birthday-section-title small{font-size:11px;background:#edf2f9;color:#536a86;border-radius:20px;padding:2px 8px}
+ #page-birthday .birthday-current-month{border-color:#d9b665;background:#fffdf6}
+ #page-birthday .birthday-current-month .birthday-section-title span{color:#9b6b0e}
+ #page-birthday .birthday-compact-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:5px!important}
+ #page-birthday .birthday-compact-item{padding:6px 9px;min-height:30px}
+ #page-birthday .birthday-empty{font-size:12px;color:#9ba7b7;margin:0}
+}
+@media screen and (max-width:600px){#page-birthday .birthday-section{padding:9px!important}#page-birthday .birthday-compact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -975,14 +991,21 @@ $('editStudentForm').onsubmit=async e=>{e.preventDefault();if(!editingStudent||!
 async function retireStudent(s){if(!confirm(s.name+' 학생을 퇴원 처리하시겠습니까? 출석 기록은 삭제하지 않습니다.'))return;const {error}=await db.from('platform_students').update({status:'퇴원'}).eq('dojo_id',currentDojo.id).eq('id',s.id);if(error)alert('퇴원 처리 실패: '+error.message);else{await loadStudents();await loadAttendance()}}
 function renderBirthdays(){
  const box=$('birthdayList');box.replaceChildren();
- const month=Number(todayKST().slice(5,7));
- const birthdayStudents=allStudents.filter(s=>s.status==='재원'&&s.birth_date&&/^\d{4}-\d{2}-\d{2}$/.test(s.birth_date)).sort((a,b)=>a.birth_date.slice(5).localeCompare(b.birth_date.slice(5))||a.name.localeCompare(b.name,'ko'));
- for(const [label,arr] of [['이번 달 생일',birthdayStudents.filter(s=>Number(s.birth_date.slice(5,7))===month)],['전체 생일',birthdayStudents]]){
-  const section=document.createElement('section');section.className='birthday-section';
-  const title=document.createElement('h3');title.className='birthday-section-title';title.textContent=label+' · '+arr.length+'명';section.append(title);
+ const currentMonth=Number(todayKST().slice(5,7));
+ const students=allStudents.filter(s=>s.status==='재원'&&s.birth_date&&/^\d{4}-\d{2}-\d{2}$/.test(s.birth_date));
+ const heading=document.createElement('div');heading.className='birthday-overview';
+ const title=document.createElement('strong');title.textContent='월별 생일자 현황';
+ const total=document.createElement('span');total.textContent='등록 '+students.length+'명 · 이번 달 '+students.filter(s=>Number(s.birth_date.slice(5,7))===currentMonth).length+'명';
+ heading.append(title,total);box.append(heading);
+ for(let month=1;month<=12;month++){
+  const arr=students.filter(s=>Number(s.birth_date.slice(5,7))===month).sort((a,b)=>Number(a.birth_date.slice(8,10))-Number(b.birth_date.slice(8,10))||a.name.localeCompare(b.name,'ko'));
+  const section=document.createElement('section');section.className='birthday-section'+(month===currentMonth?' birthday-current-month':'');
+  const head=document.createElement('h3');head.className='birthday-section-title';
+  const monthLabel=document.createElement('span');monthLabel.textContent=month+'월 생일자';
+  const count=document.createElement('small');count.textContent=arr.length+'명';head.append(monthLabel,count);section.append(head);
   const grid=document.createElement('div');grid.className='birthday-compact-grid';
-  if(!arr.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='등록된 생일자가 없습니다.';grid.append(empty)}
-  for(const s of arr){const item=document.createElement('div');item.className='birthday-compact-item';const name=document.createElement('strong');name.textContent=s.name;const date=document.createElement('span');date.textContent=Number(s.birth_date.slice(5,7))+'월 '+Number(s.birth_date.slice(8,10))+'일';item.append(name,date);grid.append(item)}
+  if(!arr.length){const empty=document.createElement('p');empty.className='birthday-empty';empty.textContent='생일자 없음';grid.append(empty)}
+  for(const s of arr){const item=document.createElement('div');item.className='birthday-compact-item';const name=document.createElement('strong');name.textContent=s.name;const date=document.createElement('span');date.textContent=Number(s.birth_date.slice(8,10))+'일';item.append(name,date);grid.append(item)}
   section.append(grid);box.append(section);
  }
 }
