@@ -441,6 +441,46 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 }
 @media screen and (max-width:650px){#selectedCard #homeButtons{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}#selectedCard #homeButtons button{font-size:11px!important;padding:9px 3px!important;white-space:normal!important;word-break:keep-all!important;min-height:43px!important}}
 </style>
+<style id="admin-menu-contrast-final">
+/* 관리자 단일 메뉴: 선명한 대비, 한 줄 레이블, 터치 영역 유지 */
+@media screen {
+ #selectedCard #homeButtons.home-grid {display:grid!important;grid-template-columns:repeat(auto-fit,minmax(135px,1fr))!important;gap:8px!important;margin:12px 0 6px!important}
+ #selectedCard #homeButtons.home-grid button,
+ #selectedCard #page-home #homeButtons.home-grid button {
+  background:#ffffff!important;color:#142b4f!important;border:1px solid #cbd7e8!important;
+  opacity:1!important;text-shadow:none!important;filter:none!important;
+  font-size:13px!important;font-weight:800!important;line-height:1.35!important;
+  min-height:44px!important;padding:11px 8px!important;text-align:center!important;
+  white-space:nowrap!important;word-break:keep-all!important;box-shadow:none!important;
+ }
+ #selectedCard #homeButtons.home-grid button.active,
+ #selectedCard #page-home #homeButtons.home-grid button.active {
+  background:#173b70!important;color:#ffffff!important;border-color:#173b70!important;
+ }
+ #selectedCard #adminMenu{display:none!important}
+}
+@media screen and (max-width:700px){
+ #selectedCard #homeButtons.home-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+ #selectedCard #homeButtons.home-grid button{font-size:12px!important;padding:10px 3px!important;min-height:42px!important;white-space:normal!important}
+}
+@media screen and (max-width:380px){#selectedCard #homeButtons.home-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+</style>
+<style id="admin-menu-visibility-20261030">
+@media screen {
+ #selectedCard #homeButtons.home-grid button,
+ #selectedCard #page-home #homeButtons.home-grid button {
+   background:#fff!important;color:#142b4f!important;
+   -webkit-text-fill-color:#142b4f!important;
+   border:1px solid #cbd7e8!important;opacity:1!important;
+   font-size:13px!important;font-weight:800!important;
+   text-shadow:none!important;filter:none!important;
+ }
+ #selectedCard #homeButtons.home-grid button.active {
+   background:#173b70!important;color:#fff!important;
+   -webkit-text-fill-color:#fff!important;border-color:#173b70!important;
+ }
+}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -455,7 +495,7 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 <div id="masterPasswordEntry" class="card hidden" style="margin:14px 0;padding:14px!important"><button id="masterPasswordToggle" type="button" class="alt" aria-expanded="false" aria-controls="masterPasswordPanel">관리자 계정 비밀번호 초기화 열기</button></div>
 <section id="masterPasswordPanel" class="card hidden" style="margin:14px 0"><h2>마스터 전용 · 계정 비밀번호 초기화</h2><p class="muted">선택한 관리자에게 임시 비밀번호를 발급합니다. 임시 비밀번호는 한 번만 표시되며, 다음 로그인에서 반드시 변경해야 합니다.</p><button type="button" id="masterPasswordLoad" class="alt">관리자 계정 목록 새로고침</button><div id="masterPasswordAccounts" class="list" style="margin-top:12px"></div><p id="masterPasswordMessage" class="message" role="status"></p></section>
 <section id="forcePasswordPanel" class="card hidden" style="border:2px solid #b7852a"><h2>임시 비밀번호 변경</h2><p>보안을 위해 임시 비밀번호를 새 비밀번호로 변경해야 합니다.</p><form id="forcePasswordForm"><label>새 비밀번호 (최소 4자, 실제 서버 정책에 따라 더 길어야 할 수 있습니다)<input id="forceNewPassword" type="password" minlength="4" required autocomplete="new-password"></label><label>새 비밀번호 확인<input id="forceNewPasswordConfirm" type="password" minlength="4" required autocomplete="new-password"></label><button type="submit">새 비밀번호 저장</button></form><p id="forcePasswordMessage" class="message" role="status"></p></section>
-<div id="selectedCard" class="hidden"><div class="card"><div id="masterBackRow" class="hidden" style="margin-bottom:16px"><button id="masterBack" class="alt" type="button">← 전체 도장 목록으로</button></div><h2 id="selectedTitle">관리자 홈</h2><div class="menu hidden" id="adminMenu" aria-hidden="true"></div><div class="home-grid" id="homeButtons" aria-label="관리 메뉴"></div><div id="page-home" class="page active"><p class="muted" style="margin:14px 0 0">관리할 메뉴를 선택해 주세요.</p></div></div>
+<div id="selectedCard" class="hidden"><div class="card"><div id="masterBackRow" class="hidden" style="margin-bottom:16px"><button id="masterBack" class="alt" type="button">← 전체 도장 목록으로</button></div><h2 id="selectedTitle">도장 관리</h2><div class="menu hidden" id="adminMenu" aria-hidden="true"></div><div class="home-grid" id="homeButtons" aria-label="관리 메뉴"></div></div>
 <div id="page-attendance" class="page"><div class="card"><h2>출결 관리 · 바둑판</h2>
 <div class="row" style="margin:15px 0"><h2 style="margin:0">오늘 출석 현황</h2><button id="reloadAttendance" class="alt" type="button">새로고침</button></div>
 <p id="attendanceDate" class="muted"></p>
@@ -489,11 +529,11 @@ const db=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,d
 const $=id=>document.getElementById(id);
 let mode='login',currentDojo=null,sessionUser=null;
 let masterDojos=[],masterStats=new Map(),masterRequest=0,masterDeletionDates=new Map();
-const menus=[['home','홈'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['tuition','수련비 관리'],['vehicle','차량운행'],['links','주소 관리']];
+const menus=[['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['tuition','수련비 관리'],['vehicle','차량운행'],['links','주소 관리']];
 let monthlyRows=[],monthlyDays=0;
 let vehiclePlaces=[],vehicleRides=[],vehicleEditing=null;
 function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#homeButtons button')){b.classList.toggle('active',b.dataset.page===name);b.setAttribute('aria-current',b.dataset.page===name?'page':'false')}if(name==='monthly')loadMonthly();if(name==='vehicle')loadVehicle();if(name==='tuition'){loadTuitionPlans().then(()=>loadTuition()).catch(e=>msg('tuitionMessage','수련비 조회 오류: '+e.message,true))};if(name==='program')loadTuitionPlans();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
-function buildMenu(){const menu=$('adminMenu'),home=$('homeButtons');menu.replaceChildren();home.replaceChildren();for(const [id,label] of menus){const c=document.createElement('button');c.type='button';c.dataset.page=id;c.textContent=label==='홈'?'관리자 홈':label;c.onclick=()=>showPage(id);home.append(c)}showPage('home')}
+function buildMenu(){const menu=$('adminMenu'),home=$('homeButtons');menu.replaceChildren();home.replaceChildren();for(const [id,label] of menus){const c=document.createElement('button');c.type='button';c.dataset.page=id;c.textContent=label;c.onclick=()=>showPage(id);home.append(c)}showPage('monthly')}
 buildMenu();
 $('createKioskLink').onclick=async()=>{
  if(!currentDojo){msg('kioskLinkMessage','먼저 도장을 선택하세요.',true);return}
@@ -757,7 +797,7 @@ async function loadDojos(){
  else if(currentDojo){const d=items.find(x=>x.dojo_id===currentDojo.id);if(d)await selectDojo(d.dojo);else{currentDojo=null;$('selectedCard').classList.add('hidden')}}
 }
 $('dojoForm').onsubmit=async e=>{e.preventDefault();const btn=$('dojoButton');btn.disabled=true;msg('dojoMessage','개설 중...');try{const {data,error}=await db.rpc('platform_create_dojo',{p_name:$('dojoName').value.trim(),p_phone:$('dojoPhone').value.trim()||null});if(error)throw error;msg('dojoMessage','도장 개설이 완료됐습니다.');$('dojoForm').reset();currentDojo=null;await loadDojos();}catch(err){msg('dojoMessage','개설 실패: '+err.message,true)}finally{btn.disabled=false}};
-async function selectDojo(dojo){currentDojo=dojo;if(isSuperAdmin){$('masterPanel').classList.add('hidden');$('masterBackRow').classList.remove('hidden')} $('selectedCard').classList.remove('hidden');$('selectedTitle').textContent=dojo.name;$('programDojo').textContent='선택된 도장: '+dojo.name; $('editDojoName').value=dojo.name; $('editDojoPhone').value=dojo.phone||'';await loadDojoPreferences();try{await loadTuitionPlans()}catch(e){console.error('수련비 초기화',e)}$('kioskAddress').value='';$('parentCommonAddress').value=location.origin+'/parent.html?dojo='+encodeURIComponent(dojo.id);showPage('home');msg('studentMessage','');await loadStudents();await loadAttendance()}
+async function selectDojo(dojo){currentDojo=dojo;if(isSuperAdmin){$('masterPanel').classList.add('hidden');$('masterBackRow').classList.remove('hidden')} $('selectedCard').classList.remove('hidden');$('selectedTitle').textContent=dojo.name;$('programDojo').textContent='선택된 도장: '+dojo.name; $('editDojoName').value=dojo.name; $('editDojoPhone').value=dojo.phone||'';await loadDojoPreferences();try{await loadTuitionPlans()}catch(e){console.error('수련비 초기화',e)}$('kioskAddress').value='';$('parentCommonAddress').value=location.origin+'/parent.html?dojo='+encodeURIComponent(dojo.id);showPage('monthly');msg('studentMessage','');await loadStudents();await loadAttendance()}
 
 // 전체 관리자 도장 목록. 서버의 platform_admin_dojos RPC와 RLS가 권한을 검증합니다.
 function masterNumber(v){return typeof v==='number'?v.toLocaleString('ko-KR'):'—'}
