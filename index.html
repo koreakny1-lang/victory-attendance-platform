@@ -1528,17 +1528,19 @@ async function loadTuition(){
  const rowMap=new Map();
  for(const x of snap.data||[]){
   const id=String(x.student_id),live=studentMap.get(id);
+  if(String(live?.status||'').trim()!=='재원')continue;
   rowMap.set(id,{id,name:x.student_name||live?.name||'이름 미확인',class_name:x.class_name||live?.class_name||'',status:live?.status||'퇴원',snapshot:x,assignment:tuitionAssignments[id],payment:tuitionPayments[id]});
  }
  // 이전 데이터의 납부자는 월별 명단에 반드시 포함합니다.
  for(const payment of p.data||[]){
   const id=String(payment.student_id);if(rowMap.has(id))continue;
   const live=studentMap.get(id);
+  if(String(live?.status||'').trim()!=='재원')continue;
   rowMap.set(id,{id,name:live?.name||'이름 미확인',class_name:live?.class_name||'',status:live?.status||'퇴원',snapshot:{amount:payment.amount},assignment:tuitionAssignments[id],payment});
  }
  tuitionMonthRows=[...rowMap.values()].sort((x,y)=>x.name.localeCompare(y.name,'ko'));
  renderTuitionGrid();
- msg('tuitionMessage',month+' 수련비 대상 '+tuitionMonthRows.length+'명 · 납부일이 9월이어도 조회 월이 10월이면 10월 수련비로 집계합니다. 휴원·퇴원한 학생도 해당 월 명단과 납부 기록을 유지합니다.');
+ msg('tuitionMessage',month+' 수련비 대상 '+tuitionMonthRows.length+'명 · 납부일이 9월이어도 조회 월이 10월이면 10월 수련비로 집계합니다. 휴관·퇴원생은 화면과 집계에서 제외하며 기존 납부 기록은 데이터베이스에 보존됩니다.');
 }
 function renderTuitionGrid(){
  const box=$('tuitionGrid'),k=$('tuitionKpis');box.replaceChildren();k.replaceChildren();
