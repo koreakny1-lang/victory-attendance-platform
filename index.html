@@ -1104,7 +1104,13 @@ function renderStudentList(){
   const mark=()=>{const dirty=fields.some(k=>(inputs[k].value.trim()||'')!==(original[k]||''))||statusSelect.value!==(s.status||'재원');save.disabled=!dirty;tr.classList.toggle('student-dirty',dirty);notice.textContent=dirty?'수정 중':'';updateBulkStudentButton()};
   for(const field of fields){
    const td=document.createElement('td');td.className='student-edit-cell';
-   const input=document.createElement('input');input.className='student-inline-input';input.type='text';if(field==='birth_date'){input.inputMode='numeric';input.maxLength=10;input.placeholder='20150102'}
+   const input=document.createElement(field==='class_name'?'select':'input');input.className='student-inline-input';
+   if(field==='class_name'){
+    input.append(new Option('수련반 미지정',''));
+    for(const plan of tuitionPlans)input.append(new Option(plan.name,plan.name));
+    if(s.class_name&&!tuitionPlans.some(plan=>plan.name===s.class_name))input.append(new Option(s.class_name+' (기존 등록)',s.class_name));
+    input.setAttribute('title','프로그램 관리에서 등록한 수련반을 선택하세요');
+   }else input.type='text';if(field==='birth_date'){input.inputMode='numeric';input.maxLength=10;input.placeholder='20150102'}
    if(field==='pin'){input.inputMode='numeric';input.maxLength=4;input.pattern='[0-9]{4}'}
    if(field==='parent_phone')input.type='tel';
    input.value=s[field]||'';original[field]=s[field]||'';
@@ -1511,7 +1517,7 @@ function tuitionValue(id){return $(id)?.value||''}
 async function loadTuitionPlans(){if(!currentDojo)return;const dojoId=currentDojo.id;
  const [a,b]=await Promise.all([db.from('platform_tuition_plans').select('*').eq('dojo_id',dojoId).order('created_at'),db.from('platform_student_tuition').select('*').eq('dojo_id',dojoId)]);
  if(currentDojo?.id!==dojoId)return;if(a.error||b.error){msg('tuitionPlanMessage','수련비 SQL 설치가 필요합니다: '+(a.error?.message||b.error?.message),true);return}
- tuitionPlans=a.data||[];tuitionAssignments=Object.fromEntries((b.data||[]).map(x=>[x.student_id,x]));renderTuitionPlans();syncStudentClassSelects();renderTuitionStudentFields();}
+ tuitionPlans=a.data||[];tuitionAssignments=Object.fromEntries((b.data||[]).map(x=>[x.student_id,x]));renderTuitionPlans();syncStudentClassSelects();renderTuitionStudentFields();if(!document.querySelector('#studentsList tr.student-dirty'))renderStudentList();}
 function renderTuitionPlans(){
  const box=$('tuitionPlanList');box.replaceChildren();
  const note=document.createElement('p');note.className='note';note.textContent='기본 지정은 도장당 1개만 선택합니다. 학생 등록 시와 수련비 미지정 학생의 첫 화면에 기본 항목이 표시됩니다. 기존 학생의 개별 설정은 바뀌지 않습니다.';box.append(note);
