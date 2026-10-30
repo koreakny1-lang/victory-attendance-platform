@@ -481,6 +481,26 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
  }
 }
 </style>
+<style id="address-menu-clean-20261030">
+@media screen {
+ #selectedCard #homeButtons.home-grid{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important}
+ #selectedCard #homeButtons.home-grid button{min-width:0!important;white-space:normal!important;word-break:keep-all!important;overflow-wrap:normal!important;min-height:48px!important;font-size:13px!important;line-height:1.35!important;padding:9px 5px!important}
+ #page-links .address-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:15px}
+ #page-links .address-box{border:1px solid #dce5f1;border-radius:13px;padding:17px;background:#fafcff}
+ #page-links .address-box h3{margin:0 0 5px!important;font-size:17px!important;color:#152d50!important}
+ #page-links .address-box .muted{margin:0 0 10px!important}
+ #page-links .address-box input{width:100%;font-size:14px!important;color:#183458!important;background:#fff!important}
+ #page-links .address-box button{min-height:43px;margin-top:9px;padding:10px 14px!important;font-size:13px!important;white-space:normal}
+ #page-links .address-box>button{width:100%}
+ #page-links .address-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ #page-links .address-box .message:empty{display:none}
+}
+@media screen and (max-width:650px){
+ #selectedCard #homeButtons.home-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ #page-links .address-actions{grid-template-columns:1fr}
+ #page-links .address-box{padding:12px}
+}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -517,7 +537,11 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
  <div class="card"><div class="tools no-print"><label>운행표 보기<select id="vehicleView"><option value="pickup">승차표</option><option value="dropoff">하차표</option><option value="all">승차 + 하차</option></select></label><button id="vehiclePrint" type="button">인쇄</button><button id="vehicleCsv" type="button">CSV 다운로드</button><button id="vehicleReload" type="button">새로고침</button></div><div id="vehicleTables"></div></div>
  <div class="card no-print vehicle-manage"><h3>등록된 일정 관리</h3><p class="muted">학생별 또는 장소별로 찾아서 여러 요일을 한 번에 수정할 수 있습니다.</p><div class="vehicle-filterbar"><label>관리 방식<select id="vehicleManageMode"><option value="student">학생별 관리</option><option value="place">장소별 관리</option></select></label><label>학생 또는 장소 선택<select id="vehicleManageTarget"></select></label><label>승차·하차<select id="vehicleManageKind"><option value="all">전체</option><option value="pickup">승차</option><option value="dropoff">하차</option></select></label></div><p id="vehicleManageCount" class="muted"></p><div id="vehicleRideList" class="vehicle-manage-list"></div></div>
 </div>
-<div id="page-links" class="page"><div class="card"><h2>주소 관리</h2><p class="muted">통합 관리자 주소</p><input id="adminAddress" readonly><button id="copyAdmin" class="full" type="button">주소 복사</button><p class="muted">학생용 출석체크기 주소</p><input id="kioskAddress" readonly placeholder="도장을 선택하면 주소를 생성할 수 있습니다"><button id="createKioskLink" class="full" type="button">학생용 출석체크기 주소 만들기</button><button id="copyKiosk" class="full alt" type="button">학생용 주소 복사</button><p id="kioskLinkMessage" class="message" role="status"></p><div style="margin-top:20px;border-top:1px solid #dce5ef;padding-top:16px"><h2>학부모 공용 주소</h2><p class="muted">도장당 하나의 주소입니다. 밴드 등에 한 번 공지하면 학부모가 직접 연결합니다. 학부모는 본인 휴대전화번호만 입력하면 등록된 자녀의 출석정보를 확인합니다.</p><input id="parentCommonAddress" readonly placeholder="도장을 선택하면 주소가 표시됩니다"><button id="copyParentCommon" class="full alt" type="button">학부모 공용 주소 복사</button><p id="parentCommonMessage" class="message" role="status"></p></div><p class="warn">학생용 주소는 도장 내부 기기에만 공유하세요. 출석번호 4자리 입력으로 출석·귀가가 처리됩니다. 학부모 알림은 서버 설정 및 실제 수신 테스트 후 이용할 수 있습니다.</p></div></div>
+<div id="page-links" class="page"><div class="card"><h2>주소 관리</h2><p class="muted">선택한 도장의 관리자·출결체크기·학부모 주소를 각각 확인하고 복사할 수 있습니다.</p><div class="address-grid">
+<section class="address-box"><h3>① 관리자 주소</h3><p class="muted">관리자 로그인 및 도장 관리</p><input id="adminAddress" readonly aria-label="관리자 주소"><button id="copyAdmin" type="button">관리자 주소 복사</button></section>
+<section class="address-box"><h3>② 출결체크기 주소</h3><p class="muted">도장 태블릿에서 출석·귀가 체크</p><input id="kioskAddress" readonly placeholder="주소 만들기를 눌러주세요" aria-label="출결체크기 주소"><div class="address-actions"><button id="createKioskLink" type="button">출결체크기 주소 만들기</button><button id="copyKiosk" class="alt" type="button">출결체크기 주소 복사</button></div><p id="kioskLinkMessage" class="message" role="status"></p></section>
+<section class="address-box"><h3>③ 학부모 확인 주소</h3><p class="muted">학부모에게 공유하는 도장별 확인 주소</p><input id="parentCommonAddress" readonly placeholder="도장을 선택하면 주소가 표시됩니다" aria-label="학부모 확인 주소"><button id="copyParentCommon" class="alt" type="button">학부모 주소 복사</button><p id="parentCommonMessage" class="message" role="status"></p></section>
+</div><p class="warn" style="margin-top:14px">출결체크기 주소는 도장 내부 기기에만 공유하세요. 관리자 주소는 공용 로그인 화면이며 로그인 권한에 따라 도장 접근이 구분됩니다.</p></div></div>
 </div>
 </section>
 </main><div id="editOverlay" class="overlay hidden"><div class="dialog"><h2>수련생 정보 수정</h2><form id="editStudentForm"><div class="field-grid"><label>이름<input id="editName" required></label><label>출석번호<input id="editPin" required maxlength="4" inputmode="numeric" pattern="[0-9]{4}"></label><label>학부모 연락처<input id="editPhone" type="tel"></label><label style="display:none!important" aria-hidden="true">수련반 동기화<select id="editClass" tabindex="-1"></select></label><label>학교<input id="editSchool"></label><label>학년<input id="editGrade"></label><label>띠<input id="editBelt"></label><label>생년월일<input id="editBirth" type="date"></label><label>상태<select id="editStatus"><option>재원</option><option value="휴원">휴관</option><option>퇴원</option></select></label></div><div id="tuitionStudentEdit" class="field-grid" style="margin-top:12px"></div><div id="editCustomFields" class="field-grid" style="margin-top:12px"></div><p id="editMessage" class="message"></p><div class="buttons"><button id="cancelEdit" class="alt" type="button">취소</button><button id="saveEdit" type="submit">수정 저장</button></div></form></div></div>
