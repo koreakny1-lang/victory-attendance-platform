@@ -1254,7 +1254,7 @@ async function loadMonthly(){
  ]);
  if(currentDojo?.id!==dojoId)return;
  if(sr.error||ar.error){$('monthlyMessage').textContent='조회 실패: '+(sr.error?.message||ar.error?.message);return}
- const students=sr.data||[],present=new Set((ar.data||[]).map(r=>r.student_id+'|'+r.attendance_date));
+ const students=(sr.data||[]).filter(st=>!['휴원','휴관','퇴원'].includes(String(st.status||'').trim())),present=new Set((ar.data||[]).map(r=>r.student_id+'|'+r.attendance_date));
  monthlyRows=[];monthlyDays=last;
  const weekdays=['일','월','화','수','목','금','토'];
  const dayOfWeek=d=>new Date(Date.UTC(y,mo-1,d)).getUTCDay();
