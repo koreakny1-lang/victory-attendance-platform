@@ -402,6 +402,18 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
  #page-students .inline-student-table .student-status-select{min-width:78px;min-height:34px!important;padding:5px!important;font-size:12px!important}
 }
 </style>
+<style id="birthday-compact-20261030">
+@media screen {
+ #page-birthday #birthdayList{display:block!important}
+ #page-birthday .birthday-section{margin:0 0 16px}
+ #page-birthday .birthday-section-title{margin:12px 0 8px!important;font-size:16px!important}
+ #page-birthday .birthday-compact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:6px!important}
+ #page-birthday .birthday-compact-item{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:8px 10px;border:1px solid #e1e8f2;border-radius:8px;background:#f9fbff;line-height:1.35}
+ #page-birthday .birthday-compact-item strong{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ #page-birthday .birthday-compact-item span{font-size:12px;color:#586b84;white-space:nowrap}
+}
+@media screen and (max-width:600px){#page-birthday .birthday-compact-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px!important}#page-birthday .birthday-compact-item{padding:7px 8px}}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -961,7 +973,19 @@ function openStudentEdit(s){editingStudent=s;if(s.class_name&&!Array.from($('edi
 $('cancelEdit').onclick=()=>{$('editOverlay').classList.add('hidden');editingStudent=null};
 $('editStudentForm').onsubmit=async e=>{e.preventDefault();if(!editingStudent||!currentDojo)return;const btn=$('saveEdit');btn.disabled=true;try{const payload=studentPayload(editInput),dojoId=currentDojo.id;const {error}=await db.from('platform_students').update(payload).eq('id',editingStudent.id).eq('dojo_id',dojoId);if(error)throw error;await saveExtra(editingStudent.id,readCustomInputs('edit'));await saveStudentTuition(editingStudent.id,'edit');$('editOverlay').classList.add('hidden');editingStudent=null;await loadStudents();await loadAttendance();msg('studentMessage','수정되었습니다.')}catch(err){msg('editMessage','수정 실패: '+err.message,true)}finally{btn.disabled=false}};
 async function retireStudent(s){if(!confirm(s.name+' 학생을 퇴원 처리하시겠습니까? 출석 기록은 삭제하지 않습니다.'))return;const {error}=await db.from('platform_students').update({status:'퇴원'}).eq('dojo_id',currentDojo.id).eq('id',s.id);if(error)alert('퇴원 처리 실패: '+error.message);else{await loadStudents();await loadAttendance()}}
-function renderBirthdays(){const box=$('birthdayList');box.replaceChildren();const month=Number(todayKST().slice(5,7));const birthdayStudents=allStudents.filter(s=>s.status==='재원'&&s.birth_date).sort((a,b)=>a.birth_date.slice(5).localeCompare(b.birth_date.slice(5)));for(const [label,arr] of [['이번 달 생일',birthdayStudents.filter(s=>Number(s.birth_date.slice(5,7))===month)],['전체 생일',birthdayStudents]]){const title=document.createElement('h3');title.textContent=label+' · '+arr.length+'명';box.append(title);for(const s of arr){const p=document.createElement('div');p.className='student-card';p.textContent=''+s.name+' · '+Number(s.birth_date.slice(5,7))+'월 '+Number(s.birth_date.slice(8,10))+'일';box.append(p)}}}
+function renderBirthdays(){
+ const box=$('birthdayList');box.replaceChildren();
+ const month=Number(todayKST().slice(5,7));
+ const birthdayStudents=allStudents.filter(s=>s.status==='재원'&&s.birth_date&&/^\d{4}-\d{2}-\d{2}$/.test(s.birth_date)).sort((a,b)=>a.birth_date.slice(5).localeCompare(b.birth_date.slice(5))||a.name.localeCompare(b.name,'ko'));
+ for(const [label,arr] of [['이번 달 생일',birthdayStudents.filter(s=>Number(s.birth_date.slice(5,7))===month)],['전체 생일',birthdayStudents]]){
+  const section=document.createElement('section');section.className='birthday-section';
+  const title=document.createElement('h3');title.className='birthday-section-title';title.textContent=label+' · '+arr.length+'명';section.append(title);
+  const grid=document.createElement('div');grid.className='birthday-compact-grid';
+  if(!arr.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='등록된 생일자가 없습니다.';grid.append(empty)}
+  for(const s of arr){const item=document.createElement('div');item.className='birthday-compact-item';const name=document.createElement('strong');name.textContent=s.name;const date=document.createElement('span');date.textContent=Number(s.birth_date.slice(5,7))+'월 '+Number(s.birth_date.slice(8,10))+'일';item.append(name,date);grid.append(item)}
+  section.append(grid);box.append(section);
+ }
+}
 $('exportStudents').onclick=()=>{
  const headers=['이름','출석번호','학부모 연락처','수련반','학교','학년','띠','생년월일','상태',...customFields.map(f=>f.name)];
  const priority={'재원':0,'휴원':1,'퇴원':2};
