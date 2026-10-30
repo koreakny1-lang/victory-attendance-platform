@@ -355,6 +355,33 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
  }
 }
 </style>
+<style id="student-wide-list-v3">
+@media screen {
+ #page-students .students-layout{display:block!important}
+ #page-students .student-list-panel{width:100%;min-height:0!important}
+ #page-students .student-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+ #page-students .student-heading h2{margin:0}
+ #page-students .student-list-panel .tools{display:flex!important;flex-wrap:wrap;gap:9px}
+ #page-students .student-list-panel .tools input{flex:2 1 250px!important}
+ #page-students .student-list-panel .tools select{flex:1 1 135px!important}
+ #page-students .student-list-panel .tools button{flex:0 0 auto!important}
+ #page-students .student-table-scroll{width:100%;overflow-x:auto;border:1px solid #e2e9f2;border-radius:12px}
+ #page-students .student-data-table{border-collapse:collapse;width:100%;min-width:950px;font-size:13px}
+ #page-students .student-data-table th{position:sticky;top:0;background:#f0f5fb;color:#233a5d;text-align:center;font-weight:800;padding:12px 8px;white-space:nowrap;border-bottom:1px solid #dce5f1}
+ #page-students .student-data-table td{padding:9px 8px;border-bottom:1px solid #edf1f6;text-align:center;white-space:nowrap}
+ #page-students .student-data-table tbody tr:hover{background:#f7faff}
+ #page-students .student-name-cell{font-weight:800;color:#142e60}
+ #page-students .student-status-select{width:auto!important;min-width:82px;min-height:34px!important;padding:6px!important;font-size:12px!important}
+ #page-students .student-row-actions{white-space:nowrap}
+ #page-students .student-row-actions button{margin:2px;padding:7px 10px!important}
+ #page-students #studentRegisterPanel{position:fixed!important;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(7,24,48,.65)!important;padding:16px;overflow:auto;min-height:0!important;border:0!important;border-radius:0!important;margin:0!important;box-shadow:none!important}
+ #page-students #studentRegisterPanel.hidden{display:none!important}
+ #page-students #studentRegisterPanel>.student-heading,#page-students #studentRegisterPanel>p,#page-students #studentRegisterPanel>form{width:100%}
+ #page-students #studentRegisterPanel{display:block;left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:min(650px,calc(100vw - 24px));max-height:92vh;overflow-y:auto;background:white!important;border:1px solid #e0e8f1!important;border-radius:18px!important;padding:24px!important;box-shadow:0 20px 70px #071c3650!important}
+ body.student-register-open:before{content:'';position:fixed;inset:0;background:#071c36aa;z-index:999}
+}
+@media screen and (max-width:600px){#page-students #studentRegisterPanel{padding:18px!important}#page-students .student-list-panel .tools button{width:auto!important}}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -378,7 +405,7 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 </div></div>
 <div id="page-monthly" class="page"><div class="card"><h2 id="monthlyPrintTitle">월별 출석부</h2><div class="tools no-print"><label>조회 월<input id="monthInput" type="month"></label><button id="loadMonthly" type="button">조회</button><button id="printMonthly" class="alt" type="button">A4 인쇄</button><button id="exportMonthly" class="alt" type="button">엑셀 파일 다운로드</button></div><p id="monthlyMessage" class="muted"></p><div id="monthlyTable" class="scroll"></div><div id="monthlyPrintPages" aria-hidden="true"></div></div></div>
 <div id="page-manual" class="page"><div class="card"><h2>터치 출석</h2><p class="muted">한 번 누르면 출석, 다시 누르면 출석 취소됩니다. 이 화면에서는 귀가 처리하지 않습니다. 학부모 알림도 발송하지 않습니다.</p><div id="manualGrid" class="attendance-grid"></div></div></div>
-<div id="page-students" class="page"><div class="students-layout"><section class="card student-list-panel"><h2>수련생 관리</h2><p class="muted">재원생 → 휴관 → 퇴원생 순서로 표시됩니다. 상태 변경에서 재원·휴관·퇴원을 선택할 수 있습니다.</p><div class="tools"><input id="studentSearch" type="search" placeholder="이름·번호·학교·수련반 검색"><select id="studentStatusFilter"><option value="">전체</option><option value="재원">재원생</option><option value="휴원">휴관</option><option value="퇴원">퇴원생</option></select><button id="exportStudents" class="alt" type="button">명단 CSV</button></div><p id="studentCount" class="muted"></p><div id="studentsList"></div></section><section class="card student-register-panel"><h2>학생 등록</h2><p class="muted">새로운 수련생의 기본 정보를 입력해 주세요.</p><form id="studentForm"><label for="studentName">학생 이름</label><input id="studentName" required maxlength="80"><label for="studentPin">출석번호 4자리</label><input id="studentPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="숫자 4자리"><div class="field-grid"><label>학부모 연락처<input id="studentPhone" type="tel"></label><label style="display:none!important" aria-hidden="true">수련반 동기화<select id="studentClass" tabindex="-1"></select></label><label>학교<input id="studentSchool"></label><label>학년<input id="studentGrade"></label><label>띠<input id="studentBelt"></label><label>생년월일<input id="studentBirth" type="date"></label></div><div id="tuitionStudentNew" class="field-grid" style="margin-top:12px"></div><div id="studentCustomFields" class="field-grid" style="margin-top:12px"></div><button id="studentButton" class="full" type="submit">학생 등록하기</button></form><p id="studentMessage" class="message" role="status"></p><p class="note">학부모 공용 페이지에서 출석사진을 확인할 수 있습니다. 학부모는 도장별 공용 주소에서 전화번호로 출결을 조회합니다. 학생용 번호 출석체크는 [주소 관리]에서 연결할 수 있습니다. 관리자 터치 출석은 알림을 발송하지 않습니다.</p></section></div></div>
+<div id="page-students" class="page"><div class="students-layout"><section class="card student-list-panel"><div class="student-heading"><h2>수련생 관리</h2><button id="openStudentRegister" type="button">+ 학생 등록</button></div><p class="muted">재원생 → 휴관 → 퇴원생 순서로 표시됩니다. 상태 변경에서 재원·휴관·퇴원을 선택할 수 있습니다.</p><div class="tools"><input id="studentSearch" type="search" placeholder="이름·번호·학교·수련반 검색"><select id="studentStatusFilter"><option value="">전체</option><option value="재원">재원생</option><option value="휴원">휴관</option><option value="퇴원">퇴원생</option></select><button id="exportStudents" class="alt" type="button">명단 CSV</button></div><p id="studentCount" class="muted"></p><div id="studentsList" class="scroll student-table-scroll"></div></section><section class="card student-register-panel hidden" id="studentRegisterPanel" role="dialog" aria-modal="true" aria-labelledby="registerTitle"><div class="student-heading"><h2 id="registerTitle">학생 등록</h2><button id="closeStudentRegister" type="button" class="alt">닫기 ✕</button></div><p class="muted">새로운 수련생의 기본 정보를 입력해 주세요.</p><form id="studentForm"><label for="studentName">학생 이름</label><input id="studentName" required maxlength="80"><label for="studentPin">출석번호 4자리</label><input id="studentPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="숫자 4자리"><div class="field-grid"><label>학부모 연락처<input id="studentPhone" type="tel"></label><label style="display:none!important" aria-hidden="true">수련반 동기화<select id="studentClass" tabindex="-1"></select></label><label>학교<input id="studentSchool"></label><label>학년<input id="studentGrade"></label><label>띠<input id="studentBelt"></label><label>생년월일<input id="studentBirth" type="date"></label></div><div id="tuitionStudentNew" class="field-grid" style="margin-top:12px"></div><div id="studentCustomFields" class="field-grid" style="margin-top:12px"></div><button id="studentButton" class="full" type="submit">학생 등록하기</button></form><p id="studentMessage" class="message" role="status"></p><p class="note">학부모 공용 페이지에서 출석사진을 확인할 수 있습니다. 학부모는 도장별 공용 주소에서 전화번호로 출결을 조회합니다. 학생용 번호 출석체크는 [주소 관리]에서 연결할 수 있습니다. 관리자 터치 출석은 알림을 발송하지 않습니다.</p></section></div></div>
 <div id="page-birthday" class="page"><div class="card"><h2>생일 관리</h2><div id="birthdayList" class="list"></div><p class="muted">생년월일을 등록한 재원생만 표시됩니다.</p></div></div>
 <div id="page-program" class="page"><section id="accountSettings" class="card hidden"><h2>비밀번호 변경</h2><p id="accountEmailDisplay" class="note"></p><h3>비밀번호 변경</h3><p class="muted">현재 비밀번호를 확인한 뒤 새 비밀번호로 변경합니다.</p><form id="accountPasswordForm" class="password-setting"><label for="accountOldPassword">현재 비밀번호</label><div class="password-wrap"><input id="accountOldPassword" type="password" required autocomplete="current-password"><button class="password-eye" type="button" data-toggle-password="accountOldPassword">보기</button></div><label for="accountNewPassword">새 비밀번호</label><div class="password-wrap"><input id="accountNewPassword" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPassword">보기</button></div><label for="accountNewPasswordConfirm">새 비밀번호 확인</label><div class="password-wrap"><input id="accountNewPasswordConfirm" type="password" minlength="6" required autocomplete="new-password"><button class="password-eye" type="button" data-toggle-password="accountNewPasswordConfirm">보기</button></div><button class="full" id="accountPasswordSave" type="submit">비밀번호 변경</button><p id="accountPasswordMessage" class="message" role="status"></p></form></section><div class="card"><h2>프로그램 관리</h2><p id="programDojo" class="note"></p><h3>도장 정보</h3><p class="muted">도장 이름을 변경해도 학생·출석 기록은 그대로 유지됩니다.</p><div class="field-grid"><label>도장명<input id="editDojoName" maxlength="100" placeholder="도장명"></label><label>연락처<input id="editDojoPhone" maxlength="40" type="tel" placeholder="도장 연락처"></label></div><button id="saveDojoInfo" type="button">도장 정보 저장</button><p id="dojoInfoMessage" class="message"></p><h3>화면 디자인</h3><p class="muted">선택한 도장의 관리자 화면에 적용됩니다.</p><div class="field-grid"><label>대표 색상<input id="settingColor" type="color" value="#082e61"></label><label>글씨 색상<input id="settingTextColor" type="color" value="#182b45"></label><label>배경 색상<input id="settingBgColor" type="color" value="#f3f6fb"></label><label>카드 색상<input id="settingCardColor" type="color" value="#ffffff"></label></div><button id="saveSettings" class="full" type="button">디자인 저장</button><p id="settingMessage" class="message"></p></div><div class="card"><h2>수련생 관리 입력 항목</h2><p class="muted">필수 항목은 유지하며 나머지 항목은 삭제할 수 있습니다. 추가 항목은 도장별로 만들고 이름을 수정하거나 삭제할 수 있습니다. 추가 항목은 학생 등록·수정 화면에 나타납니다.</p><h3>기본 등록 항목</h3><p class="muted">항목 이름·표시 여부·순서를 변경할 수 있습니다. 삭제 버튼을 누르면 항목이 설정 목록과 등록 화면에서 사라집니다(기존 학생 정보는 유지됩니다). 이름과 출석번호는 필수입니다.</p><div id="baseFieldList" class="list"></div><h3>추가 등록 항목</h3><p class="muted">추가 항목은 이름 변경·표시 설정·위아래 이동·삭제가 가능합니다. 삭제 시 확인창이 표시됩니다.</p><div id="customFieldList" class="list"></div><div class="field-grid" style="margin-top:14px"><label>새 항목 이름<input id="customFieldName" maxlength="40" placeholder="예: 보호자 성함"></label><label>입력 형태<select id="customFieldType"><option value="text">문자</option><option value="date">날짜</option><option value="number">숫자</option></select></label></div><button id="addCustomField" class="full" type="button">항목 추가</button><p id="customFieldMessage" class="message"></p></div><div class="card" id="tuitionPlanCard"><h2>수련비 항목 · 월 수련비 설정</h2><p class="muted">도장별로 원하는 수련비 항목과 월 수련비를 지정하세요. 수련생 관리의 수련반 선택과 연동되어 금액이 자동 입력됩니다. 기존 납부 내역은 변경되지 않습니다.</p><div id="tuitionPlanList"></div><div class="tuition-formrow" style="margin-top:14px"><label>새 수련비 항목<input id="tuitionPlanName" placeholder="예: 주 2회반"></label><label>월 수련비 (원)<input id="tuitionPlanPrice" type="number" min="0" step="1000" placeholder="140000"></label><button id="tuitionAddPlan" type="button">수련비 항목 추가</button></div><p id="tuitionPlanMessage" class="message"></p></div></div>
 
@@ -839,24 +866,29 @@ function renderStudentList(){
  const filtered=allStudents.filter(s=>(!status||s.status===status)&&(!q||[s.name,s.pin,s.class_name,s.school,s.grade,s.belt,s.parent_phone].some(x=>String(x||'').toLowerCase().includes(q))))
   .sort((a,b)=>(priority[a.status]??3)-(priority[b.status]??3)||a.name.localeCompare(b.name,'ko'));
  $('studentCount').textContent='검색 결과 '+filtered.length+'명 / 전체 '+allStudents.length+'명';
- if(!filtered.length){const p=document.createElement('p');p.className='muted';p.textContent='해당 학생이 없습니다.';box.append(p)}
- for(const s of filtered){
-  const row=document.createElement('div');row.className='student-card';
-  const detail=document.createElement('div'),title=document.createElement('strong'),sub=document.createElement('small');
-  title.textContent=s.name;
-  sub.textContent=[s.status==='휴원'?'휴관':s.status==='퇴원'?'퇴원생':null,s.class_name,s.school,s.grade,s.belt,'출석번호 '+(s.pin||'-'),s.parent_phone,...customFields.map(f=>(studentExtras[s.id]||{})[f.id]&&f.name+': '+studentExtras[s.id][f.id])].filter(Boolean).join(' · ');
-  detail.append(title,sub);
-  const actions=document.createElement('div');actions.className='actions';
-  const edit=document.createElement('button');edit.className='alt';edit.textContent='수정';edit.onclick=()=>openStudentEdit(s);
-  const change=document.createElement('select');change.setAttribute('aria-label',s.name+' 상태 변경');change.title='상태 변경';
+ const table=document.createElement('table');table.className='student-data-table';
+ const thead=document.createElement('thead'),head=document.createElement('tr');
+ ['번호','이름','출석번호','학부모 연락처','수련반','학교','학년','띠','상태','관리'].forEach(t=>{const th=document.createElement('th');th.textContent=t;head.append(th)});
+ thead.append(head);table.append(thead);
+ const tbody=document.createElement('tbody');
+ filtered.forEach((s,i)=>{
+  const tr=document.createElement('tr');
+  const cell=value=>{const td=document.createElement('td');td.textContent=value??'-';tr.append(td);return td};
+  cell(i+1);const name=cell(s.name);name.className='student-name-cell';
+  cell(s.pin||'-');cell(s.parent_phone||'-');cell(s.class_name||'-');cell(s.school||'-');cell(s.grade||'-');cell(s.belt||'-');
+  const statusTd=document.createElement('td');
+  const change=document.createElement('select');change.className='student-status-select';change.setAttribute('aria-label',s.name+' 상태 변경');
   [['재원','재원생'],['휴원','휴관'],['퇴원','퇴원']].forEach(([v,t])=>change.add(new Option(t,v)));
-  change.value=s.status||'재원';change.onchange=async()=>{const next=change.value;change.disabled=true;try{const {error}=await db.from('platform_students').update({status:next}).eq('dojo_id',currentDojo.id).eq('id',s.id);if(error)throw error;await loadStudents();await loadAttendance();msg('studentMessage',s.name+' 학생 상태가 변경되었습니다.')}catch(e){change.value=s.status;alert('상태 변경 실패: '+e.message)}finally{change.disabled=false}};
-  actions.append(edit,change);
-  if(s.status==='퇴원'){
-   const del=document.createElement('button');del.type='button';del.className='alt';del.textContent='삭제';del.onclick=()=>deleteRetiredStudent(s);actions.append(del);
-  }
-  row.append(detail,actions);box.append(row);
- }
+  change.value=s.status||'재원';
+  change.onchange=async()=>{const next=change.value;change.disabled=true;try{const {error}=await db.from('platform_students').update({status:next}).eq('dojo_id',currentDojo.id).eq('id',s.id);if(error)throw error;await loadStudents();await loadAttendance();msg('studentMessage',s.name+' 학생 상태가 변경되었습니다.')}catch(e){change.value=s.status;alert('상태 변경 실패: '+e.message)}finally{change.disabled=false}};
+  statusTd.append(change);tr.append(statusTd);
+  const actions=document.createElement('td');actions.className='student-row-actions';
+  const edit=document.createElement('button');edit.type='button';edit.className='alt mini';edit.textContent='수정';edit.onclick=()=>openStudentEdit(s);actions.append(edit);
+  if(s.status==='퇴원'){const del=document.createElement('button');del.type='button';del.className='alt mini';del.textContent='삭제';del.onclick=()=>deleteRetiredStudent(s);actions.append(del)}
+  tr.append(actions);tbody.append(tr);
+ });
+ table.append(tbody);box.append(table);
+ if(!filtered.length){const p=document.createElement('p');p.className='muted';p.style.padding='16px';p.textContent='해당 학생이 없습니다.';box.append(p)}
 }
 async function deleteRetiredStudent(s){
  if(s.status!=='퇴원'||!currentDojo)return;
@@ -868,8 +900,13 @@ async function deleteRetiredStudent(s){
   await loadStudents();await loadAttendance();msg('studentMessage',s.name+' 퇴원생을 삭제했습니다.');
  }catch(e){alert('삭제하지 못했습니다. 기존 출석·납부 기록과 연결되어 있거나 삭제 권한이 없을 수 있습니다.\n'+e.message)}
 }
+function closeStudentRegistration(){const panel=$('studentRegisterPanel');panel.classList.add('hidden');document.body.classList.remove('student-register-open');$('openStudentRegister').focus()}
+$('openStudentRegister').onclick=()=>{$('studentRegisterPanel').classList.remove('hidden');document.body.classList.add('student-register-open');$('studentName').focus()};
+$('closeStudentRegister').onclick=closeStudentRegistration;
+$('studentRegisterPanel').addEventListener('click',e=>{if(e.target===$('studentRegisterPanel'))closeStudentRegistration()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('studentRegisterPanel').classList.contains('hidden'))closeStudentRegistration()});
 $('studentSearch').oninput=renderStudentList;$('studentStatusFilter').onchange=renderStudentList;
-$('studentForm').onsubmit=async e=>{e.preventDefault();if(!currentDojo)return;const btn=$('studentButton');btn.disabled=true;msg('studentMessage','등록 중...');try{const payload=studentPayload(studentInput);const {data,error}=await db.from('platform_students').insert({...payload,dojo_id:currentDojo.id,status:'재원'}).select('id').single();if(error)throw error;await saveExtra(data.id,readCustomInputs('new'));await saveStudentTuition(data.id,'new');$('studentForm').reset();syncStudentClassSelects();renderTuitionStudentFields();fillCustomInputs('new');msg('studentMessage','학생이 등록되었습니다.');await loadStudents();await loadAttendance()}catch(err){msg('studentMessage','학생 등록 실패: '+err.message,true)}finally{btn.disabled=false}};
+$('studentForm').onsubmit=async e=>{e.preventDefault();if(!currentDojo)return;const btn=$('studentButton');btn.disabled=true;msg('studentMessage','등록 중...');try{const payload=studentPayload(studentInput);const {data,error}=await db.from('platform_students').insert({...payload,dojo_id:currentDojo.id,status:'재원'}).select('id').single();if(error)throw error;await saveExtra(data.id,readCustomInputs('new'));await saveStudentTuition(data.id,'new');$('studentForm').reset();syncStudentClassSelects();renderTuitionStudentFields();fillCustomInputs('new');msg('studentMessage','학생이 등록되었습니다.');closeStudentRegistration();await loadStudents();await loadAttendance()}catch(err){msg('studentMessage','학생 등록 실패: '+err.message,true)}finally{btn.disabled=false}};
 function openStudentEdit(s){editingStudent=s;if(s.class_name&&!Array.from($('editClass').options).some(o=>o.value===s.class_name))$('editClass').append(new Option(s.class_name+' (기존 입력)',s.class_name));for(const [field,id] of Object.entries(editInput))$(id).value=s[field]||'';fillCustomInputs('edit',studentExtras[s.id]||{});fillStudentTuition(s);$('editMessage').textContent='';$('editOverlay').classList.remove('hidden')}
 $('cancelEdit').onclick=()=>{$('editOverlay').classList.add('hidden');editingStudent=null};
 $('editStudentForm').onsubmit=async e=>{e.preventDefault();if(!editingStudent||!currentDojo)return;const btn=$('saveEdit');btn.disabled=true;try{const payload=studentPayload(editInput),dojoId=currentDojo.id;const {error}=await db.from('platform_students').update(payload).eq('id',editingStudent.id).eq('dojo_id',dojoId);if(error)throw error;await saveExtra(editingStudent.id,readCustomInputs('edit'));await saveStudentTuition(editingStudent.id,'edit');$('editOverlay').classList.add('hidden');editingStudent=null;await loadStudents();await loadAttendance();msg('studentMessage','수정되었습니다.')}catch(err){msg('editMessage','수정 실패: '+err.message,true)}finally{btn.disabled=false}};
