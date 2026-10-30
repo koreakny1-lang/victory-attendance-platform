@@ -382,6 +382,26 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 }
 @media screen and (max-width:600px){#page-students #studentRegisterPanel{padding:18px!important}#page-students .student-list-panel .tools button{width:auto!important}}
 </style>
+<style id="inline-student-edit-style">
+@media screen{
+ #page-students .student-table-scroll{overflow-x:auto}
+ #page-students .inline-student-table{min-width:1170px;width:100%;border-collapse:collapse}
+ #page-students .inline-student-table th{white-space:nowrap;padding:12px 8px}
+ #page-students .inline-student-table td{padding:5px 4px;vertical-align:middle}
+ #page-students .inline-student-table .student-edit-cell{min-width:80px}
+ #page-students .inline-student-table .student-edit-cell:nth-child(4){min-width:145px}
+ #page-students .inline-student-table .student-edit-cell:nth-child(9){min-width:135px}
+ #page-students .student-inline-input{width:100%;min-width:0;min-height:34px!important;height:34px!important;padding:5px 7px!important;font-size:12px!important;border:1px solid transparent!important;background:transparent!important;border-radius:6px!important;text-align:center;box-shadow:none!important}
+ #page-students .student-inline-input:hover,#page-students .student-inline-input:focus{border-color:#9bb6dd!important;background:#f2f7ff!important}
+ #page-students .student-dirty{background:#fff8e9!important}
+ #page-students .student-dirty .student-inline-input{border-bottom-color:#e2bf78!important}
+ #page-students .student-inline-save{padding:7px 10px!important;font-size:12px!important;white-space:nowrap}
+ #page-students .student-inline-save:disabled{background:#e9eef5!important;color:#9aa8b9!important;cursor:default}
+ #page-students .student-inline-notice{display:block;font-size:10px;color:#59718d;white-space:nowrap;margin-top:3px}
+ #page-students .inline-student-table .student-row-actions{min-width:75px}
+ #page-students .inline-student-table .student-status-select{min-width:78px;min-height:34px!important;padding:5px!important;font-size:12px!important}
+}
+</style>
 </head>
 <body>
 <header><h1>태권도 출석관리</h1><p>우리 아이의 안전한 하루, 스마트한 출석관리</p></header>
@@ -863,28 +883,58 @@ function renderStudentList(){
  const box=$('studentsList');box.replaceChildren();
  const q=$('studentSearch').value.trim().toLowerCase(),status=$('studentStatusFilter').value;
  const priority={'재원':0,'휴원':1,'퇴원':2};
- const filtered=allStudents.filter(s=>(!status||s.status===status)&&(!q||[s.name,s.pin,s.class_name,s.school,s.grade,s.belt,s.parent_phone].some(x=>String(x||'').toLowerCase().includes(q))))
+ const filtered=allStudents.filter(s=>(!status||s.status===status)&&(!q||[s.name,s.pin,s.class_name,s.school,s.grade,s.belt,s.parent_phone,s.birth_date].some(x=>String(x||'').toLowerCase().includes(q))))
   .sort((a,b)=>(priority[a.status]??3)-(priority[b.status]??3)||a.name.localeCompare(b.name,'ko'));
- $('studentCount').textContent='검색 결과 '+filtered.length+'명 / 전체 '+allStudents.length+'명';
- const table=document.createElement('table');table.className='student-data-table';
+ $('studentCount').textContent='검색 결과 '+filtered.length+'명 / 전체 '+allStudents.length+'명 · 셀을 클릭해 수정한 뒤 오른쪽 [저장]을 누르세요.';
+ const table=document.createElement('table');table.className='student-data-table inline-student-table';
  const thead=document.createElement('thead'),head=document.createElement('tr');
- ['번호','이름','출석번호','학부모 연락처','수련반','학교','학년','띠','상태','관리'].forEach(t=>{const th=document.createElement('th');th.textContent=t;head.append(th)});
+ ['번호','이름','출석번호','학부모 연락처','수련반','학교','학년','띠','생년월일','상태','관리'].forEach(t=>{const th=document.createElement('th');th.textContent=t;head.append(th)});
  thead.append(head);table.append(thead);
  const tbody=document.createElement('tbody');
  filtered.forEach((s,i)=>{
-  const tr=document.createElement('tr');
+  const tr=document.createElement('tr');tr.dataset.studentId=s.id;
   const cell=value=>{const td=document.createElement('td');td.textContent=value??'-';tr.append(td);return td};
-  cell(i+1);const name=cell(s.name);name.className='student-name-cell';
-  cell(s.pin||'-');cell(s.parent_phone||'-');cell(s.class_name||'-');cell(s.school||'-');cell(s.grade||'-');cell(s.belt||'-');
+  cell(i+1);
+  const fields=['name','pin','parent_phone','class_name','school','grade','belt','birth_date'];
+  const inputs={};const original={};
+  const save=document.createElement('button');save.type='button';save.className='mini student-inline-save';save.textContent='저장';save.disabled=true;
+  const notice=document.createElement('span');notice.className='student-inline-notice';notice.setAttribute('role','status');
+  const mark=()=>{const dirty=fields.some(k=>(inputs[k].value.trim()||'')!==(original[k]||''))||statusSelect.value!==(s.status||'재원');save.disabled=!dirty;tr.classList.toggle('student-dirty',dirty);notice.textContent=dirty?'수정 중':''};
+  for(const field of fields){
+   const td=document.createElement('td');td.className='student-edit-cell';
+   const input=document.createElement('input');input.className='student-inline-input';input.type=field==='birth_date'?'date':'text';
+   if(field==='pin'){input.inputMode='numeric';input.maxLength=4;input.pattern='[0-9]{4}'}
+   if(field==='parent_phone')input.type='tel';
+   input.value=s[field]||'';original[field]=s[field]||'';
+   input.setAttribute('aria-label',s.name+' '+({name:'이름',pin:'출석번호',parent_phone:'학부모 연락처',class_name:'수련반',school:'학교',grade:'학년',belt:'띠',birth_date:'생년월일'}[field]));
+   input.addEventListener('input',mark);input.addEventListener('change',mark);
+   inputs[field]=input;td.append(input);tr.append(td);
+  }
   const statusTd=document.createElement('td');
-  const change=document.createElement('select');change.className='student-status-select';change.setAttribute('aria-label',s.name+' 상태 변경');
-  [['재원','재원생'],['휴원','휴관'],['퇴원','퇴원']].forEach(([v,t])=>change.add(new Option(t,v)));
-  change.value=s.status||'재원';
-  change.onchange=async()=>{const next=change.value;change.disabled=true;try{const {error}=await db.from('platform_students').update({status:next}).eq('dojo_id',currentDojo.id).eq('id',s.id);if(error)throw error;await loadStudents();await loadAttendance();msg('studentMessage',s.name+' 학생 상태가 변경되었습니다.')}catch(e){change.value=s.status;alert('상태 변경 실패: '+e.message)}finally{change.disabled=false}};
-  statusTd.append(change);tr.append(statusTd);
-  const actions=document.createElement('td');actions.className='student-row-actions';
-  const edit=document.createElement('button');edit.type='button';edit.className='alt mini';edit.textContent='수정';edit.onclick=()=>openStudentEdit(s);actions.append(edit);
-  if(s.status==='퇴원'){const del=document.createElement('button');del.type='button';del.className='alt mini';del.textContent='삭제';del.onclick=()=>deleteRetiredStudent(s);actions.append(del)}
+  const statusSelect=document.createElement('select');statusSelect.className='student-status-select';statusSelect.setAttribute('aria-label',s.name+' 상태 변경');
+  [['재원','재원생'],['휴원','휴관'],['퇴원','퇴원']].forEach(([v,t])=>statusSelect.add(new Option(t,v)));
+  statusSelect.value=s.status||'재원';statusSelect.addEventListener('change',mark);statusTd.append(statusSelect);tr.append(statusTd);
+  const actions=document.createElement('td');actions.className='student-row-actions';actions.append(save,notice);
+  save.onclick=async()=>{
+   if(!currentDojo)return;
+   const payload=Object.fromEntries(fields.map(k=>[k,inputs[k].value.trim()||null]));payload.status=statusSelect.value;
+   if(!payload.name){alert('학생 이름을 입력해 주세요.');inputs.name.focus();return}
+   if(!/^\d{4}$/.test(payload.pin||'')){alert('출석번호는 숫자 4자리여야 합니다.');inputs.pin.focus();return}
+   if(allStudents.some(other=>other.id!==s.id&&other.pin===payload.pin)){alert('같은 도장에 이미 사용 중인 출석번호입니다.');inputs.pin.focus();return}
+   if(payload.birth_date&&!/^\d{4}-\d{2}-\d{2}$/.test(payload.birth_date)){alert('생년월일을 확인해 주세요.');return}
+   save.disabled=true;notice.textContent='저장 중...';
+   const dojoId=currentDojo.id;
+   try{
+    const {data,error}=await db.from('platform_students').update(payload).eq('dojo_id',dojoId).eq('id',s.id).select('id');
+    if(error)throw error;if(!data?.length)throw Error('수정 권한이 없거나 해당 학생을 찾을 수 없습니다.');
+    if(currentDojo?.id!==dojoId)return;
+    Object.assign(s,payload);notice.textContent='저장 완료';tr.classList.remove('student-dirty');
+    await loadStudents();await loadAttendance();msg('studentMessage',s.name+' 학생 정보가 저장되었습니다.');
+   }catch(e){notice.textContent='저장 실패';alert('학생 정보 저장 실패: '+e.message);save.disabled=false}
+  };
+  if(s.status==='퇴원'){
+   const del=document.createElement('button');del.type='button';del.className='alt mini';del.textContent='삭제';del.onclick=()=>deleteRetiredStudent(s);actions.append(del)
+  }
   tr.append(actions);tbody.append(tr);
  });
  table.append(tbody);box.append(table);
