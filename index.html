@@ -532,6 +532,16 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
  #page-manual #manualGrid .attile:hover{border-color:#7699c8!important;transform:translateY(-1px)}
 }
 @media screen and (max-width:700px){#page-manual #manualGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+
+/* 도장 운영 현황 */
+#page-insights .insight-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+#page-insights .insight-stat{background:#f2f5f9;border:1px solid #e0e7ef;border-radius:12px;padding:16px;text-align:center;color:#183b68}
+#page-insights .insight-stat strong{display:block;font-size:26px;margin-top:5px}
+#page-insights .insight-list{display:grid;gap:7px;margin-top:12px}
+#page-insights .insight-person{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 13px;border:1px solid #e1e7ef;border-radius:10px;background:#fafbfd}
+#page-insights .insight-person small{color:#53657c}
+#page-insights .insight-warn{color:#9a4a08;font-weight:700}
+@media(max-width:600px){#page-insights .insight-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#page-insights .insight-stat{padding:12px}#page-insights .insight-person{flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -554,6 +564,7 @@ input:focus,select:focus{border-color:#c69c37!important;box-shadow:0 0 0 3px #d6
 <div class="stats"><div class="stat"><strong id="countAll">0</strong>전체</div><div class="stat"><strong id="countPresent">0</strong>출석</div><div class="stat"><strong id="countMissing">0</strong>미출석</div></div>
 <div id="attendanceGrid" class="attendance-grid"></div><p id="attendanceMessage" class="message" role="status"></p>
 </div></div>
+<div id="page-insights" class="page"><div class="card"><div class="row"><h2>오늘의 출석 현황</h2><button type="button" class="alt" id="reloadInsights">새로고침</button></div><p class="muted">재원생 전체 기준입니다. 실제 수련 요일을 설정하지 않은 학생도 포함되므로 출석률은 참고용입니다.</p><div class="insight-stats"><div class="insight-stat">재원생<strong id="insightTotal">-</strong></div><div class="insight-stat">오늘 출석<strong id="insightPresent">-</strong></div><div class="insight-stat">오늘 미출석<strong id="insightAbsent">-</strong></div><div class="insight-stat">출석률<strong id="insightRate">-</strong></div></div><p id="insightMessage" class="message" role="status"></p></div><div class="card"><h2>장기 미출석 확인</h2><p class="muted">최근 출석일로부터 지난 <b>달력 날짜</b>를 기준으로 3일·5일·7일 이상을 표시합니다. 주말, 공휴일, 휴관일, 개인별 수련 요일은 제외되지 않으므로 상담 전 확인해 주세요. 출석 기록이 없는 신규 학생은 별도 표시합니다.</p><div class="tools"><label>기준<select id="insightThreshold"><option value="3">3일 이상</option><option value="5">5일 이상</option><option value="7">7일 이상</option></select></label><input type="search" id="insightSearch" placeholder="학생 이름 검색" aria-label="장기 미출석 학생 검색"></div><div id="insightAbsenceList" class="insight-list"></div></div></div>
 <div id="page-monthly" class="page"><div class="card"><h2 id="monthlyPrintTitle">월별 출석부</h2><div class="tools no-print"><label>조회 월<input id="monthInput" type="month"></label><button id="loadMonthly" type="button">조회</button><button id="printMonthly" class="alt" type="button">A4 인쇄</button><button id="exportMonthly" class="alt" type="button">엑셀 파일 다운로드</button></div><p id="monthlyMessage" class="muted"></p><div id="monthlyTable" class="scroll"></div><div id="monthlyPrintPages" aria-hidden="true"></div></div></div>
 <div id="page-manual" class="page"><div class="card"><h2>터치 출석</h2><p class="muted">한 번 누르면 출석, 다시 누르면 출석 취소됩니다. 이 화면에서는 귀가 처리하지 않습니다. 학부모 알림도 발송하지 않습니다.</p><div id="manualGrid" class="attendance-grid"></div></div></div>
 <div id="page-students" class="page"><div class="students-layout"><section class="card student-list-panel"><div class="student-heading"><h2>수련생 관리</h2><button id="openStudentRegister" type="button">+ 학생 등록</button></div><p class="muted">재원생 → 휴관 → 퇴원생 순서로 표시됩니다. 상태 변경에서 재원·휴관·퇴원을 선택할 수 있습니다.</p><div class="tools"><input id="studentSearch" type="search" placeholder="이름·번호·학교·수련반 검색"><select id="studentStatusFilter"><option value="">전체</option><option value="재원">재원생</option><option value="휴원">휴관</option><option value="퇴원">퇴원생</option></select><button id="exportStudents" class="alt" type="button">명단 CSV</button></div><p id="studentCount" class="muted"></p><div id="studentsList" class="scroll student-table-scroll"></div></section><section class="card student-register-panel hidden" id="studentRegisterPanel" role="dialog" aria-modal="true" aria-labelledby="registerTitle"><div class="student-heading"><h2 id="registerTitle">학생 등록</h2><button id="closeStudentRegister" type="button" class="alt">닫기 ✕</button></div><p class="muted">새로운 수련생의 기본 정보를 입력해 주세요.</p><form id="studentForm"><label for="studentName">학생 이름</label><input id="studentName" required maxlength="80"><label for="studentPin">출석번호 4자리</label><input id="studentPin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required placeholder="숫자 4자리"><div class="field-grid"><label>학부모 연락처<input id="studentPhone" type="tel"></label><label style="display:none!important" aria-hidden="true">수련반 동기화<select id="studentClass" tabindex="-1"></select></label><label>학교<input id="studentSchool"></label><label>학년<input id="studentGrade"></label><label>띠<input id="studentBelt"></label><label>생년월일<input id="studentBirth" type="date"></label></div><div id="tuitionStudentNew" class="field-grid" style="margin-top:12px"></div><div id="studentCustomFields" class="field-grid" style="margin-top:12px"></div><button id="studentButton" class="full" type="submit">학생 등록하기</button></form><p id="studentMessage" class="message" role="status"></p><p class="note">학부모 공용 페이지에서 출석사진을 확인할 수 있습니다. 학부모는 도장별 공용 주소에서 전화번호로 출결을 조회합니다. 학생용 번호 출석체크는 [주소 관리]에서 연결할 수 있습니다. 관리자 터치 출석은 알림을 발송하지 않습니다.</p></section></div></div>
@@ -585,10 +596,10 @@ const db=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,d
 const $=id=>document.getElementById(id);
 let mode='login',currentDojo=null,sessionUser=null;
 let masterDojos=[],masterStats=new Map(),masterRequest=0,masterDeletionDates=new Map();
-const menus=[['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['tuition','수련비 관리'],['vehicle','차량운행'],['links','주소 관리']];
+const menus=[['insights','운영 현황'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['tuition','수련비 관리'],['vehicle','차량운행'],['links','주소 관리']];
 let monthlyRows=[],monthlyDays=0;
 let vehiclePlaces=[],vehicleRides=[],vehicleEditing=null;
-function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#homeButtons button')){b.classList.toggle('active',b.dataset.page===name);b.setAttribute('aria-current',b.dataset.page===name?'page':'false')}if(name==='monthly')loadMonthly();if(name==='vehicle')loadVehicle();if(name==='tuition'){loadTuitionPlans().then(()=>loadTuition()).catch(e=>msg('tuitionMessage','수련비 조회 오류: '+e.message,true))};if(name==='program')loadTuitionPlans();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
+function showPage(name){for(const [id] of menus){$('page-'+id).classList.toggle('active',id===name)}for(const b of document.querySelectorAll('#homeButtons button')){b.classList.toggle('active',b.dataset.page===name);b.setAttribute('aria-current',b.dataset.page===name?'page':'false')}if(name==='insights')loadInsights();if(name==='monthly')loadMonthly();if(name==='vehicle')loadVehicle();if(name==='tuition'){loadTuitionPlans().then(()=>loadTuition()).catch(e=>msg('tuitionMessage','수련비 조회 오류: '+e.message,true))};if(name==='program')loadTuitionPlans();if(name==='attendance'||name==='manual')loadAttendance();if(name==='students'||name==='birthday')loadStudents()}
 function buildMenu(){const menu=$('adminMenu'),home=$('homeButtons');menu.replaceChildren();home.replaceChildren();for(const [id,label] of menus){const c=document.createElement('button');c.type='button';c.dataset.page=id;c.textContent=label;c.onclick=()=>showPage(id);home.append(c)}showPage('monthly')}
 buildMenu();
 $('createKioskLink').onclick=async()=>{
@@ -1136,6 +1147,40 @@ $('saveSettings').onclick=async()=>{if(!currentDojo)return;const theme={primary:
 
 function todayKST(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}
 function timeKST(v){return v?new Date(v).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit'}):'-'}
+let insightRows=[];
+function renderInsightAbsences(){
+ const list=$('insightAbsenceList');list.replaceChildren();
+ const threshold=Number($('insightThreshold').value),query=$('insightSearch').value.trim().toLowerCase();
+ const shown=insightRows.filter(x=>x.days===null||x.days>=threshold).filter(x=>x.name.toLowerCase().includes(query));
+ if(!shown.length){const p=document.createElement('p');p.className='muted';p.textContent='해당하는 학생이 없습니다.';list.append(p);return}
+ for(const st of shown){const row=document.createElement('div');row.className='insight-person';const name=document.createElement('strong');name.textContent=st.name;
+ const status=document.createElement('small');status.textContent=st.days===null?'출석 기록 없음':`최근 출석 ${st.last} · ${st.days}일 경과`;
+ if(st.days===null||st.days>=7)status.classList.add('insight-warn');row.append(name,status);list.append(row)}
+}
+async function loadInsights(){
+ if(!currentDojo)return;
+ const dojoId=currentDojo.id,today=todayKST();
+ msg('insightMessage','현황을 불러오는 중...');
+ const [sr,ar]=await Promise.all([
+  db.from('platform_students').select('id,name,status').eq('dojo_id',dojoId).order('name'),
+  db.from('platform_attendance').select('student_id,attendance_date').eq('dojo_id',dojoId).lte('attendance_date',today).order('attendance_date',{ascending:false}).range(0,9999)
+ ]);
+ if(currentDojo?.id!==dojoId)return;
+ if(sr.error||ar.error){msg('insightMessage','조회 실패: '+(sr.error?.message||ar.error?.message),true);return}
+ const students=(sr.data||[]).filter(x=>x.status==='재원');
+ const records=ar.data||[];const todaySet=new Set(records.filter(x=>x.attendance_date===today).map(x=>x.student_id));
+ const lastMap=new Map();for(const r of records){if(!lastMap.has(r.student_id))lastMap.set(r.student_id,r.attendance_date)}
+ const present=students.filter(x=>todaySet.has(x.id)).length;
+ $('insightTotal').textContent=students.length;$('insightPresent').textContent=present;$('insightAbsent').textContent=students.length-present;
+ $('insightRate').textContent=students.length?(present/students.length*100).toFixed(1)+'%':'0%';
+ const todayUTC=Date.parse(today+'T00:00:00Z');
+ insightRows=students.map(st=>{const last=lastMap.get(st.id)||null;return {name:st.name,last,days:last?Math.max(0,Math.round((todayUTC-Date.parse(last+'T00:00:00Z'))/86400000)):null}}).sort((a,b)=>(b.days??99999)-(a.days??99999)||a.name.localeCompare(b.name,'ko'));
+ msg('insightMessage',`오늘 ${today} 기준 · 출석 기록 ${records.length}건 조회`);
+ renderInsightAbsences();
+}
+$('reloadInsights').onclick=loadInsights;
+$('insightThreshold').onchange=renderInsightAbsences;
+$('insightSearch').oninput=renderInsightAbsences;
 let attendanceBusy=false;
 async function loadAttendance(){
  if(!currentDojo)return;
