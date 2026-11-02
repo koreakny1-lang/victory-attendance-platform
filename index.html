@@ -596,6 +596,7 @@ const KEY='sb_publishable_lmwJJaHfZzE5hXnZnF49oA__F7JpDZ8';
 const db=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id);
 let mode='login',currentDojo=null,sessionUser=null;
+let tuitionPlans=[],tuitionAssignments={},tuitionPayments={},tuitionMonthRows=[],tuitionBusy=false,tuitionPreviousMethods={};
 let masterDojos=[],masterStats=new Map(),masterRequest=0,masterDeletionDates=new Map();
 const menus=[['insights','운영 현황'],['monthly','월별 출석부'],['manual','터치 출석'],['attendance','출결 관리'],['students','수련생 관리'],['birthday','생일 관리'],['program','프로그램 관리'],['tuition','수련비 관리'],['vehicle','차량운행'],['links','주소 관리']];
 let monthlyRows=[],monthlyDays=0;
@@ -1509,7 +1510,7 @@ await refresh();
 document.getElementById('copyParentCommon').onclick=async()=>{const el=document.getElementById('parentCommonAddress');if(!el.value){document.getElementById('parentCommonMessage').textContent='먼저 도장을 선택하세요.';return}try{await navigator.clipboard.writeText(el.value);document.getElementById('parentCommonMessage').textContent='공용 주소를 복사했습니다.'}catch{el.select();document.execCommand('copy')}};
 
 // 수련비 관리 — 도장별 데이터 격리, 월별 청구금액 고정, 변경 이력
-let tuitionPlans=[],tuitionAssignments={},tuitionPayments={},tuitionMonthRows=[],tuitionBusy=false,tuitionPreviousMethods={};
+// 수련비 상태 변수는 초기 비동기 로그인/도장 조회보다 앞에서 선언합니다.
 const defaultTuitionPlan=()=>tuitionPlans.find(p=>p.is_default)||null;
 const won=n=>Number(n||0).toLocaleString('ko-KR')+'원';
 function tuitionCurrentMonth(){return todayKST().slice(0,7)}
