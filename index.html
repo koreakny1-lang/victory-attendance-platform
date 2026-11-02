@@ -1050,8 +1050,11 @@ async function saveAllStudentEdits(){
  const edits=[];
  try{
   for(const row of rows){
-   const inputs=[...row.querySelectorAll('input.student-inline-input')];
-   const payload=Object.fromEntries(fields.map((field,i)=>[field,inputs[i].value.trim()||null]));
+   const payload=Object.fromEntries(fields.map(field=>{
+    const control=row.querySelector('[data-student-field="'+field+'"]');
+    if(!control)throw Error('학생 수정 항목을 찾을 수 없습니다: '+field);
+    return [field,control.value.trim()||null];
+   }));
    payload.birth_date=normalizeBirthDate(payload.birth_date);payload.status=row.querySelector('select.student-status-select').value;
    if(!payload.name)throw Error('이름을 입력해 주세요.');
    if(!/^\d{4}$/.test(payload.pin||''))throw Error(payload.name+' 학생의 출석번호는 숫자 4자리여야 합니다.');
@@ -1105,7 +1108,7 @@ function renderStudentList(){
   const mark=()=>{const dirty=fields.some(k=>(inputs[k].value.trim()||'')!==(original[k]||''))||statusSelect.value!==(s.status||'재원');save.disabled=!dirty;tr.classList.toggle('student-dirty',dirty);notice.textContent=dirty?'수정 중':'';updateBulkStudentButton()};
   for(const field of fields){
    const td=document.createElement('td');td.className='student-edit-cell';
-   const input=document.createElement(field==='class_name'?'select':'input');input.className='student-inline-input';
+   const input=document.createElement(field==='class_name'?'select':'input');input.className='student-inline-input';input.dataset.studentField=field;
    if(field==='class_name'){
     input.append(new Option('수련반 미지정',''));
     for(const plan of tuitionPlans)input.append(new Option(plan.name,plan.name));
