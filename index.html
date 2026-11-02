@@ -1139,13 +1139,32 @@ function renderStudentList(){
 }
 async function deleteRetiredStudent(s){
  if(s.status!=='퇴원'||!currentDojo)return;
- if(!confirm(s.name+' 퇴원생을 영구 삭제하시겠습니까?\n연결된 출석·수련비 기록이 있으면 데이터 보호를 위해 삭제가 거부될 수 있습니다.'))return;
+ const dojoId=currentDojo.id;
+ if(!confirm(s.name+' 퇴원생을 영구 삭제하시겠습니까?\n이 학생의 출석·수련비·차량·추가정보 기록도 함께 삭제됩니다. 복구할 수 없습니다.'))return;
+ if(prompt('삭제를 확인하려면 학생 이름을 입력하세요.')!==s.name)return;
+ const related=[
+  'platform_tuition_payments',
+  'platform_tuition_month_students',
+  'platform_student_tuition',
+  'platform_vehicle_rides',
+  'platform_attendance',
+  'platform_student_custom_values'
+ ];
  try{
-  const {data,error}=await db.from('platform_students').delete().eq('dojo_id',currentDojo.id).eq('id',s.id).eq('status','퇴원').select('id');
+  const {data:check,error:checkError}=await db.from('platform_students').select('id,status').eq('dojo_id',dojoId).eq('id',s.id).single();
+  if(checkError)throw checkError;
+  if(check.status!=='퇴원')throw Error('퇴원 상태인 학생만 삭제할 수 있습니다.');
+  for(const table of related){
+   const {error}=await db.from(table).delete().eq('dojo_id',dojoId).eq('student_id',s.id);
+   if(error)throw Error(table+' 관련 기록 삭제 실패: '+error.message);
+  }
+  const {data,error}=await db.from('platform_students').delete().eq('dojo_id',dojoId).eq('id',s.id).eq('status','퇴원').select('id');
   if(error)throw error;
-  if(!data?.length)throw Error('삭제 권한이 없거나 이미 삭제된 학생입니다.');
-  await loadStudents();await loadAttendance();msg('studentMessage',s.name+' 퇴원생을 삭제했습니다.');
- }catch(e){alert('삭제하지 못했습니다. 기존 출석·납부 기록과 연결되어 있거나 삭제 권한이 없을 수 있습니다.\n'+e.message)}
+  if(!data?.length)throw Error('학생 정보 삭제 권한이 없거나 이미 삭제된 학생입니다.');
+  await loadStudents();await loadAttendance();msg('studentMessage',s.name+' 학생과 연결된 기록을 삭제했습니다.');
+ }catch(e){
+  alert('삭제가 완료되지 않았습니다.\n'+e.message+'\n\n일부 연결 기록은 이미 삭제되었을 수 있습니다. 데이터베이스 권한 또는 정책 확인이 필요합니다.');
+ }
 }
 function closeStudentRegistration(){const panel=$('studentRegisterPanel');panel.classList.add('hidden');document.body.classList.remove('student-register-open');$('openStudentRegister').focus()}
 $('openStudentRegister').onclick=()=>{$('studentRegisterPanel').classList.remove('hidden');document.body.classList.add('student-register-open');$('studentName').focus()};
