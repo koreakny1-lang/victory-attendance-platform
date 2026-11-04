@@ -1036,7 +1036,8 @@ function normalizeBirthDate(raw){
 }
 function attachBirthInput(id){const el=$(id);if(!el)return;el.addEventListener('blur',()=>{try{const value=normalizeBirthDate(el.value);if(value)el.value=value}catch(e){/* 저장 시 오류 안내 */}})}
 ['studentBirth','editBirth'].forEach(attachBirthInput);
-function studentPayload(inputs){const obj={};for(const [key,id] of Object.entries(inputs))obj[key]=$(id).value.trim()||null;obj.name=(obj.name||'').trim();obj.pin=(obj.pin||'').trim();obj.birth_date=normalizeBirthDate(obj.birth_date);if(!obj.name)throw Error('학생 이름을 입력하세요.');if(!/^\d{4}$/.test(obj.pin))throw Error('출석번호는 숫자 4자리여야 합니다.');return obj}
+function normalizeParentPhone(raw){const digits=String(raw||'').replace(/\D/g,'');if(!digits)return null;if(!/^01[016789]\d{7,8}$/.test(digits))throw Error('학부모 연락처는 01012345678 형식의 휴대전화번호로 입력해 주세요.');return digits;}
+function studentPayload(inputs){const obj={};for(const [key,id] of Object.entries(inputs))obj[key]=$(id).value.trim()||null;obj.name=(obj.name||'').trim();obj.pin=(obj.pin||'').trim();obj.birth_date=normalizeBirthDate(obj.birth_date);obj.parent_phone=normalizeParentPhone(obj.parent_phone);if(!obj.name)throw Error('학생 이름을 입력하세요.');if(!/^\d{4}$/.test(obj.pin))throw Error('출석번호는 숫자 4자리여야 합니다.');return obj}
 async function loadStudents(){if(!currentDojo)return;const dojoId=currentDojo.id;const {data,error}=await db.from('platform_students').select('id,name,pin,status,parent_phone,class_name,school,grade,belt,birth_date').eq('dojo_id',dojoId).order('name');if(currentDojo?.id!==dojoId)return;if(error){msg('studentMessage','학생 조회 실패: '+error.message,true);return}allStudents=data||[];const {data:extras,error:extraError}=await db.from('platform_student_custom_values').select('student_id,values_json').eq('dojo_id',dojoId);studentExtras=Object.fromEntries((extras||[]).map(x=>[x.student_id,x.values_json||{}]));if(extraError&&customFields.length)msg('studentMessage','추가 항목 조회 오류: '+extraError.message,true);renderStudentList();renderBirthdays()}
 function updateBulkStudentButton(){
  const btn=$('saveAllStudentEdits');if(!btn)return;
@@ -1055,7 +1056,7 @@ async function saveAllStudentEdits(){
     if(!control)throw Error('학생 수정 항목을 찾을 수 없습니다: '+field);
     return [field,control.value.trim()||null];
    }));
-   payload.birth_date=normalizeBirthDate(payload.birth_date);payload.status=row.querySelector('select.student-status-select').value;
+   payload.birth_date=normalizeBirthDate(payload.birth_date);payload.parent_phone=normalizeParentPhone(payload.parent_phone);payload.status=row.querySelector('select.student-status-select').value;
    if(!payload.name)throw Error('이름을 입력해 주세요.');
    if(!/^\d{4}$/.test(payload.pin||''))throw Error(payload.name+' 학생의 출석번호는 숫자 4자리여야 합니다.');
    edits.push({row,id:row.dataset.studentId,payload});
